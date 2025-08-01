@@ -19,8 +19,17 @@
         >
             カメラ接続
         </button>
+
         <button>重点エリア設定</button>
-        <button>クラウド設定</button>
+        
+        <button
+            hx-get="/panel/cloud/{{ magistrate_id }}"
+            hx-target="#config-panel"
+            hx-swap="outerHTML"
+        >
+            クラウド設定
+        </button>
+        
         <button>アラート設定</button>
     </div>
 

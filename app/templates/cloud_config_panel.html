@@ -1,0 +1,92 @@
+<div id="config-panel">
+    <div class="panel-header">
+        <h2>クライアント {{ magistrate_id }} - クラウド設定</h2>
+    </div>
+
+    <form
+        hx-post="/panel/cloud/{{ magistrate_id }}"
+        hx-target="#config-panel"
+        hx-swap="outerHTML"
+    >
+        <fieldset class="config-fieldset">
+            <legend>不審者アップロード (Suspicious Person Upload)</legend>
+            <table class="config-table">
+                <tbody>
+                    <tr>
+                        <td><label for="sceptical_device_id">デバイスID</label></td>
+                        <td><input type="text" id="sceptical_device_id" name="sceptical_device_id" value="{{ config.sceptical_image.device_id }}"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="sceptical_action_code">アクションコード</label></td>
+                        <td><input type="text" id="sceptical_action_code" name="sceptical_action_code" value="{{ config.sceptical_image.action_code }}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <fieldset class="config-fieldset">
+            <legend>従業員アップロード (Employee Upload)</legend>
+            <table class="config-table">
+                <tbody>
+                    <tr>
+                        <td><label for="patrol_device_id">デバイスID</label></td>
+                        <td><input type="text" id="patrol_device_id" name="patrol_device_id" value="{{ config.patrol_image.device_id }}"></td>
+                    </tr>
+                    <tr>
+                        <td><label for="patrol_action_code">アクションコード</label></td>
+                        <td><input type="text" id="patrol_action_code" name="patrol_action_code" value="{{ config.patrol_image.action_code }}"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <div class="panel-footer" style="justify-content: flex-end;">
+            <button
+                type="button"
+                hx-get="/panel/magistrate/{{ magistrate_id }}"
+                hx-target="#main-content"
+                hx-swap="innerHTML"
+            >
+                取り消し (Cancel)
+            </button>
+            
+            <button type="submit" class="primary">
+                確認 (Confirm)
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .config-fieldset {
+        border: 1px solid #555;
+        border-radius: 8px;
+        padding: 1.5em;
+        margin-bottom: 2em;
+    }
+    .config-fieldset legend {
+        padding: 0 0.5em;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .config-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .config-table td {
+        padding: 12px;
+        border-bottom: 1px solid #444;
+    }
+    .config-table td:first-child {
+        width: 150px;
+        font-weight: bold;
+    }
+    .config-table input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+    .panel-footer button {
+        margin-left: 10px;
+    }
+</style>

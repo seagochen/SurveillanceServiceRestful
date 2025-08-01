@@ -117,6 +117,52 @@ def update_magistrate_config(magistrate_id):
         return jsonify({"error": f"Failed to save configuration: {str(e)}"}), 500
 
 
+@main_bp.route('/panel/cloud/<int:magistrate_id>', methods=['GET'])
+def get_cloud_config_panel(magistrate_id):
+    """
+    显示指定 magistrate_id 的云配置面板。
+    """
+    try:
+        config_name = f"magistrate_config{magistrate_id}"
+        magistrate_config = utils.get_config(config_name)
+        
+        # 提取出 "cloud" 部分的配置
+        cloud_config = magistrate_config["client_magistrate"]["cloud"]
+        
+        return render_template('cloud_config_panel.html', magistrate_id=magistrate_id, config=cloud_config)
+    
+    except (FileNotFoundError, KeyError) as e:
+        return f"Error loading cloud config for magistrate {magistrate_id}: {e}", 404
+
+
+@main_bp.route('/panel/cloud/<int:magistrate_id>', methods=['POST'])
+def update_cloud_config_panel(magistrate_id):
+    """
+    更新并保存指定 magistrate_id 的云配置。
+    """
+    try:
+        config_name = f"magistrate_config{magistrate_id}"
+        config_data = utils.get_config(config_name)
+        
+        # 从表单中获取新数据
+        form_data = request.form
+        
+        # 更新内存中的配置字典
+        config_data["client_magistrate"]["cloud"]["sceptical_image"]["device_id"] = form_data.get("sceptical_device_id")
+        config_data["client_magistrate"]["cloud"]["sceptical_image"]["action_code"] = form_data.get("sceptical_action_code")
+        config_data["client_magistrate"]["cloud"]["patrol_image"]["device_id"] = form_data.get("patrol_device_id")
+        config_data["client_magistrate"]["cloud"]["patrol_image"]["action_code"] = form_data.get("patrol_action_code")
+
+        # 将修改后的完整配置写回文件
+        utils.save_config(config_name, config_data)
+        
+        # 保存成功后，重新渲染并返回上一级的面板
+        return render_template('panel.html', magistrate_id=magistrate_id)
+
+    except (FileNotFoundError, KeyError, ValueError) as e:
+        return f"Error updating cloud config for magistrate {magistrate_id}: {e}", 500
+
+
 # --- Pipeline 配置路由 ---
 
 @main_bp.route('/config/pipeline', methods=['GET'])
