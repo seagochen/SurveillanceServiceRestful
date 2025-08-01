@@ -1,0 +1,5 @@
+flask
+PyYAML
+pydantic
+Flask-CORS
+paho-mqtt

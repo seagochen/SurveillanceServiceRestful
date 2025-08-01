@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>嵌入式设备控制器</title>
+
+    <script src="{{ url_for('static', filename='js/htmx.min.js') }}"></script>
+    
+    <style>
+        /* 引入自定义 CSS */
+        @import url("{{ url_for('static', filename='css/custom.css') }}");
+    </style>
+
+</head>
+<body>
+    <h1>设备控制器</h1>
+
+    <div 
+        id="magistrate-grid-container"
+        class="status-grid"
+        hx-get="/get-magistrate-grid"
+        hx-trigger="load, every 3s"
+        hx-target="this"
+        hx-swap="innerHTML"
+    >
+        <div class="status-box status-disabled">クライアント 1</div>
+        <div class="status-box status-disabled">クライアント 2</div>
+        <div class="status-box status-disabled">クライアント 3</div>
+        <div class="status-box status-disabled">クライアント 4</div>
+        <div class="status-box status-disabled">クライアント 5</div>
+        <div class="status-box status-disabled">クライアント 6</div>
+        <div class="status-box status-disabled">クライアント 7</div>
+        <div class="status-box status-disabled">クライアント 8</div>
+    </div>
+
+    <hr style="border: 1px solid #444; margin: 40px 0;">
+    
+    <div 
+        class="pipeline-status-row"
+        hx-get="/get-pipeline-indicator"
+        hx-trigger="load, every 3s"
+        hx-target="#pipeline-indicator-light"
+        hx-swap="outerHTML"
+    >
+        <span class="label">Pipeline 接続状態</span>
+        
+        <div id="pipeline-indicator-light">
+            <div class="pipeline-indicator status-warning">Loading...</div>
+        </div>
+    </div>
+
+</body>
+</html>

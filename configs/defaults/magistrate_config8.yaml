@@ -1,0 +1,118 @@
+broker:
+  host: "localhost"
+  port: 1883
+  client_id: "magistrate_client_8"
+
+client_magistrate:
+  input_topic:    "pipeline_output"
+  subscribe_source: "pipeline_inference_8"
+  cache_retention_duration: 60 # seconds
+
+  key_area_settings:
+    alpha: 0.2
+    area:
+      - - 171
+        - 315
+      - - 340
+        - 306
+      - - 361
+        - 584
+      - - 104
+        - 578
+    color: '#FF0000'
+    real_width:  160  # centimeters
+    real_height: 300  # centimeters
+
+  key_area_strategy:
+
+    look_around:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the number of times
+      penalty_score: 5          # penalty score X times
+
+    theft_detection:
+      enable: true
+      threshold: 1              # when the event exceeds or reaches the number of times
+      penalty_score: 30         # penalty score X times
+
+    long_time_squat:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the seconds
+      penalty_score: 5          # penalty score X duration
+
+    loitering_distance:
+      enable: true
+      threshold: 500            # when the event exceeds or reaches the centimeters
+      penalty_score: 5          # penalty score X distance
+
+    loitering_reentry:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the number of times
+      penalty_score: 5          # penalty score X times
+
+    loitering_enter_area:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the number of times
+      penalty_score: 5          # penalty score X times
+
+
+  normal_area_strategy:
+
+    look_around:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the number of times
+      penalty_score: 5          # penalty score X times
+
+    theft_detection:
+      enable: true
+      threshold: 1              # when the event exceeds or reaches the number of times
+      penalty_score: 30         # penalty score X times
+
+    long_time_squat:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the seconds
+      penalty_score: 5          # penalty score X duration
+
+    loitering_distance:
+      enable: true
+      threshold: 500            # when the event exceeds or reaches the centimeters
+      penalty_score: 5          # penalty score X distance
+
+    loitering_reentry:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the number of times
+      penalty_score: 5          # penalty score X times
+
+    loitering_enter_area:
+      enable: true
+      threshold: 3              # when the event exceeds or reaches the number of times
+      penalty_score: 5          # penalty score X times
+
+  alert_settings:
+    level0: 0   # gray
+    level1: 5   # green
+    level2: 10  # cyan
+    level3: 15  # yellow
+    level4: 15  # orange
+    level5: 20  # red
+
+  cloud:
+    enable: true
+    blocking_duration: 300      # seconds
+    upload_level: 2
+
+    sceptical_image:
+      script: "/opt/SurveillanceService/cloud/upload_sceptical_image_to_cloud.sh"
+      device_id: "0000000055"
+      action_code: "998"
+
+    patrol_image:
+      script: "/opt/SurveillanceService/cloud/upload_confirmation_image_to_cloud.sh"
+      device_id: "0000000055"
+      action_code: "001"
+
+
+general_settings:
+  schema_config: "./configs/scheme.json"
+  use_enhanced_tracking: true
+  enable_debug_mode: false

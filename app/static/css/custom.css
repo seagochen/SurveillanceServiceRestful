@@ -1,0 +1,72 @@
+/* 基本页面样式 */
+body {
+    background-color: #120c0e;
+    color: #d9d8dc;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    margin: 2em;
+}
+
+/* 控制器主标题 */
+h1 {
+    font-size: 2.5em;
+    border-bottom: 1px solid #444;
+    padding-bottom: 10px;
+    margin-bottom: 30px;
+}
+
+/* 状态按钮网格容器 */
+.status-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 960px;
+    margin: 40px 0;
+    height: 250px;
+}
+
+/* 单个状态按钮的通用样式 */
+.status-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #555;
+    border-radius: 8px;
+    font-size: 1.5em;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+/* 状态颜色定义 */
+.status-enabled-online { background-color: #28a745; border-color: #28a745; color: #fff; } /* 绿色 */
+.status-enabled-offline { background-color: #dc3545; border-color: #dc3545; color: #fff; } /* 红色 */
+.status-disabled { background-color: #6c757d; border-color: #6c757d; color: #ccc; } /* 灰色 */
+
+/* Pipeline 状态行的容器 */
+.pipeline-status-row {
+    display: flex;
+    align-items: center;
+    margin-top: 40px;
+    font-size: 1.5em;
+}
+
+/* Pipeline 状态标签 */
+.pipeline-status-row .label {
+    margin-right: 20px;
+    font-weight: bold;
+}
+
+/* Pipeline 状态指示灯本身的样式 */
+.pipeline-indicator {
+    padding: 8px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    border: 2px solid;
+    text-align: center;
+}
+
+/* 指示灯颜色定义 */
+.pipeline-indicator.status-ok { color: white; background-color: #28a745; border-color: #28a745; }
+.pipeline-indicator.status-error { color: white; background-color: #dc3545; border-color: #dc3545; }
+.pipeline-indicator.status-warning { color: black; background-color: #ffc107; border-color: #ffc107; }

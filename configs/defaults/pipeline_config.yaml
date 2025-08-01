@@ -1,0 +1,150 @@
+broker:
+  host: "localhost"
+  port: 1883
+  client_id: "pipeline_client"
+
+client_pipeline:
+  debug_mode: true
+  window_title: "Pipeline Monitor"
+  output_topic: "pipeline_output"
+  enable_sources:
+    - "pipeline_inference_1"
+    - "pipeline_inference_2"
+    - "pipeline_inference_3"
+    - "pipeline_inference_4"
+    - "pipeline_inference_5"
+    - "pipeline_inference_6"
+    - "pipeline_inference_7"
+    - "pipeline_inference_8"
+
+
+  pipeline_inference_1:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:     5 # -1 default for real-time RTSP streaming
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"
+
+  pipeline_inference_2:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:    5
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"
+
+  pipeline_inference_3:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:    5
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"
+
+  pipeline_inference_4:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:     5
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"
+
+  pipeline_inference_5:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:     5
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"
+
+  pipeline_inference_6:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:     5
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"
+
+  pipeline_inference_7:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:     5
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"      
+
+  pipeline_inference_8:
+    output_width:   640
+    output_height:  640
+    output_format:  0 # 0: BGR, 1: RGB
+    output_fps:     5
+    url:            "/opt/videos/onsite_with_poster.mp4"
+    use_camera: false
+    camera_config:
+      camera_id: "0000001"
+      address: "192.168.1.150"
+      port: 8554
+      path: "live"
+      username: "admin"
+      password: "password"  
+
+  engine_settings:
+    library_path: "/home/user/projects/TrtEngineToolkits/build/lib/libjetson.so"
+
+    pose_engine_file: "/opt/models/yolov8s-pose.engine"
+    pose_cls_threshold: 0.5
+    pose_iou_threshold: 0.7
+    pose_max_batch_size: 8
+
+    efficient_engine_path: "/opt/models/efficientnet_b0_feat_logits.engine"
+    efficient_max_batch_size: 32
