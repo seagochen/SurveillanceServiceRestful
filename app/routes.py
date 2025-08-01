@@ -9,45 +9,23 @@ from app import utils
 main_bp = Blueprint('main', __name__)
 
 
-# @main_bp.route('/')
-# def home():
-#     # 返回一个HTML表
-#     # URL | Method | Description
-#     return """
-#     <h1>API Endpoints</h1>
-#     <table border="1">
-#         <tr><th>URL</th><th>Method</th><th>Description</th></tr>
-#         <tr><td>/</td><td>GET</td><td>Home page</td></tr>
-#         <tr><td>/config/magistrate/&lt;int:magistrate_id&gt;</td><td>GET, POST</td><td>Manage magistrate configuration</td></tr>
-#         <tr><td>/config/pipeline</td><td>GET, POST</td><td>Manage pipeline configuration</td></tr>
-#         <tr><td>/config/recorder</td><td>GET, POST</td><td>Manage recorder configuration</td></tr>
-#         <tr><td>/monitor/&lt;monitor_id&gt;</td><td>GET</td><td>Get information about a specific monitor</td></tr>
-#     </table>
-#     """
-
 @main_bp.route('/')
 def index():
     return render_template('index.html')
 
-# --- 新增路由 ---
-@main_bp.route('/get-status')
-def get_status():
+@main_bp.route('/panel/magistrate/<int:magistrate_id>')
+def magistrate_panel(magistrate_id):
     """
-    返回设备状态的 HTML 片段。
-    这里用随机数模拟状态变化。
+    渲染并返回单个 magistrate 的配置面板页面。
     """
-    # 在实际应用中，这里会是读取传感器、检查服务状态等操作
-    status_code = random.choice([200, 404, 500])
-    if status_code == 200:
-        return f"<p>状态：<strong>在线</strong> (代码: {status_code}) - {time.ctime()}</p>"
-    elif status_code == 404:
-        return f"<p style='color: orange;'>状态：<strong>未找到服务</strong> (代码: {status_code}) - {time.ctime()}</p>"
-    else:
-        return f"<p style='color: red;'>状态：<strong>内部错误</strong> (代码: {status_code}) - {time.ctime()}</p>"
+    # 这里将来可以从数据库或文件中加载 magistrate_id 对应的具体配置
+    # 现在我们只把 magistrate_id 传递给模板
+    return render_template('panel.html', magistrate_id=magistrate_id)
 
+
+# --- API 路由 ---
 
 # --- Magistrate 配置路由 ---
-
 @main_bp.route('/config/magistrate/<int:magistrate_id>', methods=['GET'])
 def get_magistrate_config(magistrate_id):
     """根据 ID 获取 magistrate 的配置。"""

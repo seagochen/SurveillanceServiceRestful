@@ -1,0 +1,30 @@
+<div id="config-panel">
+    
+    <div class="panel-header">
+        <h2>クライアント {{ magistrate_id }} - 設定パネル</h2>
+        <button 
+            hx-get="/"
+            hx-target="#main-content"
+            hx-push-url="true"
+        >
+            戻る (返回)
+        </button>
+    </div>
+
+    <div class="panel-button-grid">
+        <button>カメラ接続</button>
+        <button>重点エリア設定</button>
+        <button>クラウド設定</button>
+        <button>アラート設定</button>
+    </div>
+
+    <hr style="border-color: #444;">
+
+    <div class="panel-footer">
+        <div class="footer-buttons">
+            <button>ストップ</button>
+            <button class="primary">確認</button>
+            <button>取り消し</button>
+        </div>
+    </div>
+</div>

@@ -12,6 +12,7 @@ pipeline_statuses = {}
 magistrate_statuses = {}
 status_lock = threading.Lock() # 一个锁管理两个字典足够
 
+
 def on_status_message(client, userdata, msg):
     """处理接收到的状态消息的回调函数"""
     try:
@@ -39,6 +40,7 @@ def on_status_message(client, userdata, msg):
     except Exception as e:
         print(f"Error processing status message on topic {msg.topic}: {e}")
 
+
 def start_status_monitor():
     """启动一个后台线程来监听 MQTT 状态"""
     monitor_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "flask_monitor_client")
@@ -51,6 +53,7 @@ def start_status_monitor():
     
     monitor_client.loop_start()
     print("MQTT Status Monitor started for Pipelines and Magistrates.")
+
 
 @main_bp.route('/get-magistrate-grid')
 def get_magistrate_grid():
@@ -85,11 +88,20 @@ def get_magistrate_grid():
                 else:
                     status_class = 'status-enabled-offline'
             
+            # --- 【关键修改】为 div 添加 htmx 点击事件 ---
             html_parts.append(f"""
-                <div class="status-box {status_class}">クライアント {i}</div>
+                <div class="status-box {status_class}" 
+                     style="cursor: pointer;"
+                     hx-get="/panel/magistrate/{i}"
+                     hx-target="#main-content"
+                     hx-swap="innerHTML"
+                     hx-push-url="true">
+                    クライアント {i}
+                </div>
             """)
 
     return "".join(html_parts)
+
 
 @main_bp.route('/get-pipeline-indicator')
 def get_pipeline_indicator():
