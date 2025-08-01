@@ -1,6 +1,7 @@
+import os
 import random
 import time
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request
 
 from app import utils
 
@@ -13,6 +14,9 @@ main_bp = Blueprint('main', __name__)
 def index():
     return render_template('index.html')
 
+
+# --- Magistrate 面板路由 ---
+
 @main_bp.route('/panel/magistrate/<int:magistrate_id>')
 def magistrate_panel(magistrate_id):
     """
@@ -21,6 +25,63 @@ def magistrate_panel(magistrate_id):
     # 这里将来可以从数据库或文件中加载 magistrate_id 对应的具体配置
     # 现在我们只把 magistrate_id 传递给模板
     return render_template('panel.html', magistrate_id=magistrate_id)
+
+# --- 摄像头配置面板路由 ---
+
+@main_bp.route('/panel/camera/<int:magistrate_id>', methods=['GET'])
+def get_camera_config_panel(magistrate_id):
+    """
+    显示指定 magistrate_id 的摄像头配置面板，并添加了调试步骤。
+    """
+    try:
+        # 读取主配置文件
+        pipeline_config = utils.get_config("pipeline_config")
+        inference_name = f"pipeline_inference_{magistrate_id}"
+        
+        # 提取出对应的摄像头配置
+        inference_details = pipeline_config["client_pipeline"][inference_name]
+        camera_config = inference_details["camera_config"]
+        
+        # 渲染模板
+        return render_template('camera_config_panel.html', magistrate_id=magistrate_id, config=camera_config)
+    
+    except (FileNotFoundError, KeyError) as e:
+        return f"Error loading config for magistrate {magistrate_id}: {e}", 404
+    except Exception as e:
+        # 捕捉其他渲染错误
+        return f"渲染模板时发生意外错误: {str(e)}", 500
+
+
+@main_bp.route('/panel/camera/<int:magistrate_id>', methods=['POST'])
+def update_camera_config_panel(magistrate_id):
+    """
+    更新并保存指定 magistrate_id 的摄像头配置。
+    """
+    try:
+        # 1. 读取现有的完整配置
+        config_data = utils.get_config("pipeline_config")
+        inference_name = f"pipeline_inference_{magistrate_id}"
+        
+        # 2. 从 POST 请求的表单中获取新数据
+        new_camera_config = request.form.to_dict()
+
+        # 3. 更新内存中的配置字典
+        #    注意：表单中的 'port' 是字符串，需要转为整数
+        config_data["client_pipeline"]["inferences"][inference_name]["camera_config"]["camera_id"] = new_camera_config.get("camera_id")
+        config_data["client_pipeline"]["inferences"][inference_name]["camera_config"]["address"] = new_camera_config.get("address")
+        config_data["client_pipeline"]["inferences"][inference_name]["camera_config"]["port"] = int(new_camera_config.get("port"))
+        config_data["client_pipeline"]["inferences"][inference_name]["camera_config"]["path"] = new_camera_config.get("path")
+        config_data["client_pipeline"]["inferences"][inference_name]["camera_config"]["username"] = new_camera_config.get("username")
+        config_data["client_pipeline"]["inferences"][inference_name]["camera_config"]["password"] = new_camera_config.get("password")
+
+        # 4. 调用 utils 函数将修改后的完整配置写回文件
+        utils.save_config("pipeline_config", config_data)
+        
+        # 5. 【重要】保存成功后，重新渲染并返回上一级的面板，给用户一个清晰的反馈
+        return render_template('panel.html', magistrate_id=magistrate_id)
+
+    except (FileNotFoundError, KeyError, ValueError) as e:
+        return f"Error updating config for magistrate {magistrate_id}: {e}", 500
 
 
 # --- API 路由 ---

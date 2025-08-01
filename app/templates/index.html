@@ -14,9 +14,10 @@
 
 </head>
 <body>
-    <h1>设备控制器</h1>
 
     <main id="main-content">
+
+        <h1>不審者検出パネル</h1>
 
         <div 
             id="magistrate-grid-container"
@@ -27,21 +28,22 @@
             hx-swap="innerHTML"
         >
         </div>
+
+        <hr style="border: 1px solid #444; margin: 40px 0;">
+
+        <div 
+            class="pipeline-status-row"
+            hx-get="/get-pipeline-indicator"
+            hx-trigger="load, every 3s"
+            hx-target="#pipeline-indicator-light"
+            hx-swap="outerHTML"
+        >
+            <span class="label">Pipeline 接続状態</span>
+            <div id="pipeline-indicator-light">
+                <div class="pipeline-indicator status-warning">Loading...</div>
+            </div>
+        </div>
     </main> 
 
-    <hr style="border: 1px solid #444; margin: 40px 0;">
-
-    <div 
-        class="pipeline-status-row"
-        hx-get="/get-pipeline-indicator"
-        hx-trigger="load, every 3s"
-        hx-target="#pipeline-indicator-light"
-        hx-swap="outerHTML"
-    >
-        <span class="label">Pipeline 接続状態</span>
-        <div id="pipeline-indicator-light">
-            <div class="pipeline-indicator status-warning">Loading...</div>
-        </div>
-    </div>
 </body>
 </html>

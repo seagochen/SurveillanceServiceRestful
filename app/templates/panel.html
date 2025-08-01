@@ -12,7 +12,13 @@
     </div>
 
     <div class="panel-button-grid">
-        <button>カメラ接続</button>
+        <button
+            hx-get="/panel/camera/{{ magistrate_id }}"
+            hx-target="#config-panel"
+            hx-swap="outerHTML"
+        >
+            カメラ接続
+        </button>
         <button>重点エリア設定</button>
         <button>クラウド設定</button>
         <button>アラート設定</button>

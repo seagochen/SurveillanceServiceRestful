@@ -1,0 +1,78 @@
+<div id="config-panel">
+    <div class="panel-header">
+        <h2>クライアント {{ magistrate_id }} - カメラ接続設定</h2>
+    </div>
+
+    <form
+        hx-post="/panel/camera/{{ magistrate_id }}"
+        hx-target="#config-panel"
+        hx-swap="outerHTML"
+    >
+        <table class="config-table">
+            <tbody>
+                <tr>
+                    <td><label for="camera_id">カメラID</label></td>
+                    <td><input type="text" id="camera_id" name="camera_id" value="{{ config.camera_id }}"></td>
+                </tr>
+                <tr>
+                    <td><label for="address">IPアドレス</label></td>
+                    <td><input type="text" id="address" name="address" value="{{ config.address }}"></td>
+                </tr>
+                <tr>
+                    <td><label for="port">ポート</label></td>
+                    <td><input type="number" id="port" name="port" value="{{ config.port }}"></td>
+                </tr>
+                <tr>
+                    <td><label for="path">パース</label></td>
+                    <td><input type="text" id="path" name="path" value="{{ config.path }}"></td>
+                </tr>
+                <tr>
+                    <td><label for="username">ユーザー</label></td>
+                    <td><input type="text" id="username" name="username" value="{{ config.username }}"></td>
+                </tr>
+                <tr>
+                    <td><label for="password">パスワード</label></td>
+                    <td><input type="password" id="password" name="password" value="{{ config.password }}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="panel-footer" style="justify-content: flex-end;">
+            <button
+                type="button"
+                hx-get="/panel/magistrate/{{ magistrate_id }}"
+                hx-target="#main-content"
+                hx-swap="innerHTML"
+            >
+                取り消し (Cancel)
+            </button>
+            
+            <button type="submit" class="primary">
+                確認 (Confirm)
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .config-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .config-table td {
+        padding: 12px;
+        border-bottom: 1px solid #444;
+    }
+    .config-table td:first-child {
+        width: 150px; /* 固定标签宽度 */
+        font-weight: bold;
+    }
+    .config-table input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box; /* 确保 padding 不会撑大宽度 */
+    }
+    .panel-footer button {
+        margin-left: 10px;
+    }
+</style>
