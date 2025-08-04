@@ -1,5 +1,3 @@
-/* app/static/css/custom.css */
-
 /* 基本页面样式 */
 body {
     background-color: #120c0e;
@@ -51,15 +49,6 @@ body {
 }
 
 /* 状态按钮网格容器 */
-/* .status-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 20px;
-    width: 100%;
-    max-width: 960px;
-    height: 250px;
-} */
 .status-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

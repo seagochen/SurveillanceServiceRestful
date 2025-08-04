@@ -29,21 +29,23 @@
         <header class="main-header">
             <div class="title-group">
                 <img src="{{ url_for('static', filename='images/logo-cropped.svg') }}" alt="Logo" class="header-logo">
-                <h1>不審者検知パネル</h1>
+                <h1>不審者検知システム設定ツール</h1>
             </div>
 
             <div id="pipeline-status-indicator"
                  hx-get="/get-pipeline-indicator"
                  hx-trigger="load, every 3s"
                  hx-swap="innerHTML">
-                <span class="label">推論モジュール:</span>
+                <span class="label" style="font-size: 0.7em;">
+                    推論モジュール:
+                </span>
                 <span class="dot dot-yellow"></span>
-                <span>Loading...</span>
+                <span style="font-size: 0.7em;">Loading...</span>
             </div>
         </header>
 
         <section class="grid-section">
-            <h2>カメラ設置</h2>
+            <h3>カメラの動作状態</h3>
             <div
                 id="magistrate-grid-container"
                 class="status-grid"

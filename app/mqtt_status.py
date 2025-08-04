@@ -183,9 +183,9 @@ def get_pipeline_indicator():
     
     # 返回新的 HTML 片段，它将被注入到 #pipeline-status-indicator 内部
     return f"""
-        <span class="label">推論モジュール:</span>
+        <span class="label" style="font-size: 0.7em;">推論モジュール:</span>
         <span class="dot {dot_class}"></span>
-        <span>{status_text}</span>
+        <span style="font-size: 0.7em;">{status_text}</span>
     """
 
 def get_magistrate_status(magistrate_id: int) -> str:
