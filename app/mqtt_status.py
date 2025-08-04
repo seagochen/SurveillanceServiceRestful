@@ -104,3 +104,48 @@ def get_magistrate_grid():
 
     return "".join(html_parts)
 
+
+@main_bp.route('/get-pipeline-indicator')
+def get_pipeline_indicator():
+    """【关键修改】返回 Pipeline 状态指示灯的 HTML 片段 (UTF-8 点状指示灯)。"""
+    try:
+        pipeline_config = utils.get_config("pipeline_config")
+        client_id_to_check = pipeline_config.get("broker", {}).get("client_id", "pipeline_client")
+    except FileNotFoundError:
+        client_id_to_check = "pipeline_client"
+
+    dot_class = 'dot-red'    # 默认为红色
+    status_text = '切断'     # Disconnected
+
+    with status_lock:
+        pipeline_data = pipeline_statuses.get(client_id_to_check)
+        if pipeline_data:
+            last_seen_ago = time.time() - pipeline_data.get('last_seen', 0)
+            if pipeline_data.get('status') == 'online' and last_seen_ago <= 20:
+                dot_class = 'dot-green'  # 绿色
+                status_text = '接続中'   # Connected
+            elif pipeline_data.get('status') == 'online' and last_seen_ago > 20:
+                dot_class = 'dot-yellow' # 黄色
+                status_text = '不明'     # Stale/Unknown
+    
+    # 返回新的 HTML 片段，它将被注入到 #pipeline-status-indicator 内部
+    return f"""
+        <span class="label">推論モジュール:</span>
+        <span class="dot {dot_class}"></span>
+        <span>{status_text}</span>
+    """
+
+def get_magistrate_status(magistrate_id: int) -> str:
+    """获取指定 magistrate 客户端的当前状态 ('online', 'offline', 'stale')。"""
+    client_id = f"magistrate_client_{magistrate_id}"
+    with status_lock:
+        data = magistrate_statuses.get(client_id)
+        if not data:
+            return "offline"
+        
+        status_text = data.get('status', 'offline')
+        last_seen_ago = time.time() - data.get('last_seen', 0)
+
+        if status_text == 'online' and last_seen_ago > 20: # stale 阈值
+            return "stale"
+        return status_text

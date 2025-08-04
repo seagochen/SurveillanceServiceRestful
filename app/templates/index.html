@@ -15,40 +15,65 @@
     </div>
 
     <main id="main-content">
-        <h1>不審者検知パネル</h1>
-
-        <div
-            id="magistrate-grid-container"
-            class="status-grid"
-            hx-get="/get-magistrate-grid"
-            hx-trigger="load, every 3s"
-            hx-target="this"
-            hx-swap="innerHTML"
-        >
-            <div class="status-box status-disabled">クライアント 1</div>
-            <div class="status-box status-disabled">クライアント 2</div>
-            <div class="status-box status-disabled">クライアント 3</div>
-            <div class="status-box status-disabled">クライアント 4</div>
-            <div class="status-box status-disabled">クライアント 5</div>
-            <div class="status-box status-disabled">クライアント 6</div>
-            <div class="status-box status-disabled">クライアント 7</div>
-            <div class="status-box status-disabled">クライアント 8</div>
-        </div>
-
-        <hr style="border: 1px solid #444; margin: 40px 0;">
-
-        <div 
-            class="pipeline-status-row"
-            hx-get="/get-pipeline-indicator"
-            hx-trigger="load, every 3s"
-            hx-target="#pipeline-indicator-light"
-            hx-swap="outerHTML"
-        >
-            <span class="label">Pipeline 接続状態</span>
-            <div id="pipeline-indicator-light">
-                <div class="pipeline-indicator status-warning">Loading...</div>
+        <!-- 【关键修改1】创建一个 header 容器来包裹标题和状态指示灯 -->
+        <header class="main-header">
+            <!-- 【关键修改1】创建一个 title-group 来包裹 logo 和标题 -->
+            <div class="title-group">
+                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" class="header-logo">
+                <h1>不審者検知パネル</h1>
             </div>
+
+            <!-- 
+              【关键修改2】这是新的 Pipeline 状态指示灯容器。
+              它会通过 htmx 自动刷新自己的内部内容。
+            -->
+            <div id="pipeline-status-indicator"
+                 hx-get="/get-pipeline-indicator"
+                 hx-trigger="load, every 3s"
+                 hx-swap="innerHTML">
+                <!-- 初始加载状态 -->
+                <span class="label">推論モジュール:</span>
+                <span class="dot dot-yellow"></span>
+                <span>Loading...</span>
+            </div>
+        </header>
+
+        <section class="grid-section">
+            <h2>カメラ設置</h2>
+            <div
+                id="magistrate-grid-container"
+                class="status-grid"
+                hx-get="/get-magistrate-grid"
+                hx-trigger="load, every 3s"
+                hx-target="this"
+                hx-swap="innerHTML"
+            >
+                <!-- 初始占位符 -->
+                <div class="status-box status-disabled">クライアント 1</div>
+                <div class="status-box status-disabled">クライアント 2</div>
+                <div class="status-box status-disabled">クライアント 3</div>
+                <div class="status-box status-disabled">クライアント 4</div>
+                <div class="status-box status-disabled">クライアント 5</div>
+                <div class="status-box status-disabled">クライアント 6</div>
+                <div class="status-box status-disabled">クライアント 7</div>
+                <div class="status-box status-disabled">クライアント 8</div>
+            </div>
+        </section>
+
+        <!-- <div class="main-actions">
+            <button>更新</button>
+            <button class="primary">再起動</button>
+        </div> -->
+
+        <div class="panel-footer">
+            <button class="danger">
+                再起動 (Restart)
+            </button>
+            <button class="primary">
+                更新 (Update)
+            </button>
         </div>
+
     </main> 
 
 </body>

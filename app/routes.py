@@ -19,6 +19,97 @@ def magistrate_panel(magistrate_id):
     """渲染并返回单个 magistrate 的配置面板页面。"""
     return render_template('panel.html', magistrate_id=magistrate_id)
 
+@main_bp.route('/panel/magistrate/<int:magistrate_id>/toggle_button', methods=['GET'])
+def get_toggle_button(magistrate_id):
+    """
+    根据 pipeline_config.yaml 的内容，返回对应的“启用/禁用”按钮。
+    """
+    try:
+        config = utils.get_config("pipeline_config")
+        source_name = f"pipeline_inference_{magistrate_id}"
+        
+        # 检查 source_name 是否在 enable_sources 列表中
+        enabled_sources = config.get("client_pipeline", {}).get("enable_sources", [])
+        is_enabled = source_name in enabled_sources
+        
+        return render_template(
+            '_toggle_button.html', 
+            magistrate_id=magistrate_id, 
+            is_enabled=is_enabled
+        )
+    except Exception as e:
+        return f"<button disabled>Error: {e}</button>"
+
+@main_bp.route('/panel/magistrate/<int:magistrate_id>/start_source', methods=['POST'])
+def start_source(magistrate_id):
+    """
+    处理启用数据源的逻辑：修改 pipeline_config.yaml。
+    """
+    config_name = "pipeline_config"
+    source_name = f"pipeline_inference_{magistrate_id}"
+    try:
+        config = utils.get_config(config_name)
+        
+        # 确保列表存在
+        if "enable_sources" not in config["client_pipeline"]:
+            config["client_pipeline"]["enable_sources"] = []
+        if "disable_sources" not in config["client_pipeline"]:
+            config["client_pipeline"]["disable_sources"] = []
+
+        # 从 disable_sources 中移除 (如果存在)
+        if source_name in config["client_pipeline"]["disable_sources"]:
+            config["client_pipeline"]["disable_sources"].remove(source_name)
+            
+        # 添加到 enable_sources 中 (如果不存在)
+        if source_name not in config["client_pipeline"]["enable_sources"]:
+            config["client_pipeline"]["enable_sources"].append(source_name)
+        
+        utils.save_config(config_name, config)
+        
+        # 操作完成后，返回更新后的按钮状态
+        return render_template(
+            '_toggle_button.html', 
+            magistrate_id=magistrate_id, 
+            is_enabled=True 
+        )
+    except Exception as e:
+        return f"<button disabled>Error: {e}</button>"
+
+@main_bp.route('/panel/magistrate/<int:magistrate_id>/stop_source', methods=['POST'])
+def stop_source(magistrate_id):
+    """
+    处理禁用数据源的逻辑：修改 pipeline_config.yaml。
+    """
+    config_name = "pipeline_config"
+    source_name = f"pipeline_inference_{magistrate_id}"
+    try:
+        config = utils.get_config(config_name)
+
+        # 确保列表存在
+        if "enable_sources" not in config["client_pipeline"]:
+            config["client_pipeline"]["enable_sources"] = []
+        if "disable_sources" not in config["client_pipeline"]:
+            config["client_pipeline"]["disable_sources"] = []
+
+        # 从 enable_sources 中移除 (如果存在)
+        if source_name in config["client_pipeline"]["enable_sources"]:
+            config["client_pipeline"]["enable_sources"].remove(source_name)
+            
+        # 添加到 disable_sources 中 (如果不存在)
+        if source_name not in config["client_pipeline"]["disable_sources"]:
+            config["client_pipeline"]["disable_sources"].append(source_name)
+
+        utils.save_config(config_name, config)
+        
+        # 操作完成后，返回更新后的按钮状态
+        return render_template(
+            '_toggle_button.html', 
+            magistrate_id=magistrate_id, 
+            is_enabled=False
+        )
+    except Exception as e:
+        return f"<button disabled>Error: {e}</button>"
+
 
 # --- 摄像头配置面板路由 ---
 
@@ -51,30 +142,6 @@ def get_camera_config_panel(magistrate_id):
 def update_camera_config_panel(magistrate_id):
     """更新摄像头配置，保存、同步并触发弹窗跳转。"""
     config_name = "pipeline_config"
-    # try:
-    #     config_data = utils.get_config(config_name)
-    #     inference_name = f"pipeline_inference_{magistrate_id}"
-    #     form_data = request.form.to_dict()
-
-    #     # 【关键修复】移除了 ["inferences"]
-    #     cam_config_path = config_data["client_pipeline"][inference_name]["camera_config"]
-    #     cam_config_path["camera_id"] = form_data.get("camera_id")
-    #     cam_config_path["address"] = form_data.get("address")
-    #     cam_config_path["port"] = int(form_data.get("port"))
-    #     cam_config_path["path"] = form_data.get("path")
-    #     cam_config_path["username"] = form_data.get("username")
-    #     cam_config_path["password"] = form_data.get("password")
-
-    #     utils.save_config(config_name, config_data)
-    #     utils.sync_single_config(config_name)
-
-    #     success_message = "カメラ設定が保存・同期されました"
-    #     response = make_response()
-    #     response.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": success_message})
-    #     return response
-
-    # except (FileNotFoundError, KeyError, ValueError) as e:
-    #     return f"Error updating camera config for magistrate {magistrate_id}: {e}", 500
     try:
         config_data = utils.get_config(config_name)
         inference_name = f"pipeline_inference_{magistrate_id}"
