@@ -1,7 +1,4 @@
-import os
-import random
-import time
-from flask import Blueprint, current_app, jsonify, render_template, request
+from flask import Blueprint, json, jsonify, make_response, render_template, request
 
 from app import utils
 
@@ -31,24 +28,36 @@ def magistrate_panel(magistrate_id):
 @main_bp.route('/panel/camera/<int:magistrate_id>', methods=['GET'])
 def get_camera_config_panel(magistrate_id):
     """
-    显示指定 magistrate_id 的摄像头配置面板，并添加了调试步骤。
+    显示指定 magistrate_id 的摄像头配置面板。
     """
     try:
-        # 读取主配置文件
+        # 1. 读取整个 pipeline_config.yaml 文件
         pipeline_config = utils.get_config("pipeline_config")
         inference_name = f"pipeline_inference_{magistrate_id}"
         
-        # 提取出对应的摄像头配置
-        inference_details = pipeline_config["client_pipeline"][inference_name]
+        # 2. 【关键】严格按照 YAML 的层级进行访问
+        #    根据您的 pydantic 解析器，所有 pipeline_inference_* 都被放入了 "inferences" 字典中
+        inference_details = pipeline_config["client_pipeline"]["inferences"][inference_name]
+        
+        # 3. 从中提取出 camera_config
         camera_config = inference_details["camera_config"]
         
-        # 渲染模板
+        # 4. 将提取出的 camera_config 数据传递给模板
         return render_template('camera_config_panel.html', magistrate_id=magistrate_id, config=camera_config)
     
     except (FileNotFoundError, KeyError) as e:
-        return f"Error loading config for magistrate {magistrate_id}: {e}", 404
+        # 如果中间任何一个键 (Key) 不存在，就会触发 KeyError
+        error_message = (
+            f"<h1>配置错误</h1>"
+            f"<p>无法为 <strong>magistrate {magistrate_id}</strong> 加载配置。</p>"
+            f"<p>请检查您的 <code>pipeline_config.yaml</code> 文件，确保路径 "
+            f"<code>client_pipeline.inferences.pipeline_inference_{magistrate_id}</code> "
+            f"及其下的 <code>camera_config</code> 存在。</p>"
+            f"<hr>"
+            f"<p><strong>具体错误:</strong> {e}</p>"
+        )
+        return error_message, 500
     except Exception as e:
-        # 捕捉其他渲染错误
         return f"渲染模板时发生意外错误: {str(e)}", 500
 
 
@@ -250,7 +259,78 @@ def update_all_configs():
     except Exception as e:
         # 捕捉其他潜在错误 (如权限问题)
         return jsonify({"error": f"同步过程中发生意外错误: {str(e)}"}), 500
+
+
+# @main_bp.route('/panel/sync/<int:magistrate_id>', methods=['POST'])
+# def sync_config(magistrate_id):
+#     """
+#     处理“確認”按钮的点击事件，同步对应的 magistrate 配置文件。
+#     成功后，触发前端事件以显示弹窗。
+#     """
+#     config_name = f"magistrate_config{magistrate_id}"
+#     try:
+#         synced_path = utils.sync_single_config(config_name)
+        
+#         # 【关键修改】我们将把成功消息作为事件的参数发送
+#         success_message = f"同期成功！({config_name}.yaml)"
+        
+#         response = make_response() # 返回一个空的响应体即可
+        
+#         # 【关键修改】触发一个带有 JSON 数据的事件
+#         # Alpine.js 将能接收到 'showSuccessModal' 事件和 success_message 的内容
+#         response.headers['HX-Trigger'] = json.dumps({
+#             "showSuccessModal": success_message
+#         })
+        
+#         return response
     
+#     except Exception as e:
+#         # 失败时依然返回错误信息片段
+#         return f'<span style="color: red;">同步失败: {e}</span>', 500
+
+# @main_bp.route('/panel/sync/<int:magistrate_id>', methods=['POST'])
+# def sync_config(magistrate_id):
+#     """
+#     Handles the "Confirm" button click, syncs the corresponding magistrate config file.
+#     On success, it triggers a redirect back to the home page.
+#     """
+#     config_name = f"magistrate_config{magistrate_id}"
+#     try:
+#         utils.sync_single_config(config_name)
+        
+#         # Create a response to add a header
+#         response = make_response()
+        
+#         # 【The Fix】Use HX-Redirect to command the browser to navigate to '/'
+#         response.headers['HX-Redirect'] = '/'
+        
+#         return response
+    
+#     except Exception as e:
+#         return f'<span style="color: red;">Sync failed: {e}</span>', 500
+
+@main_bp.route('/panel/sync/<int:magistrate_id>', methods=['POST'])
+def sync_config(magistrate_id):
+    """
+    处理“確認”按钮的点击事件，同步对应的 magistrate 配置文件。
+    成功后，触发前端事件以显示弹窗。
+    """
+    config_name = f"magistrate_config{magistrate_id}"
+    try:
+        synced_path = utils.sync_single_config(config_name)
+        success_message = f"設定が保存されました ({config_name}.yaml)"
+        
+        response = make_response()
+        
+        # 【关键修改】确保事件名是全小写的 "showsuccessmodal"
+        response.headers['HX-Trigger'] = json.dumps({
+            "showsuccessmodal": success_message
+        })
+        
+        return response
+    
+    except Exception as e:
+        return f'<span style="color: red;">同步失败: {e}</span>', 500
 
 # --- Monitor 路由 (保持不变) ---
 

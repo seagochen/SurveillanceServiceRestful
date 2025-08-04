@@ -37,6 +37,19 @@
             </tbody>
         </table>
 
+        <!-- type="button" 的作用是指定这个 <button> 元素的类型为普通按钮。
+
+        默认情况下，如果你在 <form> 表单里写 <button>，不加 type 属性，它会被当作 type="submit"，点击后会提交表单。
+        加上 type="button" 后，点击按钮不会提交表单，只会触发你绑定的事件（比如 JavaScript 的点击事件）。
+
+        总结：
+
+        type="button"：只是按钮，不会提交表单。
+        type="submit"（默认）：会提交表单。
+        建议：
+        如果你的按钮只是用来触发 JS 事件，而不是提交表单，建议加上 type="button"，避免意外提交。
+        -->
+
         <div class="panel-footer" style="justify-content: flex-end;">
             <button
                 type="button"

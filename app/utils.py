@@ -126,3 +126,31 @@ def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestful/confi
         # 3. 如果默认目录也不存在，则报告错误
         print(f"严重错误：主目录 '{source_dir}' 和默认目录 '{default_source_dir}' 均无法提供配置。")
         print("应用可能无法正常启动。请检查配置！")
+
+
+def sync_single_config(config_name: str, dest_folder: str = "/opt/SafeGuard/configs"):
+    """
+    将单个指定的 .yaml 文件从本地 'configs' 目录同步到目标文件夹。
+
+    Args:
+        config_name (str): 配置文件的名称 (不带 .yaml 后缀)。
+        dest_folder (str): 目标文件夹路径。
+
+    Returns:
+        str: 被同步的文件的完整目标路径。
+
+    Raises:
+        FileNotFoundError: 如果源文件不存在。
+    """
+    source_path = os.path.join("configs", f"{config_name}.yaml")
+
+    if not os.path.isfile(source_path):
+        raise FileNotFoundError(f"源配置文件 '{source_path}' 不存在。")
+
+    os.makedirs(dest_folder, exist_ok=True)
+
+    dest_path = os.path.join(dest_folder, f"{config_name}.yaml")
+
+    shutil.copy2(source_path, dest_path)
+    print(f"已将 {source_path} 同步到 {dest_path}")
+    return dest_path

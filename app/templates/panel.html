@@ -1,35 +1,18 @@
 <div id="config-panel">
     
+    <div id="success-modal" class="success-modal" style="display: none;">
+        <p id="modal-message"></p>
+    </div>
+
     <div class="panel-header">
         <h2>クライアント {{ magistrate_id }} - 設定パネル</h2>
-        <button 
-            hx-get="/"
-            hx-target="#main-content"
-            hx-push-url="true"
-        >
-            戻る (返回)
-        </button>
+        <div id="sync-status" style="font-size: 0.8em; color: red;"></div>
     </div>
 
     <div class="panel-button-grid">
-        <button
-            hx-get="/panel/camera/{{ magistrate_id }}"
-            hx-target="#config-panel"
-            hx-swap="outerHTML"
-        >
-            カメラ接続
-        </button>
-
+        <button hx-get="/panel/camera/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">カメラ接続</button>
         <button>重点エリア設定</button>
-        
-        <button
-            hx-get="/panel/cloud/{{ magistrate_id }}"
-            hx-target="#config-panel"
-            hx-swap="outerHTML"
-        >
-            クラウド設定
-        </button>
-        
+        <button hx-get="/panel/cloud/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">クラウド設定</button>
         <button>アラート設定</button>
     </div>
 
@@ -38,8 +21,38 @@
     <div class="panel-footer">
         <div class="footer-buttons">
             <button>ストップ</button>
-            <button class="primary">確認</button>
-            <button>取り消し</button>
+            
+            <button
+                class="primary"
+                hx-post="/panel/sync/{{ magistrate_id }}"
+                hx-swap="none"
+                hx-target-error="#sync-status"
+            >
+                確認 (Sync)
+            </button>
+            
+            <button
+                hx-get="/"
+                hx-target="#main-content"
+                hx-swap="innerHTML"
+                hx-push-url="true"
+            >
+                取り消し (Back)
+            </button>
         </div>
     </div>
 </div>
+
+<style>
+    .success-modal {
+        position: fixed; top: 20px; left: 50%;
+        transform: translateX(-50%); background-color: #28a745;
+        color: white; padding: 15px 30px; border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000;
+        font-size: 1.2em; font-weight: bold;
+    }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2em; }
+    .panel-button-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 2em 0; }
+    .panel-footer { display: flex; justify-content: flex-end; align-items: center; margin-top: 2em; }
+    .footer-buttons button { margin-left: 10px; }
+</style>

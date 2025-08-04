@@ -74,10 +74,12 @@ def get_magistrate_grid():
             magistrate_name = f"pipeline_inference_{i}"
             magistrate_id = f"magistrate_client_{i}"
 
+            # print(magistrate_name, "---->", magistrate_id)
             status_class = 'status-disabled' # 默认为灰色 (未启用)
             
             if magistrate_name in enabled_sources:
                 magistrate_data = magistrate_statuses.get(magistrate_id)
+                # print(magistrate_statuses)
                 if magistrate_data:
                     status_text = magistrate_data['status']
                     last_seen_ago = time.time() - magistrate_data.get('last_seen', 0)
