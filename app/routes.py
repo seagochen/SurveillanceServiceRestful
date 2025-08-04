@@ -1,4 +1,5 @@
 import json
+import os
 from time import time
 from flask import Blueprint, jsonify, make_response, render_template, request
 
@@ -277,6 +278,45 @@ def sync_all_configs():
     except Exception as e:
         return f'<span style="color: red;">一括同期失敗: {e}</span>', 500
 
+
+# New route for "Initial Setup (Reset)"
+@main_bp.route('/config/reset', methods=['POST'])
+def reset_configs():
+    """
+    重置所有配置文件到默认状态，从 configs/defaults 复制到 configs 目录。
+    """
+    try:
+        default_source_dir = os.path.join("configs", "defaults")
+        local_configs_dir = "configs"
+        utils.load_configs(default_source_dir, local_configs_dir)
+        success_message = f"初期設定が読み込まれました"
+        response = make_response()
+        response.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": success_message})
+        return response
+    except FileNotFoundError as e:
+        return f'<span style="color: red;">初期設定のロードに失敗しました: {e}</span>', 500
+    except Exception as e:
+        return f'<span style="color: red;">初期設定のロード中にエラーが発生しました: {e}</span>', 500
+
+
+# New route for "Load All" (from device)
+@main_bp.route('/config/load_all', methods=['POST'])
+def load_all_configs():
+    """
+    从设备的目标目录加载所有配置文件到本地的 'configs' 目录。
+    """
+    try:
+        device_configs_dir = "/opt/SafeGuard/configs" # Assuming this is the device's config directory
+        local_configs_dir = "configs"
+        utils.load_configs_from_device(device_configs_dir, local_configs_dir)
+        success_message = f"デバイスから設定が読み込まれました"
+        response = make_response()
+        response.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": success_message})
+        return response
+    except FileNotFoundError as e:
+        return f'<span style="color: red;">デバイスからの読み込みに失敗しました: {e}</span>', 500
+    except Exception as e:
+        return f'<span style="color: red;">デバイスからの読み込み中にエラーが発生しました: {e}</span>', 500
 
 # --- 其他路由 ---
 

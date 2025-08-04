@@ -28,7 +28,7 @@
     <main id="main-content">
         <header class="main-header">
             <div class="title-group">
-                <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" class="header-logo">
+                <img src="{{ url_for('static', filename='images/logo-cropped.svg') }}" alt="Logo" class="header-logo">
                 <h1>不審者検知パネル</h1>
             </div>
 
@@ -64,10 +64,16 @@
         </section>
 
         <div class="main-actions">
-            <button onclick="showConfirmationModal('すべての設定ファイルを同期しますか？', '/config/sync_all', 'POST')">
-                更新 (Update)
+            <button onclick="showConfirmationModal('初期設定を使用しますか?', '/config/reset', 'POST')">
+                初期設定 (Reset)
             </button>
-            <button class="primary" onclick="showConfirmationModal('Pipelineサービスを再起動しますか？', '/system/restart', 'POST')">
+            <button onclick="showConfirmationModal('すべての設定ファイルを読み込みますか？', '/config/load_all', 'POST')">
+                読み込み (Load All)
+            </button>
+            <button class="danger" onclick="showConfirmationModal('すべての設定ファイルを同期しますか？', '/config/sync_all', 'POST')">
+                書き込み (Sync All)
+            </button>
+            <button class="primary" onclick="showConfirmationModal('不審検知サービスを再起動しますか？', '/config/restart_service', 'POST')">
                 再起動 (Restart)
             </button>
         </div>

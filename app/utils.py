@@ -93,11 +93,18 @@ def has_configs(proj_dir: str = "/opt/SafeGuard/configs") -> bool:
     if not os.path.isdir(proj_dir):
         return False
     # 检查是否存在 magistrate, pipeline, 和 recorder 的配置文件
-    magistrate_found = any(f.startswith("magistrate_config") and f.endswith(".yaml") for f in os.listdir(proj_dir))
-    pipeline_found = os.path.exists(os.path.join(proj_dir, "pipeline_config.yaml"))
-    recorder_found = os.path.exists(os.path.join(proj_dir, "recorder_config.yaml"))
-    return magistrate_found and pipeline_found and recorder_found
+    pipeline_file = os.path.join(proj_dir, "pipeline_config.yaml")
+    magistrate_files = [f for f in os.listdir(proj_dir) if f.startswith("magistrate_config") and f.endswith(".yaml")]
+    magistrate_files = [os.path.join(proj_dir, f) for f in magistrate_files]
 
+    # Make sure the size of magistrate_files is at least 8
+    if len(magistrate_files) < 8:
+        return False
+
+    # If pipeline_file exists, return True
+    if os.path.isfile(pipeline_file):
+        return True
+    
 
 def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestful/configs",
                         source_dir: str = "/opt/SafeGuard/configs"):
@@ -154,3 +161,25 @@ def sync_single_config(config_name: str, dest_folder: str = "/opt/SafeGuard/conf
     shutil.copy2(source_path, dest_path)
     print(f"已将 {source_path} 同步到 {dest_path}")
     return dest_path
+
+
+def load_configs_from_device(source_dir: str = "/opt/SafeGuard/configs", 
+                             dest_dir: str = "configs"):
+    """
+    将目标设备上的配置 (source_dir) 复制回本地的 'configs' 目录 (dest_dir)。
+    这相当于从设备“加载”配置。
+    """
+    if not os.path.isdir(source_dir):
+        raise FileNotFoundError(f"设备配置源文件夹不存在或不是一个目录: {source_dir}")
+
+    os.makedirs(dest_dir, exist_ok=True)
+
+    copied_files = []
+    for filename in os.listdir(source_dir):
+        if filename.endswith(".yaml"):
+            src_path = os.path.join(source_dir, filename)
+            dest_path = os.path.join(dest_dir, filename)
+            shutil.copy2(src_path, dest_path)
+            copied_files.append(filename)
+            print(f"已从设备加载 {src_path} 到本地 {dest_path}")
+    return copied_files

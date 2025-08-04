@@ -198,9 +198,9 @@ button.dark {
 /* 弹窗样式 */
 .success-modal {
     position: fixed;
-    top: 20px;
+    top: 50%; /* 【关键修改】从 20px 改为 50% */
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%); /* 【关键修改】添加 Y 轴的位移 */
     background-color: #28a745;
     color: white;
     padding: 15px 30px;
