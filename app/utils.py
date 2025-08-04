@@ -51,6 +51,7 @@ def save_config(config_name: str, data: dict):
         # sort_keys=False 保持字典中的键顺序
         yaml.dump(data, file, default_flow_style=False, sort_keys=False, allow_unicode=True)
 
+
 # 保留旧函数以实现向后兼容，但新的路由将使用通用函数
 def get_magistrate_config_in_json(file_id: int):
     filename = f"magistrate_config{file_id}"
@@ -98,7 +99,7 @@ def has_configs(proj_dir: str = "/opt/SafeGuard/configs") -> bool:
     return magistrate_found and pipeline_found and recorder_found
 
 
-def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestfulAPIs/configs",
+def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestful/configs",
                         source_dir: str = "/opt/SafeGuard/configs"):
     """
     在应用启动时，从主配置目录同步配置到应用目录。
@@ -125,3 +126,31 @@ def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestfulAPIs/c
         # 3. 如果默认目录也不存在，则报告错误
         print(f"严重错误：主目录 '{source_dir}' 和默认目录 '{default_source_dir}' 均无法提供配置。")
         print("应用可能无法正常启动。请检查配置！")
+
+
+def sync_single_config(config_name: str, dest_folder: str = "/opt/SafeGuard/configs"):
+    """
+    将单个指定的 .yaml 文件从本地 'configs' 目录同步到目标文件夹。
+
+    Args:
+        config_name (str): 配置文件的名称 (不带 .yaml 后缀)。
+        dest_folder (str): 目标文件夹路径。
+
+    Returns:
+        str: 被同步的文件的完整目标路径。
+
+    Raises:
+        FileNotFoundError: 如果源文件不存在。
+    """
+    source_path = os.path.join("configs", f"{config_name}.yaml")
+
+    if not os.path.isfile(source_path):
+        raise FileNotFoundError(f"源配置文件 '{source_path}' 不存在。")
+
+    os.makedirs(dest_folder, exist_ok=True)
+
+    dest_path = os.path.join(dest_folder, f"{config_name}.yaml")
+
+    shutil.copy2(source_path, dest_path)
+    print(f"已将 {source_path} 同步到 {dest_path}")
+    return dest_path
