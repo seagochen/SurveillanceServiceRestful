@@ -3,11 +3,13 @@
         <h2>クライアント {{ magistrate_id }} - クラウド設定</h2>
     </div>
 
-    <form
-        hx-post="/panel/cloud/{{ magistrate_id }}"
-        hx-target="#config-panel"
-        hx-swap="outerHTML"
-    >
+    <!-- 
+      【修改1】
+      - 给 form 添加 ID "cloud-form"。
+      - 移除 hx-* 属性。
+      - 添加 autocomplete="off"。
+    -->
+    <form id="cloud-form" autocomplete="off">
         <fieldset class="config-fieldset">
             <legend>不審者アップロード (Suspicious Person Upload)</legend>
             <table class="config-table">
@@ -40,30 +42,33 @@
             </table>
         </fieldset>
 
-        <!-- type="button" 的作用是指定这个 <button> 元素的类型为普通按钮。
-
-        默认情况下，如果你在 <form> 表单里写 <button>，不加 type 属性，它会被当作 type="submit"，点击后会提交表单。
-        加上 type="button" 后，点击按钮不会提交表单，只会触发你绑定的事件（比如 JavaScript 的点击事件）。
-
-        总结：
-
-        type="button"：只是按钮，不会提交表单。
-        type="submit"（默认）：会提交表单。
-        建议：
-        如果你的按钮只是用来触发 JS 事件，而不是提交表单，建议加上 type="button"，避免意外提交。
-        -->
-
         <div class="panel-footer" style="justify-content: flex-end;">
+            <!-- "取消" 按钮：目标是 #config-panel，用上一级面板替换自己 -->
             <button
                 type="button"
+                class="danger"
                 hx-get="/panel/magistrate/{{ magistrate_id }}"
-                hx-target="#main-content"
-                hx-swap="innerHTML"
+                hx-target="#config-panel"
+                hx-swap="outerHTML"
             >
                 取り消し (Cancel)
             </button>
             
-            <button type="submit" class="primary">
+            <!-- 
+              【修改2】
+              - type="button"
+              - hx-post 指令
+              - hx-include="#cloud-form"
+              - hx-target 和 hx-swap
+            -->
+            <button
+                type="button"
+                class="primary"
+                hx-post="/panel/cloud/{{ magistrate_id }}"
+                hx-include="#cloud-form"
+                hx-target="#config-panel"
+                hx-swap="outerHTML"
+            >
                 確認 (Confirm)
             </button>
         </div>

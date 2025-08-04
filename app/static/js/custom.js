@@ -25,3 +25,19 @@ document.body.addEventListener('showsuccessmodal', function(event) {
         }, 2000);
     }
 });
+
+
+// 切换密码可见性（显示/隐藏）
+function togglePasswordVisibility() {
+    const input = document.getElementById('password');
+    const icon = document.querySelector('.toggle-password');
+    if (input && icon) {
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.textContent = '🙈';
+        } else {
+            input.type = 'password';
+            icon.textContent = '👁️';
+        }
+    }
+}

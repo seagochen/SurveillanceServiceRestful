@@ -104,35 +104,3 @@ def get_magistrate_grid():
 
     return "".join(html_parts)
 
-
-@main_bp.route('/get-pipeline-indicator')
-def get_pipeline_indicator():
-    """
-    返回单个 Pipeline 状态指示灯的 HTML，并包含ID以便被替换。
-    """
-    try:
-        pipeline_config = utils.get_config("pipeline_config")
-        client_id_to_check = pipeline_config.get("broker", {}).get("client_id", "pipeline_client")
-    except FileNotFoundError:
-        client_id_to_check = "pipeline_client"
-
-    status_class = 'status-error'
-    status_text = '切断'
-
-    with status_lock:
-        pipeline_data = pipeline_statuses.get(client_id_to_check)
-        if pipeline_data:
-            last_seen_ago = time.time() - pipeline_data.get('last_seen', 0)
-            if pipeline_data.get('status') == 'online' and last_seen_ago <= 20: # 使用20秒作为stale阈值
-                status_class = 'status-ok'
-                status_text = '接続中'
-            elif pipeline_data.get('status') == 'online' and last_seen_ago > 20:
-                status_class = 'status-warning'
-                status_text = '不明'
-    
-    # 【关键修复】在返回的 HTML 中包含 id="pipeline-indicator-light"
-    return f"""
-        <div id="pipeline-indicator-light" class="pipeline-indicator {status_class}">
-            {status_text}
-        </div>
-    """

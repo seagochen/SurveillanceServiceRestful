@@ -16,7 +16,8 @@ client_pipeline:
     - "pipeline_inference_6"
     - "pipeline_inference_7"
     - "pipeline_inference_8"
-
+  disable_sources:
+    - "pipeline_inference_reserved"
 
   pipeline_inference_1:
     output_width:   640

@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>不審者パラメータ設定ツール ver 1.0</title>
-
     <script src="{{ url_for('static', filename='js/htmx.min.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/custom.css') }}">
-    
     <script src="{{ url_for('static', filename='js/custom.js') }}" defer></script>
-
 </head>
 <body>
+    
+    <div id="success-modal" class="success-modal" style="display: none;">
+        <p id="modal-message"></p>
+    </div>
 
     <main id="main-content">
-
         <h1>不審者検知パネル</h1>
 
         <div
