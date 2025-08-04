@@ -20,6 +20,7 @@ client_pipeline:
     - "pipeline_inference_reserved"
 
   pipeline_inference_1:
+    alias: "Pipeline 1"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB
@@ -35,6 +36,7 @@ client_pipeline:
       password: "password"
 
   pipeline_inference_2:
+    alias: "Pipeline 2"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB
@@ -50,6 +52,7 @@ client_pipeline:
       password: "password"
 
   pipeline_inference_3:
+    alias: "Pipeline 3"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB
@@ -65,6 +68,7 @@ client_pipeline:
       password: "password"
 
   pipeline_inference_4:
+    alias: "Pipeline 4"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB
@@ -80,6 +84,7 @@ client_pipeline:
       password: "password"
 
   pipeline_inference_5:
+    alias: "Pipeline 5"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB
@@ -95,6 +100,7 @@ client_pipeline:
       password: "password"
 
   pipeline_inference_6:
+    alias: "Pipeline 6"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB
@@ -110,6 +116,7 @@ client_pipeline:
       password: "password"
 
   pipeline_inference_7:
+    alias: "Pipeline 7"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB
@@ -125,6 +132,7 @@ client_pipeline:
       password: "password"      
 
   pipeline_inference_8:
+    alias: "Pipeline 8"
     output_width:   640
     output_height:  640
     output_format:  0 # 0: BGR, 1: RGB

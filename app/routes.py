@@ -1,4 +1,5 @@
 import json
+from time import time
 from flask import Blueprint, jsonify, make_response, render_template, request
 
 from app import utils
@@ -16,8 +17,24 @@ def index():
 
 @main_bp.route('/panel/magistrate/<int:magistrate_id>')
 def magistrate_panel(magistrate_id):
-    """渲染并返回单个 magistrate 的配置面板页面。"""
-    return render_template('panel.html', magistrate_id=magistrate_id)
+    """渲染并返回单个 magistrate 的配置面板页面，包含 alias 和 IP。"""
+    try:
+        pipeline_config = utils.get_config("pipeline_config")
+        inference_name = f"pipeline_inference_{magistrate_id}"
+        
+        # Get alias and IP address for the panel header
+        alias = pipeline_config.get("client_pipeline", {}).get(inference_name, {}).get("alias", f"クライアント {magistrate_id}")
+        ip_address = pipeline_config.get("client_pipeline", {}).get(inference_name, {}).get("camera_config", {}).get("address", "N/A")
+        
+        return render_template('panel.html', magistrate_id=magistrate_id, alias=alias, ip_address=ip_address)
+    except FileNotFoundError:
+        return f"Error: pipeline_config.yaml not found!", 500
+    except KeyError:
+        return f"Error: Configuration for {inference_name} not found in pipeline_config.yaml!", 500
+    except Exception as e:
+        return f"Error loading panel for magistrate {magistrate_id}: {e}", 500
+
+
 
 @main_bp.route('/panel/magistrate/<int:magistrate_id>/toggle_button', methods=['GET'])
 def get_toggle_button(magistrate_id):
@@ -39,6 +56,7 @@ def get_toggle_button(magistrate_id):
         )
     except Exception as e:
         return f"<button disabled>Error: {e}</button>"
+
 
 @main_bp.route('/panel/magistrate/<int:magistrate_id>/start_source', methods=['POST'])
 def start_source(magistrate_id):
@@ -74,6 +92,7 @@ def start_source(magistrate_id):
         )
     except Exception as e:
         return f"<button disabled>Error: {e}</button>"
+
 
 @main_bp.route('/panel/magistrate/<int:magistrate_id>/stop_source', methods=['POST'])
 def stop_source(magistrate_id):
@@ -119,11 +138,13 @@ def get_camera_config_panel(magistrate_id):
     try:
         pipeline_config = utils.get_config("pipeline_config")
         inference_name = f"pipeline_inference_{magistrate_id}"
-        
-        # 【关键修复】移除了 ["inferences"]，直接访问 "client_pipeline" 下的 inference_name
+
         inference_details = pipeline_config["client_pipeline"][inference_name]
         camera_config = inference_details["camera_config"]
-        
+
+        # Pass the alias to the camera_config dictionary so it can be accessed in the template
+        camera_config['alias'] = inference_details.get('alias', f"クライアント {magistrate_id}")
+
         return render_template('camera_config_panel.html', magistrate_id=magistrate_id, config=camera_config)
     except (FileNotFoundError, KeyError) as e:
         error_message = (
@@ -147,6 +168,9 @@ def update_camera_config_panel(magistrate_id):
         inference_name = f"pipeline_inference_{magistrate_id}"
         form_data = request.form.to_dict()
 
+        # Update alias field
+        config_data["client_pipeline"][inference_name]["alias"] = form_data.get("alias")
+
         cam_config_path = config_data["client_pipeline"][inference_name]["camera_config"]
         cam_config_path["camera_id"] = form_data.get("camera_id")
         cam_config_path["address"] = form_data.get("address")
@@ -158,8 +182,13 @@ def update_camera_config_panel(magistrate_id):
         utils.save_config(config_name, config_data)
         utils.sync_single_config(config_name)
 
-        # 【关键修改】不再返回 HX-Trigger，而是直接渲染并返回 panel.html
-        return render_template('panel.html', magistrate_id=magistrate_id)
+        # 【关键修改】重新获取更新后的 alias 和 ip_address，并传递给 panel.html
+        updated_pipeline_config = utils.get_config("pipeline_config") # 重新加载配置
+        updated_inference_details = updated_pipeline_config["client_pipeline"][inference_name]
+        updated_alias = updated_inference_details.get('alias', f"クライアント {magistrate_id}")
+        updated_ip_address = updated_inference_details.get('camera_config', {}).get("address", "N/A")
+
+        return render_template('panel.html', magistrate_id=magistrate_id, alias=updated_alias, ip_address=updated_ip_address)
 
     except (FileNotFoundError, KeyError, ValueError) as e:
         return f"Error updating camera config for magistrate {magistrate_id}: {e}", 500
@@ -185,36 +214,6 @@ def update_cloud_config_panel(magistrate_id):
     更新云配置，保存到本地，然后同步到生产环境，并触发弹窗跳转。
     """
     config_name = f"magistrate_config{magistrate_id}"
-    # try:
-    #     config_data = utils.get_config(config_name)
-    #     form_data = request.form
-        
-    #     # 更新内存中的配置
-    #     cloud_config_path = config_data["client_magistrate"]["cloud"]
-    #     cloud_config_path["sceptical_image"]["device_id"] = form_data.get("sceptical_device_id")
-    #     cloud_config_path["sceptical_image"]["action_code"] = form_data.get("sceptical_action_code")
-    #     cloud_config_path["patrol_image"]["device_id"] = form_data.get("patrol_device_id")
-    #     cloud_config_path["patrol_image"]["action_code"] = form_data.get("patrol_action_code")
-
-    #     # 1. 保存到本地
-    #     utils.save_config(config_name, config_data)
-        
-    #     # 2. 【新增】立即同步到生产环境
-    #     utils.sync_single_config(config_name)
-
-    #     # 3. 【新增】返回带有 HX-Trigger 的响应，触发弹窗和跳转
-    #     # success_message = f"クラウド設定が保存・同期されました" # "云设置已保存并同步"
-    #     # response = make_response()
-    #     # response.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": success_message})
-    #     # return response
-
-    #     success_message = "クラウド設定が保存・同期されました"
-    #     response = make_response()
-    #     response.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": success_message})
-    #     return response
-
-    # except (FileNotFoundError, KeyError, ValueError) as e:
-    #     return f"Error updating cloud config for magistrate {magistrate_id}: {e}", 500
     try:
         config_data = utils.get_config(config_name)
         form_data = request.form
@@ -229,10 +228,17 @@ def update_cloud_config_panel(magistrate_id):
         utils.sync_single_config(config_name)
 
         # 【关键修改】不再返回 HX-Trigger，而是直接渲染并返回 panel.html
-        return render_template('panel.html', magistrate_id=magistrate_id)
+        # 在这里也需要重新获取 alias 和 ip_address，以防万一
+        pipeline_config = utils.get_config("pipeline_config")
+        inference_name = f"pipeline_inference_{magistrate_id}"
+        alias = pipeline_config.get("client_pipeline", {}).get(inference_name, {}).get("alias", f"クライアント {magistrate_id}")
+        ip_address = pipeline_config.get("client_pipeline", {}).get(inference_name, {}).get("camera_config", {}).get("address", "N/A")
+
+        return render_template('panel.html', magistrate_id=magistrate_id, alias=alias, ip_address=ip_address)
 
     except (FileNotFoundError, KeyError, ValueError) as e:
         return f"Error updating cloud config for magistrate {magistrate_id}: {e}", 500
+
 
 # --- 全局同步路由 (现在由 panel.html 中的按钮使用) ---
 
@@ -248,3 +254,39 @@ def sync_config(magistrate_id):
         return response
     except Exception as e:
         return f'<span style="color: red;">同步失败: {e}</span>', 500
+
+# NEW ROUTE: Sync all configurations
+@main_bp.route('/config/sync_all', methods=['POST'])
+def sync_all_configs():
+    """
+    同步所有 magistrate_configX.yaml 和 pipeline_config.yaml 文件。
+    """
+    try:
+        # Assuming there are 8 magistrates as per the index.html grid
+        for i in range(1, 9):
+            config_name = f"magistrate_config{i}"
+            utils.sync_single_config(config_name)
+        
+        # Also sync pipeline_config.yaml
+        utils.sync_single_config("pipeline_config")
+
+        success_message = "すべての設定ファイルが同期されました！" # "All configuration files have been synchronized!"
+        response = make_response()
+        response.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": success_message})
+        return response
+    except Exception as e:
+        return f'<span style="color: red;">一括同期失敗: {e}</span>', 500
+
+
+# --- 其他路由 ---
+
+@main_bp.route('/system/restart', methods=['POST'])
+def restart_system():
+    """（ダミー）システムの再起動をシミュレートします。"""
+    # TODO: 実際の再起動ロジックを実装する必要があります
+    print("--- ACTION: Restarting system ---")
+    # ここに実際の再起動ロジックを実装します
+    time.sleep(2) # 処理をシミュレート
+    response = make_response()
+    response.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": "システムは正常に再起動されました！"})
+    return response

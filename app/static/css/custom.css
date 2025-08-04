@@ -72,24 +72,13 @@ body {
 
 
 /* 单个状态按钮的通用样式 */
-/* .status-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid #555;
-    border-radius: 8px;
-    font-size: 1.5em;
-    font-weight: bold;
-    transition: all 0.3s ease;
-} */
-/* 单个状态按钮的通用样式 */
 .status-box {
     display: flex;
     justify-content: center;
     align-items: center;
     border: 2px solid #555;
     border-radius: 8px;
-    font-size: 1.2em; /* 【关键修改】フォントサイズを 1.5em から 1.2em に縮小 (80%) */
+    font-size: 0.9em; /* 【关键修改】フォントサイズを 1.5em から 1.2em に縮小 (80%) */
     font-weight: bold;
     transition: all 0.3s ease;
 }
@@ -142,9 +131,41 @@ button.primary {
     border-color: #007bff;
 }
 
+button.secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+button.success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
 button.danger {
     background-color: #dc3545;
     border-color: #dc3545;
+}
+
+button.warning {
+    background-color: #ffc107;
+    border-color: #ffc107;
+}
+
+button.info {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+button.light {
+    background-color: #f8f9fa;
+    color: #212529;
+    border-color: #ced4da;
+}
+
+button.dark {
+    background-color: #343a40;
+    color: #fff;
+    border-color: #343a40;
 }
 
 /* --- 【关键修复】Panel 页面专用样式 --- */
@@ -188,4 +209,40 @@ button.danger {
     z-index: 1000;
     font-size: 1.2em;
     font-weight: bold;
+}
+
+/* --- 【新追加】確認ダイアログのスタイル --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-box {
+    background-color: #2c2c2c;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+.modal-box p {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 1.2em;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
 }

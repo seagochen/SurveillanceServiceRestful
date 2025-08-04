@@ -3,15 +3,13 @@
         <h2>クライアント {{ magistrate_id }} - カメラ接続設定</h2>
     </div>
 
-    <!-- 
-      【修改1】
-      - 给 form 添加一个 ID，例如 "camera-form"，以便按钮可以引用它。
-      - 移除 form 上的所有 hx-* 属性。
-      - 添加 autocomplete="off" 来阻止浏览器提示保存密码。
-    -->
     <form id="camera-form" autocomplete="off">
         <table class="config-table">
             <tbody>
+                <tr>
+                    <td><label for="alias">エイリアス (別名)</label></td>
+                    <td><input type="text" id="alias" name="alias" value="{{ config.alias }}"></td>
+                </tr>
                 <tr>
                     <td><label for="camera_id">カメラID</label></td>
                     <td><input type="text" id="camera_id" name="camera_id" value="{{ config.camera_id }}"></td>
@@ -32,18 +30,6 @@
                     <td><label for="username">ユーザー</label></td>
                     <td><input type="text" id="username" name="username" value="{{ config.username }}"></td>
                 </tr>
-                <!-- <tr>
-                    <td><label for="password">パスワード</label></td>
-                    <td><input type="password" id="password" name="password" value="{{ config.password }}"></td>
-                </tr> -->
-                <!-- 加入了小眼睛图标来切换密码可见性 -->
-                <!-- <tr>
-                    <td><label for="password">パスワード</label></td>
-                    <td style="position: relative;">
-                        <input type="password" id="password" name="password" value="{{ config.password }}">
-                        <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
-                    </td>
-                </tr> -->
                 <tr>
                     <td>
                         <label for="password">
@@ -53,13 +39,15 @@
                     </td>
                     <td>
                         <input type="password" id="password" name="password" value="{{ config.password }}">
+                        <p class="password-warning-info">
+                            <small>※ Chromeの「パスワードの変更」警告が表示されることがありますが、これはChromeの一般的なセキュリティ機能です。<br/>※ 本ツールは内部利用を目的としております。</small>
+                        </p>
                     </td>
                 </tr>
             </tbody>
         </table>
 
         <div class="panel-footer" style="justify-content: flex-end;">
-            <!-- "取消" 按钮：目标是 #config-panel，用上一级面板替换自己 -->
             <button
                 type="button"
                 class="danger"
@@ -70,13 +58,6 @@
                 取り消し (Cancel)
             </button>
             
-            <!-- 
-              【修改2】
-              - 将 type 从 "submit" 改为 "button"，防止浏览器默认提交。
-              - 将 hx-post 指令移到这里。
-              - 使用 hx-include="#camera-form" 来包含表单中的所有数据。
-              - hx-target 和 hx-swap 保持不变，用返回的 panel.html 替换当前面板。
-            -->
             <button
                 type="button"
                 class="primary"
@@ -116,5 +97,11 @@
     }
     .panel-footer button {
         margin-left: 10px;
+    }
+    /* Added for the password warning info */
+    .password-warning-info {
+        color: #aaa;
+        font-size: 0.85em;
+        margin-top: 5px;
     }
 </style>

@@ -55,10 +55,60 @@ def start_status_monitor():
     print("MQTT Status Monitor started for Pipelines and Magistrates.")
 
 
+# @main_bp.route('/get-magistrate-grid')
+# def get_magistrate_grid():
+#     """
+#     生成包含8个 magistrate 状态按钮的 HTML 网格。
+#     """
+#     html_parts = []
+    
+#     try:
+#         pipeline_config = utils.get_config("pipeline_config")
+#         enabled_sources = pipeline_config.get("client_pipeline", {}).get("enable_sources", [])
+#     except FileNotFoundError:
+#         enabled_sources = []
+#         html_parts.append("<p>Error: pipeline_config.yaml not found!</p>")
+
+#     with status_lock:
+#         for i in range(1, 9):
+#             magistrate_name = f"pipeline_inference_{i}"
+#             magistrate_id = f"magistrate_client_{i}"
+
+#             # print(magistrate_name, "---->", magistrate_id)
+#             status_class = 'status-disabled' # 默认为灰色 (未启用)
+            
+#             if magistrate_name in enabled_sources:
+#                 magistrate_data = magistrate_statuses.get(magistrate_id)
+#                 # print(magistrate_statuses)
+#                 if magistrate_data:
+#                     status_text = magistrate_data['status']
+#                     last_seen_ago = time.time() - magistrate_data.get('last_seen', 0)
+#                     if status_text == 'online' and last_seen_ago <= 20: # 使用20秒作为stale阈值
+#                         status_class = 'status-enabled-online'
+#                     else:
+#                         status_class = 'status-enabled-offline'
+#                 else:
+#                     status_class = 'status-enabled-offline'
+            
+#             # --- 【关键修改】为 div 添加 htmx 点击事件 ---
+#             html_parts.append(f"""
+#                 <div class="status-box {status_class}" 
+#                      style="cursor: pointer;"
+#                      hx-get="/panel/magistrate/{i}"
+#                      hx-target="#main-content"
+#                      hx-swap="innerHTML"
+#                      hx-push-url="true">
+#                     クライアント {i}
+#                 </div>
+#             """)
+
+#     return "".join(html_parts)
+
 @main_bp.route('/get-magistrate-grid')
 def get_magistrate_grid():
     """
     生成包含8个 magistrate 状态按钮的 HTML 网格。
+    现在会显示 alias - IP。
     """
     html_parts = []
     
@@ -68,18 +118,22 @@ def get_magistrate_grid():
     except FileNotFoundError:
         enabled_sources = []
         html_parts.append("<p>Error: pipeline_config.yaml not found!</p>")
+        pipeline_config = {} # Ensure pipeline_config is defined even if file not found
 
     with status_lock:
         for i in range(1, 9):
             magistrate_name = f"pipeline_inference_{i}"
-            magistrate_id = f"magistrate_client_{i}"
+            magistrate_id_str = f"magistrate_client_{i}" # Use a different variable name to avoid confusion with integer magistrate_id
 
-            # print(magistrate_name, "---->", magistrate_id)
             status_class = 'status-disabled' # 默认为灰色 (未启用)
             
+            # --- Fetch alias and IP for display ---
+            alias = pipeline_config.get("client_pipeline", {}).get(magistrate_name, {}).get("alias", f"クライアント {i}")
+            ip_address = pipeline_config.get("client_pipeline", {}).get(magistrate_name, {}).get("camera_config", {}).get("address", "N/A")
+            display_text = f"{alias} - {ip_address}"
+
             if magistrate_name in enabled_sources:
-                magistrate_data = magistrate_statuses.get(magistrate_id)
-                # print(magistrate_statuses)
+                magistrate_data = magistrate_statuses.get(magistrate_id_str)
                 if magistrate_data:
                     status_text = magistrate_data['status']
                     last_seen_ago = time.time() - magistrate_data.get('last_seen', 0)
@@ -90,7 +144,6 @@ def get_magistrate_grid():
                 else:
                     status_class = 'status-enabled-offline'
             
-            # --- 【关键修改】为 div 添加 htmx 点击事件 ---
             html_parts.append(f"""
                 <div class="status-box {status_class}" 
                      style="cursor: pointer;"
@@ -98,7 +151,7 @@ def get_magistrate_grid():
                      hx-target="#main-content"
                      hx-swap="innerHTML"
                      hx-push-url="true">
-                    クライアント {i}
+                    {display_text}
                 </div>
             """)
 

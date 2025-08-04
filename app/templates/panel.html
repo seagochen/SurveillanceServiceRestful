@@ -1,12 +1,12 @@
 <div id="config-panel">
     
     <div class="panel-header">
-        <h2>クライアント {{ magistrate_id }} - 設定パネル</h2>
+        <h2>{{ alias }} - {{ ip_address }} 設定パネル</h2>
         <div id="sync-status" style="font-size: 0.8em; color: red;"></div>
     </div>
 
     <div class="panel-button-grid">
-        <button hx-get="/panel/camera/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">カメラ接続</button>
+        <button hx-get="/panel/camera/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">カメラ設定</button>
         <button>重点エリア設定</button>
         <button hx-get="/panel/cloud/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">クラウド設定</button>
         <button>アラート設定</button>

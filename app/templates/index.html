@@ -14,24 +14,28 @@
         <p id="modal-message"></p>
     </div>
 
+    <div id="confirmation-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-box">
+            <p id="confirmation-message">本当に実行しますか？</p>
+            <div class="modal-actions">
+                <button id="cancel-btn">キャンセル</button>
+                <button id="confirm-btn" class="danger">確認</button>
+            </div>
+        </div>
+    </div>
+
+
     <main id="main-content">
-        <!-- 【关键修改1】创建一个 header 容器来包裹标题和状态指示灯 -->
         <header class="main-header">
-            <!-- 【关键修改1】创建一个 title-group 来包裹 logo 和标题 -->
             <div class="title-group">
                 <img src="{{ url_for('static', filename='images/logo.svg') }}" alt="Logo" class="header-logo">
                 <h1>不審者検知パネル</h1>
             </div>
 
-            <!-- 
-              【关键修改2】这是新的 Pipeline 状态指示灯容器。
-              它会通过 htmx 自动刷新自己的内部内容。
-            -->
             <div id="pipeline-status-indicator"
                  hx-get="/get-pipeline-indicator"
                  hx-trigger="load, every 3s"
                  hx-swap="innerHTML">
-                <!-- 初始加载状态 -->
                 <span class="label">推論モジュール:</span>
                 <span class="dot dot-yellow"></span>
                 <span>Loading...</span>
@@ -48,7 +52,6 @@
                 hx-target="this"
                 hx-swap="innerHTML"
             >
-                <!-- 初始占位符 -->
                 <div class="status-box status-disabled">クライアント 1</div>
                 <div class="status-box status-disabled">クライアント 2</div>
                 <div class="status-box status-disabled">クライアント 3</div>
@@ -60,17 +63,12 @@
             </div>
         </section>
 
-        <!-- <div class="main-actions">
-            <button>更新</button>
-            <button class="primary">再起動</button>
-        </div> -->
-
-        <div class="panel-footer">
-            <button class="danger">
-                再起動 (Restart)
-            </button>
-            <button class="primary">
+        <div class="main-actions">
+            <button onclick="showConfirmationModal('すべての設定ファイルを同期しますか？', '/config/sync_all', 'POST')">
                 更新 (Update)
+            </button>
+            <button class="primary" onclick="showConfirmationModal('Pipelineサービスを再起動しますか？', '/system/restart', 'POST')">
+                再起動 (Restart)
             </button>
         </div>
 
