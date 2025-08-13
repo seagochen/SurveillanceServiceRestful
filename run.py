@@ -5,6 +5,7 @@ from app.utils import synchronize_configs
 
 app = create_app()
 
+
 if __name__ == '__main__':
 
     # 同步配置文件

@@ -13,6 +13,10 @@ magistrate_statuses = {}
 status_lock = threading.Lock() # 一个锁管理两个字典足够
 
 
+######################################################
+# MQTT 状态消息处理函数
+######################################################
+
 def on_status_message(client, userdata, msg):
     """处理接收到的状态消息的回调函数"""
     try:
@@ -42,10 +46,30 @@ def on_status_message(client, userdata, msg):
 
 
 def start_status_monitor():
-    """启动一个后台线程来监听 MQTT 状态"""
+    """
+    启动一个后台线程来监听 MQTT 状态。
+    在启动前，先清空历史保留消息。
+    """
+    try:
+        # 【新增】清空保留消息
+        pipeline_config = utils.get_config("pipeline_config")
+        broker_host = pipeline_config.get("broker", {}).get("host", "localhost")
+        broker_port = pipeline_config.get("broker", {}).get("port", 1883)
+        topics_to_clear = ["pipelines/+/status", "magistrates/+/status"]
+        utils.clear_retained_status_messages(broker_host, broker_port, topics_to_clear)
+
+    except FileNotFoundError:
+        print("警告: pipeline_config.yaml 未找到，使用默认 MQTT Broker 地址。")
+        broker_host = "localhost"
+        broker_port = 1883
+        topics_to_clear = ["pipelines/+/status", "magistrates/+/status"]
+        utils.clear_retained_status_messages(broker_host, broker_port, topics_to_clear)
+    except Exception as e:
+        print(f"清空保留消息时发生错误: {e}，将继续启动状态监控。")
+
     monitor_client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "flask_monitor_client")
     monitor_client.on_message = on_status_message
-    monitor_client.connect("localhost", 1883, 60)
+    monitor_client.connect(broker_host, broker_port, 60)
     
     # 订阅两种服务的状态主题
     monitor_client.subscribe("pipelines/+/status")
@@ -55,54 +79,9 @@ def start_status_monitor():
     print("MQTT Status Monitor started for Pipelines and Magistrates.")
 
 
-# @main_bp.route('/get-magistrate-grid')
-# def get_magistrate_grid():
-#     """
-#     生成包含8个 magistrate 状态按钮的 HTML 网格。
-#     """
-#     html_parts = []
-    
-#     try:
-#         pipeline_config = utils.get_config("pipeline_config")
-#         enabled_sources = pipeline_config.get("client_pipeline", {}).get("enable_sources", [])
-#     except FileNotFoundError:
-#         enabled_sources = []
-#         html_parts.append("<p>Error: pipeline_config.yaml not found!</p>")
-
-#     with status_lock:
-#         for i in range(1, 9):
-#             magistrate_name = f"pipeline_inference_{i}"
-#             magistrate_id = f"magistrate_client_{i}"
-
-#             # print(magistrate_name, "---->", magistrate_id)
-#             status_class = 'status-disabled' # 默认为灰色 (未启用)
-            
-#             if magistrate_name in enabled_sources:
-#                 magistrate_data = magistrate_statuses.get(magistrate_id)
-#                 # print(magistrate_statuses)
-#                 if magistrate_data:
-#                     status_text = magistrate_data['status']
-#                     last_seen_ago = time.time() - magistrate_data.get('last_seen', 0)
-#                     if status_text == 'online' and last_seen_ago <= 20: # 使用20秒作为stale阈值
-#                         status_class = 'status-enabled-online'
-#                     else:
-#                         status_class = 'status-enabled-offline'
-#                 else:
-#                     status_class = 'status-enabled-offline'
-            
-#             # --- 【关键修改】为 div 添加 htmx 点击事件 ---
-#             html_parts.append(f"""
-#                 <div class="status-box {status_class}" 
-#                      style="cursor: pointer;"
-#                      hx-get="/panel/magistrate/{i}"
-#                      hx-target="#main-content"
-#                      hx-swap="innerHTML"
-#                      hx-push-url="true">
-#                     クライアント {i}
-#                 </div>
-#             """)
-
-#     return "".join(html_parts)
+######################################################
+# Flask 路由处理函数
+######################################################
 
 @main_bp.route('/get-magistrate-grid')
 def get_magistrate_grid():
@@ -127,16 +106,20 @@ def get_magistrate_grid():
 
             status_class = 'status-disabled' # 默认为灰色 (未启用)
             
-            # --- Fetch alias and IP for display ---
+            # 获取 alias 和 IP 地址
             alias = pipeline_config.get("client_pipeline", {}).get(magistrate_name, {}).get("alias", f"クライアント {i}")
             ip_address = pipeline_config.get("client_pipeline", {}).get(magistrate_name, {}).get("camera_config", {}).get("address", "N/A")
             display_text = f"{alias} - {ip_address}"
 
-            if magistrate_name in enabled_sources:
-                magistrate_data = magistrate_statuses.get(magistrate_id_str)
+            # 循环检测每一个 magistrate 的状态
+            if magistrate_name in enabled_sources:  # 如果该 magistrate 被启用
+                magistrate_data = magistrate_statuses.get(magistrate_id_str)  # 使用 magistrate_id_str 获取状态数据
+                
+                # 检查状态并设置相应的样式
                 if magistrate_data:
-                    status_text = magistrate_data['status']
-                    last_seen_ago = time.time() - magistrate_data.get('last_seen', 0)
+                    status_text = magistrate_data['status']  # 'online', 'offline', 'stale'
+                    last_seen_ago = time.time() - magistrate_data.get('last_seen', 0)  # 计算最后一次看到的时间差
+
                     if status_text == 'online' and last_seen_ago <= 20: # 使用20秒作为stale阈值
                         status_class = 'status-enabled-online'
                     else:

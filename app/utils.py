@@ -1,5 +1,4 @@
-# utils.py
-
+import paho.mqtt.client as mqtt
 import os
 import shutil
 
@@ -183,3 +182,29 @@ def load_configs_from_device(source_dir: str = "/opt/SafeGuard/configs",
             copied_files.append(filename)
             print(f"已从设备加载 {src_path} 到本地 {dest_path}")
     return copied_files
+
+
+# 清空 MQTT 保留消息的函数
+def clear_retained_status_messages(broker_host: str, broker_port: int, status_topics: list):
+    """
+    连接到 MQTT broker 并清除指定主题下的所有保留状态消息。
+
+    Args:
+        broker_host (str): MQTT broker 的主机地址。
+        broker_port (int): MQTT broker 的端口。
+        status_topics (list): 需要清除保留消息的主题列表，支持通配符。
+    """
+    try:
+        # 使用一个独立的客户端来执行此任务
+        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, "retained_message_cleaner")
+        client.connect(broker_host, broker_port, 60)
+
+        # 循环遍历所有需要清除的主题
+        for topic in status_topics:
+            # 发布一个空消息，并设置 retain=True，这将清除该主题下的保留消息
+            client.publish(topic, payload=None, qos=0, retain=True)
+            print(f"已清除主题 '{topic}' 的保留消息。")
+
+        client.disconnect()
+    except Exception as e:
+        print(f"清空保留消息时发生错误: {e}")

@@ -116,3 +116,11 @@ general_settings:
   schema_config: "./configs/scheme.json"
   use_enhanced_tracking: true
   enable_debug_mode: false
+  display_width: 1024
+  display_height: 768
+  sma_window_size: 15
+  delta_duration_threshold: 1.0
+  delta_distance_threshold: 3.0
+  reentry_angle_threshold: 45.0
+  min_consecutive_count: 2
+  min_keypoint_distance: 20.0
