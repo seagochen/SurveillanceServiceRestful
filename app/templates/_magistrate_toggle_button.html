@@ -11,7 +11,7 @@
 {% else %}
     <!-- 如果当前是禁用状态，显示“启动”按钮 -->
     <!-- 点击它会向 /start_source 发送 POST 请求 -->
-    <button class="primary"
+    <button class="success"
             hx-post="/panel/magistrate/{{ magistrate_id }}/start_source"
             hx-target="this"
             hx-swap="outerHTML"

@@ -9,6 +9,138 @@
             <legend>普通エリア対策 (Normal Area Strategies)</legend>
             <table class="config-table">
                 <tbody>
+                    <!-- うろうろ検知 (Look Around) -->
+                    <tr>
+                        <td class="strategy-label">うろうろ検知</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/look_around/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_look_around_threshold" name="normal_area_look_around_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.look_around.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_look_around_penalty_score" name="normal_area_look_around_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.look_around.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 盗難検知 (Theft Detection) -->
+                    <tr>
+                        <td class="strategy-label">盗難検知</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/theft_detection/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_theft_detection_threshold" name="normal_area_theft_detection_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.theft_detection.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_theft_detection_penalty_score" name="normal_area_theft_detection_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.theft_detection.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 長時間しゃがみ込み (Long Time Squat) -->
+                    <tr>
+                        <td class="strategy-label">長時間しゃがみ込み</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/long_time_squat/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_long_time_squat_threshold" name="normal_area_long_time_squat_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.long_time_squat.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_long_time_squat_penalty_score" name="normal_area_long_time_squat_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.long_time_squat.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 徘徊距離 (Loitering Distance) -->
+                    <tr>
+                        <td class="strategy-label">徘徊距離</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/loitering_distance/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_loitering_distance_threshold" name="normal_area_loitering_distance_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.loitering_distance.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_loitering_distance_penalty_score" name="normal_area_loitering_distance_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.loitering_distance.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 徘徊再侵入 (Loitering Reentry) -->
+                    <tr>
+                        <td class="strategy-label">徘徊再侵入</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/loitering_reentry/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_loitering_reentry_threshold" name="normal_area_loitering_reentry_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.loitering_reentry.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_loitering_reentry_penalty_score" name="normal_area_loitering_reentry_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.loitering_reentry.penalty_score }}">
+                        </td>
+                    </tr>
+                     <!-- エリア立ち入り (Loitering Enter Area) -->
+                    <tr>
+                        <td class="strategy-label">エリア立ち入り</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/loitering_enter_area/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_loitering_enter_area_threshold" name="normal_area_loitering_enter_area_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.loitering_enter_area.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="normal_area_loitering_enter_area_penalty_score" name="normal_area_loitering_enter_area_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.normal_area.loitering_enter_area.penalty_score }}">
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </fieldset>
@@ -16,18 +148,214 @@
         <fieldset class="config-fieldset">
             <legend>重点エリア対策 (Key Area Strategies)</legend>
             <table class="config-table">
+                <tbody>
+                    <!-- うろうろ検知 (Look Around) -->
+                    <tr>
+                        <td class="strategy-label">うろうろ検知</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/look_around/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_look_around_threshold" name="key_area_look_around_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.look_around.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_look_around_penalty_score" name="key_area_look_around_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.look_around.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 盗難検知 (Theft Detection) -->
+                    <tr>
+                        <td class="strategy-label">盗難検知</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/theft_detection/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_theft_detection_threshold" name="key_area_theft_detection_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.theft_detection.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_theft_detection_penalty_score" name="key_area_theft_detection_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.theft_detection.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 長時間しゃがみ込み (Long Time Squat) -->
+                    <tr>
+                        <td class="strategy-label">長時間しゃがみ込み</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/long_time_squat/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_long_time_squat_threshold" name="key_area_long_time_squat_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.long_time_squat.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_long_time_squat_penalty_score" name="key_area_long_time_squat_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.long_time_squat.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 徘徊距離 (Loitering Distance) -->
+                    <tr>
+                        <td class="strategy-label">徘徊距離</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/loitering_distance/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_loitering_distance_threshold" name="key_area_loitering_distance_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.loitering_distance.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_loitering_distance_penalty_score" name="key_area_loitering_distance_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.loitering_distance.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- 徘徊再侵入 (Loitering Reentry) -->
+                    <tr>
+                        <td class="strategy-label">徘徊再侵入</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/loitering_reentry/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_loitering_reentry_threshold" name="key_area_loitering_reentry_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.loitering_reentry.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_loitering_reentry_penalty_score" name="key_area_loitering_reentry_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.loitering_reentry.penalty_score }}">
+                        </td>
+                    </tr>
+                    <!-- エリア立ち入り (Loitering Enter Area) -->
+                    <tr>
+                        <td class="strategy-label">エリア立ち入り</td>
+                        <td>
+                            <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/loitering_enter_area/toggle"
+                                 hx-trigger="load" hx-swap="outerHTML">
+                                <button disabled>Loading…</button>
+                            </div>
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_loitering_enter_area_threshold" name="key_area_loitering_enter_area_threshold"
+                                   placeholder="閾値"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.loitering_enter_area.threshold }}">
+                        </td>
+                        <td>
+                            <input type="number" id="key_area_loitering_enter_area_penalty_score" name="key_area_loitering_enter_area_penalty_score"
+                                   placeholder="ペナルティ"
+                                   min="0" step="1"
+                                   value="{{ config.key_area.loitering_enter_area.penalty_score }}">
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </fieldset>
 
         <fieldset class="config-fieldset">
-            <legend>検知ラベル (Detection Levels)</legend>
+            <legend>検知レベル (Detection Levels)</legend>
             <table class="config-table">
+                <tbody>
+                    {% for i in range(6) %}
+                    <tr>
+                        <td><label for="level{{ i }}">レベル{{ i }}</label></td>
+                        <td>
+                            <input type="number" id="alert_settings_level{{ i }}" name="alert_settings_level{{ i }}"
+                                   value="{{ config.alert_settings['level' + i|string] }}" min="0">
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </fieldset>
-
+        
         <fieldset class="config-fieldset">
-            <legend>パラメータセッティング (Parameters Settings)</legend>
+            <legend>その他設定 (Parameters Settings)</legend>
             <table class="config-table">
+                <tbody>
+                    <tr>
+                        <td><label for="cache_retention_duration">キャッシュ保持時間 (秒)</label></td>
+                        <td><input type="number" id="general_settings_cache_retention_duration" name="general_settings_cache_retention_duration"
+                            value="{{ config.general_settings.cache_retention_duration }}" min="0" step="1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="use_enhanced_tracking">エンハンストトラッキングを使用</label></td>
+                        <td>
+                            <input type="checkbox" id="general_settings_use_enhanced_tracking" name="general_settings_use_enhanced_tracking"
+                                   {% if config.general_settings.use_enhanced_tracking %} checked {% endif %}>
+                        </td>
+                    </tr>
+                     <tr>
+                        <td><label for="sma_window_size">SMAウィンドウサイズ</label></td>
+                        <td><input type="number" id="general_settings_sma_window_size" name="general_settings_sma_window_size"
+                            value="{{ config.general_settings.sma_window_size }}" min="0" step="1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="delta_duration_threshold">デルタ時間閾値</label></td>
+                        <td><input type="number" id="general_settings_delta_duration_threshold" name="general_settings_delta_duration_threshold"
+                            value="{{ config.general_settings.delta_duration_threshold }}" min="0" step="any">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="delta_distance_threshold">デルタ距離閾値</label></td>
+                        <td><input type="number" id="general_settings_delta_distance_threshold" name="general_settings_delta_distance_threshold"
+                            value="{{ config.general_settings.delta_distance_threshold }}" min="0" step="any">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="reentry_angle_threshold">再入角度閾値</label></td>
+                        <td><input type="number" id="general_settings_reentry_angle_threshold" name="general_settings_reentry_angle_threshold"
+                            value="{{ config.general_settings.reentry_angle_threshold }}" min="0" step="any">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="min_consecutive_count">最小連続カウント</label></td>
+                        <td><input type="number" id="general_settings_min_consecutive_count" name="general_settings_min_consecutive_count"
+                            value="{{ config.general_settings.min_consecutive_count }}" min="0" step="1">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><label for="min_keypoint_distance">最小キーポイント距離</label></td>
+                        <td><input type="number" id="general_settings_min_keypoint_distance" name="general_settings_min_keypoint_distance"
+                            value="{{ config.general_settings.min_keypoint_distance }}" min="0" step="any">
+                        </td>
+                    </tr>
+                </tbody>
             </table>
         </fieldset>
 
@@ -41,11 +369,10 @@
             >
                 取り消し (Cancel)
             </button>
-            
             <button
-                type="button"
+                type="submit"
                 class="primary"
-                hx-post="/panel/cloud/{{ magistrate_id }}"
+                hx-post="/panel/alert/{{ magistrate_id }}"
                 hx-include="#magistrate-setting-form"
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
@@ -54,7 +381,6 @@
             </button>
         </div>
     </form>
-
 </div>
 
 <style>
@@ -89,4 +415,53 @@
     .panel-footer button {
         margin-left: 10px;
     }
+
+    /* 新增样式 */
+    .config-table .strategy-label {
+        width: 120px;
+        font-weight: bold;
+        text-align: left;
+    }
+    .config-table td:nth-child(2) { /* 按钮列 */
+        width: 120px;
+    }
+    .config-table td:nth-child(3), .config-table td:nth-child(4) { /* 输入框列 */
+        width: 150px;
+    }
+    .config-table input[type="number"], .config-table input[type="text"] {
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #444;
+        background-color: #222;
+        color: #eee;
+        transition: background-color 0.3s ease;
+    }
+    .config-table input[disabled] {
+        background-color: #333;
+        color: #888;
+        cursor: not-allowed;
+    }
+    .config-table .status-toggle {
+        display: inline-flex;
+    }
 </style>
+
+<script>
+    // 监听 HTMX 触发的自定义事件，根据状态启用或禁用输入框
+    document.body.addEventListener('strategy-status-changed', function(event) {
+        const isEnabled = event.detail.enabled;
+        const row = event.target.closest('tr'); // 获取触发事件的按钮所在的行
+        if (!row) return;
+
+        // 查找该行中的所有输入框
+        const inputs = row.querySelectorAll('input');
+        
+        inputs.forEach(input => {
+            if (isEnabled) {
+                input.removeAttribute('disabled');
+            } else {
+                input.setAttribute('disabled', '');
+            }
+        });
+    });
+</script>

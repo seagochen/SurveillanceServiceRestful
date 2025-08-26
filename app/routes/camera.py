@@ -28,7 +28,7 @@ def get_camera_config_panel(camera_id: int):
             "username":  utils.normalize(cam_cfg.camera_config.username),
             "password":  utils.normalize(cam_cfg.camera_config.password),
         }
-        return render_template('camera_config_panel.html', magistrate_id=camera_id, config=data)
+        return render_template('camera_config_panel.html', camera_id=camera_id, config=data)
     except Exception as e:
         return f"Error loading camera config for magistrate {camera_id}: {e}", 404
 

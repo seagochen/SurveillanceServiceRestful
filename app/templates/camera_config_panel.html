@@ -1,6 +1,6 @@
 <div id="config-panel">
     <div class="panel-header">
-        <h2>クライアント {{ magistrate_id }} - カメラ接続設定</h2>
+        <h2>クライアント {{ camera_id }} - カメラ接続設定</h2>
     </div>
 
     <form id="camera-form" autocomplete="off">
@@ -54,7 +54,7 @@
             <button
                 type="button"
                 class="danger"
-                hx-get="/panel/magistrate/{{ magistrate_id }}"
+                hx-get="/panel/magistrate/{{ camera_id }}"
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
             >
@@ -64,7 +64,7 @@
             <button
                 type="button"
                 class="primary"
-                hx-post="/panel/camera/{{ magistrate_id }}"
+                hx-post="/panel/camera/{{ camera_id }}"
                 hx-include="#camera-form"
                 hx-target="#config-panel"
                 hx-swap="outerHTML"

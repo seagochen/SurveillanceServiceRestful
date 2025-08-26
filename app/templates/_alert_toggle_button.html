@@ -1,0 +1,19 @@
+{% if is_enabled %}
+<button class="danger"
+        hx-post="/panel/alert/{{ magistrate_id }}/{{ area }}/{{ strategy }}/toggle"
+        hx-target="this"
+        hx-swap="outerHTML"
+        hx-on::after-swap="htmx.trigger(this.closest('tr'), 'strategy-status-changed', { detail: { enabled: false } })"
+        title="無効化します">
+  無効 (Disable)
+</button>
+{% else %}
+<button class="success"
+        hx-post="/panel/alert/{{ magistrate_id }}/{{ area }}/{{ strategy }}/toggle"
+        hx-target="this"
+        hx-swap="outerHTML"
+        hx-on::after-swap="htmx.trigger(this.closest('tr'), 'strategy-status-changed', { detail: { enabled: true } })"
+        title="有効化します">
+  有効 (Enable)
+</button>
+{% endif %}
