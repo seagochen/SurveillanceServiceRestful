@@ -6,7 +6,6 @@ broker:
 client_magistrate:
   input_topic:    "pipeline_output"
   subscribe_source: "pipeline_inference_2"
-  cache_retention_duration: 60 # seconds
 
   key_area_settings:
     alpha: 0.2
@@ -113,7 +112,7 @@ client_magistrate:
 
 
 general_settings:
-  schema_config: "./configs/scheme.json"
+  schema_config: ./configs/scheme.json
   use_enhanced_tracking: false
   enable_debug_mode: false
   display_width: 1024
@@ -124,3 +123,4 @@ general_settings:
   reentry_angle_threshold: 45.0
   min_consecutive_count: 2
   min_keypoint_distance: 20.0
+  cache_retention_duration: 60

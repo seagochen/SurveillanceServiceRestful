@@ -62,7 +62,6 @@ class ClientMagistrateConfig(BaseModel):
     """
     input_topic: str
     subscribe_source: str
-    cache_retention_duration: int               # 数据缓存保留时间，单位为秒
     key_area_settings: KeyAreaConfig            # 重点区域设置
     key_area_strategy: PenaltyDecisionConfig    # 重点区域策略
     normal_area_strategy: PenaltyDecisionConfig # 普通区域策略
@@ -71,17 +70,18 @@ class ClientMagistrateConfig(BaseModel):
 
 # ---- General Settings 配置 ----
 class GeneralSettingsConfig(BaseModel):
-    schema_config: str
-    use_enhanced_tracking: bool
-    enable_debug_mode: bool
-    display_width: int
-    display_height: int
-    sma_window_size: int
-    delta_duration_threshold: float
-    delta_distance_threshold: float
-    reentry_angle_threshold: float
-    min_consecutive_count: int
-    min_keypoint_distance: float
+    cache_retention_duration: int               # 数据缓存保留时间，单位为秒
+    schema_config: str                          # 绘图方案
+    use_enhanced_tracking: bool                 # 是否使用DeepSORT
+    enable_debug_mode: bool                     # 是否启动debug模式
+    display_width: int                          # 显示画面的宽
+    display_height: int                         # 显示画面的高
+    sma_window_size: int                        # SMA平滑窗口大小
+    delta_duration_threshold: float             # 判断有效数据的最小时间
+    delta_distance_threshold: float             # 判断有效数据的最小移动距离
+    reentry_angle_threshold: float              # 折返角度
+    min_consecutive_count: int                  # 最少连续数
+    min_keypoint_distance: float                # 最小关键点距离
 
 # ---- YAML ----
 class MagistrateConfig(BaseModel):

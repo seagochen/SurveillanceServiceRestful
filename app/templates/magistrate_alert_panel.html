@@ -1,0 +1,92 @@
+<div id="config-panel">
+    <div class="panel-header">
+        <h2>クライアント {{ magistrate_id }} - アラート設定</h2>
+    </div>
+
+    <form id="magistrate-setting-form" autocomplete="off">
+
+        <fieldset class="config-fieldset">
+            <legend>普通エリア対策 (Normal Area Strategies)</legend>
+            <table class="config-table">
+                <tbody>
+                </tbody>
+            </table>
+        </fieldset>
+
+        <fieldset class="config-fieldset">
+            <legend>重点エリア対策 (Key Area Strategies)</legend>
+            <table class="config-table">
+            </table>
+        </fieldset>
+
+        <fieldset class="config-fieldset">
+            <legend>検知ラベル (Detection Levels)</legend>
+            <table class="config-table">
+            </table>
+        </fieldset>
+
+        <fieldset class="config-fieldset">
+            <legend>パラメータセッティング (Parameters Settings)</legend>
+            <table class="config-table">
+            </table>
+        </fieldset>
+
+        <div class="panel-footer" style="justify-content: flex-end;">
+            <button
+                type="button"
+                class="danger"
+                hx-get="/panel/magistrate/{{ magistrate_id }}"
+                hx-target="#config-panel"
+                hx-swap="outerHTML"
+            >
+                取り消し (Cancel)
+            </button>
+            
+            <button
+                type="button"
+                class="primary"
+                hx-post="/panel/cloud/{{ magistrate_id }}"
+                hx-include="#magistrate-setting-form"
+                hx-target="#config-panel"
+                hx-swap="outerHTML"
+            >
+                確認 (Confirm)
+            </button>
+        </div>
+    </form>
+
+</div>
+
+<style>
+    .config-fieldset {
+        border: 1px solid #555;
+        border-radius: 8px;
+        padding: 1.5em;
+        margin-bottom: 2em;
+    }
+    .config-fieldset legend {
+        padding: 0 0.5em;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .config-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .config-table td {
+        padding: 12px;
+        border-bottom: 1px solid #444;
+    }
+    .config-table td:first-child {
+        width: 150px;
+        font-weight: bold;
+    }
+    .config-table input {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+    .panel-footer button {
+        margin-left: 10px;
+    }
+</style>
