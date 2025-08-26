@@ -4,8 +4,7 @@ broker:
   client_id: "magistrate_client_3"
 
 client_magistrate:
-  input_topic:    "pipeline_output"
-  subscribe_source: "pipeline_inference_3"
+  input_topic: "pipeline_inference_3"
 
   key_area_settings:
     alpha: 0.2

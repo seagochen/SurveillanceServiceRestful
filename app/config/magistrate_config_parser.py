@@ -60,8 +60,7 @@ class ClientMagistrateConfig(BaseModel):
     Defines the settings for the magistrate client.
     This model is now static, reflecting the simpler YAML structure.
     """
-    input_topic: str
-    subscribe_source: str
+    input_topic: str                            # 订阅的消息topic
     key_area_settings: KeyAreaConfig            # 重点区域设置
     key_area_strategy: PenaltyDecisionConfig    # 重点区域策略
     normal_area_strategy: PenaltyDecisionConfig # 普通区域策略

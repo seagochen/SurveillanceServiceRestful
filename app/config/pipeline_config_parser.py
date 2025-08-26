@@ -3,9 +3,6 @@ from typing import Any, List, Dict, Optional
 from pydantic import BaseModel, Field
 from app.config.broker_config import BrokerConfig
 
-# ---- Pydantic Models for the updated pipeline_config.yaml ----
-
-
 # --- Camera Configuration Model ---
 class CameraConfig(BaseModel):
     camera_id: Optional[str] = None
@@ -50,16 +47,23 @@ class EngineSettings(BaseModel):
     efficient_engine_path: str
     efficient_max_batch_size: int
 
+class GeneralSettings(BaseModel):
+    """Defines the paths and parameters for the inference engines."""
+    debug_mode: bool
+    window_title: str
+
+
 class ClientPipelineConfig(BaseModel):
     """Main configuration block for the pipeline client."""
     # Updated fields to match the new YAML structure
-    output_topic: str
-    enable_sources: List[str]
+    enable_sources: List[str] = Field(default_factory=list)     # ✅ 新增 2025/08/26
+    disable_sources: List[str] = Field(default_factory=list)    # ✅ 新增 2025/08/26
     engine_settings: EngineSettings
-    debug_mode: bool
-    window_title: str
+    general_settings: GeneralSettings                           # ✅ 新增 2025/08/26
+
     # This dictionary will hold the 'pipeline_inference_*' sections
     inferences: Dict[str, PipelineInferenceDetail] = Field(default_factory=dict)
+    reserved_inferences: Dict[str, PipelineInferenceDetail] = Field(default_factory=dict)
 
     class Config:
         extra = 'allow'
@@ -118,19 +122,21 @@ def load_pipeline_config(path: str) -> PipelineConfig:
     # --- Adjust special handling for the new structure ---
     pipeline_data = raw_config.get('client_pipeline', {})
     parsed_pipeline_data = {
-        "output_topic": pipeline_data.get("output_topic", ""),
         "enable_sources": pipeline_data.get("enable_sources", []),
+        "disable_sources": pipeline_data.get("disable_sources", []),
         "engine_settings": pipeline_data.get("engine_settings", {}),
         "debug_mode": pipeline_data.get("debug_mode", False),
+        "general_settings": pipeline_data.get("general_settings", {}),      # ✅ 新增 2025/08/26
         "window_title": pipeline_data.get("window_title", "Unified Pipeline"),
         "inferences": {}
     }
-    
+
+    # 解析全部的 pipeline_inference 配置信息
     for key, value in pipeline_data.items():
         # Updated prefix check
         if key.startswith('pipeline_inference'):
             parsed_pipeline_data['inferences'][key] = value
-            
+
     raw_config['client_pipeline'] = parsed_pipeline_data
 
     return PipelineConfig.model_validate(raw_config)
