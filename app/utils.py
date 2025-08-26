@@ -4,35 +4,33 @@ import shutil
 
 import yaml
 
-def get_config(config_name: str):
+
+def get_config(config_name: str,
+               default_folder: str = "configs",
+               return_path: bool = True):
     """
     从 'configs' 目录读取指定的 YAML 配置文件。
-
-    Args:
-        config_name (str): 配置文件的名称 (不带 .yaml 后缀)。
-
-    Returns:
-        dict: 解析后的配置数据。
-
-    Raises:
-        FileNotFoundError: 如果配置文件不存在。
     """
     # 构建配置文件的完整路径
-    filepath = os.path.join("configs", f"{config_name}.yaml")
+    filepath = os.path.join(default_folder, f"{config_name}.yaml")
     print(f"Loading config from {filepath}")
 
     # 检查文件是否存在
     if not os.path.isfile(filepath):
         print(f"File {filepath} does not exist.")
         raise FileNotFoundError(f"Configuration file '{filepath}' not found")
+    # end-if
 
-    # 读取并解析 YAML 文件
-    with open(filepath, 'r', encoding='utf-8') as file:
-        config_data = yaml.safe_load(file)
-    return config_data
+    if return_path:
+        return filepath
+    else:
+        with open(filepath, "r") as f:
+            config = yaml.load(f, Loader=yaml.FullLoader)
+            return config
+        # end-with
+    # end-if-else
 
-
-def save_config(config_name: str, data: dict):
+def save_config(config_name: str, data: dict, default_folder: str = "configs"):
     """
     将数据保存为 YAML 文件到 'configs' 目录。
 
@@ -41,7 +39,7 @@ def save_config(config_name: str, data: dict):
         data (dict): 需要保存的数据。
     """
     # 构建配置文件的完整路径
-    filepath = os.path.join("configs", f"{config_name}.yaml")
+    filepath = os.path.join(default_folder, f"{config_name}.yaml")
     print(f"Saving config to {filepath}")
 
     # 将 Python 字典写入 YAML 文件
@@ -87,7 +85,7 @@ def load_configs(src_folder: str, dest_folder: str):
     return copied_files
 
 
-def has_configs(proj_dir: str = "/opt/SafeGuard/configs") -> bool:
+def has_configs(proj_dir: str = "/opt/SurveillanceService/configs") -> bool:
     """检查指定目录中是否存在核心配置文件。"""
     if not os.path.isdir(proj_dir):
         return False
@@ -106,7 +104,7 @@ def has_configs(proj_dir: str = "/opt/SafeGuard/configs") -> bool:
     
 
 def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestful/configs",
-                        source_dir: str = "/opt/SafeGuard/configs"):
+                        source_dir: str = "/opt/SurveillanceService/configs"):
     """
     在应用启动时，从主配置目录同步配置到应用目录。
     如果主目录缺少配置，则会尝试从 './configs/defaults' 加载默认配置。
@@ -134,7 +132,7 @@ def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestful/confi
         print("应用可能无法正常启动。请检查配置！")
 
 
-def sync_single_config(config_name: str, dest_folder: str = "/opt/SafeGuard/configs"):
+def sync_single_config(config_name: str, dest_folder: str = "/opt/SurveillanceService/configs"):
     """
     将单个指定的 .yaml 文件从本地 'configs' 目录同步到目标文件夹。
 
@@ -162,7 +160,7 @@ def sync_single_config(config_name: str, dest_folder: str = "/opt/SafeGuard/conf
     return dest_path
 
 
-def load_configs_from_device(source_dir: str = "/opt/SafeGuard/configs", 
+def load_configs_from_device(source_dir: str = "/opt/SurveillanceService/configs", 
                              dest_dir: str = "configs"):
     """
     将目标设备上的配置 (source_dir) 复制回本地的 'configs' 目录 (dest_dir)。

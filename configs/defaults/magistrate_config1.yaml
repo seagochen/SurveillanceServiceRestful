@@ -102,18 +102,18 @@ client_magistrate:
     upload_level: 2
 
     sceptical_image:
-      script: "/opt/SurveillanceService/cloud/upload_sceptical_image_to_cloud.sh"
+      script: "/opt/SurveillanceService/scripts/cloud/upload_sceptical_image_to_cloud.sh"
       device_id: "0000000055"
       action_code: "998"
 
     patrol_image:
-      script: "/opt/SurveillanceService/cloud/upload_confirmation_image_to_cloud.sh"
+      script: "/opt/SurveillanceService/scripts/cloud/upload_confirmation_image_to_cloud.sh"
       device_id: "0000000055"
       action_code: "001"
 
 general_settings:
   schema_config: "./configs/scheme.json"
-  use_enhanced_tracking: true
+  use_enhanced_tracking: false
   enable_debug_mode: false
   display_width: 1024
   display_height: 768

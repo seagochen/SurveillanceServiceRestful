@@ -1,159 +1,179 @@
 broker:
-  host: "localhost"
+  host: localhost
   port: 1883
-  client_id: "pipeline_client"
+  client_id: pipeline_client
 
 client_pipeline:
   debug_mode: true
-  window_title: "Pipeline Monitor"
-  output_topic: "pipeline_output"
+  window_title: Pipeline Monitor
+  output_topic: pipeline_output
   enable_sources:
-    - "pipeline_inference_1"
-    - "pipeline_inference_2"
-    - "pipeline_inference_3"
-    - "pipeline_inference_4"
-    - "pipeline_inference_5"
-    - "pipeline_inference_6"
-    - "pipeline_inference_7"
-    - "pipeline_inference_8"
+    - pipeline_inference_1
+    - pipeline_inference_2
   disable_sources:
-    - "pipeline_inference_reserved"
+    - pipeline_inference_3
+    - pipeline_inference_4
+    - pipeline_inference_8
+    - pipeline_inference_6
+    - pipeline_inference_5
+    - pipeline_inference_7
+    - pipeline_inference_reserved
 
   pipeline_inference_1:
-    alias: "Pipeline 1"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:     5 # -1 default for real-time RTSP streaming
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: 品川のカメラ
+    # width: 3040
+    # height: 1368
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/record_20250808_084948.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"
+      camera_id: '0000001'
+      address: 192.168.1.73
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [2040, 369, 3040, 1368]
+      - [1074, 369, 2073, 1368]
 
   pipeline_inference_2:
-    alias: "Pipeline 2"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:    5
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: 商店のカメラ
+    # width: 3040
+    # height: 1368
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/idle_busy_test.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"
+      camera_id: '0000001'
+      address: 192.168.1.73
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [2040, 369, 3040, 1368]
+      - [1074, 369, 2073, 1368]
 
   pipeline_inference_3:
-    alias: "Pipeline 3"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:    5
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: 別のカメラ
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/idle_busy_test.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"
+      camera_id: '0000003'
+      address: 192.168.1.102
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [0, 0, 0, 0]
 
   pipeline_inference_4:
-    alias: "Pipeline 4"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:     5
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: Pipeline 4
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/idle_busy_test.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"
+      camera_id: '0000004'
+      address: 192.168.1.102
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [0, 0, 0, 0]
 
   pipeline_inference_5:
-    alias: "Pipeline 5"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:     5
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: Pipeline 5
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/idle_busy_test.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"
+      camera_id: '0000005'
+      address: 192.168.1.150
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [0, 0, 0, 0]
 
   pipeline_inference_6:
-    alias: "Pipeline 6"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:     5
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: Pipeline 6
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/idle_busy_test.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"
+      camera_id: '0000006'
+      address: 192.168.1.150
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [0, 0, 0, 0]
 
   pipeline_inference_7:
-    alias: "Pipeline 7"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:     5
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: Pipeline 7
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/idle_busy_test.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"      
+      camera_id: '0000007'
+      address: 192.168.1.150
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [0, 0, 0, 0]
 
   pipeline_inference_8:
-    alias: "Pipeline 8"
-    output_width:   640
-    output_height:  640
-    output_format:  0 # 0: BGR, 1: RGB
-    output_fps:     5
-    url:            "/opt/videos/onsite_with_poster.mp4"
-    use_camera: false
+    alias: Pipeline 8
+    width: 640
+    height: 640
+    fps: 5
+    url: /opt/videos/idle_busy_test.mp4
+    use_camera: true
+    remote_support: false
     camera_config:
-      camera_id: "0000001"
-      address: "192.168.1.150"
-      port: 8554
-      path: "live"
-      username: "admin"
-      password: "password"  
+      camera_id: '0000008'
+      address: 192.168.1.150
+      port: null
+      path: null
+      username: admin
+      password: Admin00000
+    detect_regions:
+      - [0, 0, 0, 0]
 
   engine_settings:
-    library_path: "/home/user/projects/TrtEngineToolkits/build/lib/libjetson.so"
-
-    pose_engine_file: "/opt/models/yolov8s-pose.engine"
+    library_path: /opt/TrtEngineToolkits/lib/libjetson.so
+    pose_engine_file: /opt/models/yolov8n-pose.engine
     pose_cls_threshold: 0.5
     pose_iou_threshold: 0.7
     pose_max_batch_size: 8
-
-    efficient_engine_path: "/opt/models/efficientnet_b0_feat_logits.engine"
+    efficient_engine_path: /opt/models/efficientnet_b0_feat_logits.engine
     efficient_max_batch_size: 32

@@ -1,7 +1,6 @@
 import yaml
 from typing import List
 from pydantic import BaseModel
-
 from app.config.broker_config import BrokerConfig
 
 # ---- 区域空间配置模型 ----
@@ -75,6 +74,14 @@ class GeneralSettingsConfig(BaseModel):
     schema_config: str
     use_enhanced_tracking: bool
     enable_debug_mode: bool
+    display_width: int
+    display_height: int
+    sma_window_size: int
+    delta_duration_threshold: float
+    delta_distance_threshold: float
+    reentry_angle_threshold: float
+    min_consecutive_count: int
+    min_keypoint_distance: float
 
 # ---- YAML ----
 class MagistrateConfig(BaseModel):
@@ -96,9 +103,17 @@ def load_magistrate_config(path: str) -> MagistrateConfig:
     # Pydantic can parse this directly.
     return MagistrateConfig.model_validate(raw_config)
 
+# ---- Saving (NEW) ----
+def save_magistrate_config(path: str, cfg: MagistrateConfig) -> None:
+    import yaml
+    raw = cfg.model_dump()
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(raw, f, sort_keys=False, allow_unicode=True)
+
 # ---- Example Usage ----
 
 if __name__ == "__main__":
+    config_path=None
     try:
         config_path = 'magistrate_config.yaml'
         config = load_magistrate_config(config_path)

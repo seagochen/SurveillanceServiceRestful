@@ -32,6 +32,15 @@ def load_recorder_config(path: str) -> RecorderConfig:
     return RecorderConfig.model_validate(raw_config)
 
 
+# ---- Saving (new) ----
+
+def save_recorder_config(path: str, cfg: RecorderConfig) -> None:
+    import yaml
+    raw = cfg.model_dump()
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.safe_dump(raw, f, sort_keys=False, allow_unicode=True)
+
+
 # ---- Example Usage ----
 
 if __name__ == "__main__":

@@ -1,22 +1,55 @@
 import os
+
 from app import create_app
-from app import mqtt_status
 from app.utils import synchronize_configs
+from pyengine.io.network.mqtt_bus import MqttBus
+from pyengine.io.network.plugins.heart_beat_receiver import HeartbeatReceiverPlugin
 
 app = create_app()
 
 
+def _start_mqtt_receiver_and_inject(app):
+    """启动 MQTT 总线与心跳接收插件，并把插件实例放进 Flask app.config。"""
+    # 从 pipeline_config 读取 broker 配置（容错）
+    host, port, client_id = "127.0.0.1", 1883, "status_dashboard"
+
+    # 启动总线
+    bus = MqttBus(host=host, port=port, client_id=client_id)
+    bus.start()
+
+    # 启动接收插件（订阅 pipelines/+/status 与 magistrates/+/status）
+    receiver = HeartbeatReceiverPlugin(stale_sec=20, debug=False)
+    receiver.start(bus)
+
+    # 注入到 Flask（路由用 current_app.config["hb_receiver"] 访问）
+    app.config["mqtt_bus"] = bus
+    app.config["hb_receiver"] = receiver
+
+    return bus, receiver
+
+
+def _stop_mqtt_receiver(bus, receiver):
+    """退出时优雅关闭插件与总线。"""
+    try:
+        if receiver:
+            receiver.stop()
+    finally:
+        if bus:
+            bus.stop()
+
+
 if __name__ == '__main__':
 
-    # 同步配置文件
+    # 1) 同步配置
     synchronize_configs()
 
-    # 2. 检查环境变量，确保只在主工作进程中启动监控
-    #    这样可以避免在 Flask 的重载器监控进程中也启动一个实例
+    # 2) 仅在主工作进程里启动 MQTT（避免 Flask reloader 启两份）
+    bus = receiver = None
     if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not app.debug:
-        # --- 启动 MQTT 后台监控线程 ---
-        mqtt_status.start_status_monitor()
+        bus, receiver = _start_mqtt_receiver_and_inject(app)
 
-    # 只运行一次 Flask 应用
-    # debug=True 会自动在代码修改时重新加载应用
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    try:
+        # 3) 启动 Flask
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    finally:
+        _stop_mqtt_receiver(bus, receiver)
