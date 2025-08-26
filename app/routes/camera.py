@@ -20,13 +20,13 @@ def get_camera_config_panel(camera_id: int):
         cam_cfg = magistrate_config.client_pipeline.inferences[inference_name]
 
         data = {
-            "alias":     cam_cfg.alias,
-            "camera_id": cam_cfg.camera_config.camera_id,
-            "address":   cam_cfg.camera_config.address,
-            "port":      cam_cfg.camera_config.port,
-            "path":      cam_cfg.camera_config.path,
-            "username":  cam_cfg.camera_config.username,
-            "password":  cam_cfg.camera_config.password,
+            "alias":     utils.normalize(cam_cfg.alias),
+            "camera_id": utils.normalize(cam_cfg.camera_config.camera_id),
+            "address":   utils.normalize(cam_cfg.camera_config.address),
+            "port":      utils.normalize(cam_cfg.camera_config.port),
+            "path":      utils.normalize(cam_cfg.camera_config.path),
+            "username":  utils.normalize(cam_cfg.camera_config.username),
+            "password":  utils.normalize(cam_cfg.camera_config.password),
         }
         return render_template('camera_config_panel.html', magistrate_id=camera_id, config=data)
     except Exception as e:

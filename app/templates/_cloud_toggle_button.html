@@ -1,0 +1,17 @@
+{% if is_enabled %}
+<button class="danger"
+        hx-post="/panel/cloud/{{ magistrate_id }}/disable_upload"
+        hx-target="#config-panel"
+        hx-swap="outerHTML"
+        title="クラウドアップロードを無効化します">
+  停止 (Disable)
+</button>
+{% else %}
+<button class="primary"
+        hx-post="/panel/cloud/{{ magistrate_id }}/enable_upload"
+        hx-target="#config-panel"
+        hx-swap="outerHTML"
+        title="クラウドアップロードを有効化します">
+  起動 (Enable)
+</button>
+{% endif %}

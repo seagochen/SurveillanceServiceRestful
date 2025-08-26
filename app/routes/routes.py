@@ -49,7 +49,7 @@ def get_toggle_button(magistrate_id: int):
         cfg = load_pipeline_config(utils.get_config("pipeline_config"))
         name = f"pipeline_inference_{magistrate_id}"
         is_enabled = name in cfg.client_pipeline.enable_sources
-        return render_template('_toggle_button.html', magistrate_id=magistrate_id, is_enabled=is_enabled)
+        return render_template('_magistrate_toggle_button.html', magistrate_id=magistrate_id, is_enabled=is_enabled)
     except Exception as e:
         return f"<button disabled>Error: {e}</button>"
 
@@ -82,7 +82,7 @@ def start_source(magistrate_id):
 
         # 操作完成后，返回更新后的按钮状态
         return render_template(
-            '_toggle_button.html',
+            '_magistrate_toggle_button.html',
             magistrate_id=magistrate_id,
             is_enabled=True
         )
@@ -118,7 +118,7 @@ def stop_source(magistrate_id):
 
         # 操作完成后，返回更新后的按钮状态
         return render_template(
-            '_toggle_button.html',
+            '_magistrate_toggle_button.html',
             magistrate_id=magistrate_id,
             is_enabled=False
         )

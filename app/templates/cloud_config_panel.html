@@ -3,24 +3,62 @@
         <h2>クライアント {{ magistrate_id }} - クラウド設定</h2>
     </div>
 
-    <!-- 
-      【修改1】
-      - 给 form 添加 ID "cloud-form"。
-      - 移除 hx-* 属性。
-      - 添加 autocomplete="off"。
-    -->
     <form id="cloud-form" autocomplete="off">
+
+        <fieldset class="config-fieldset">
+            <legend>基本設定 (Basic Settings)</legend>
+            <table class="config-table">
+                <tbody>
+                <tr>
+                    <td><label for="upload_enable">アップロード有効</label></td>
+                    <td>
+                        <div
+                            hx-get="/panel/cloud/{{ magistrate_id }}/toggle_button"
+                            hx-trigger="load"
+                            hx-swap="outerHTML"
+                        >
+                            <button disabled>Loading…</button>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="blocking_duration">イベント間隔 (秒)</label></td>
+                    <td>
+                    <input type="number" id="blocking_duration" name="blocking_duration"
+                            min="0" step="1"
+                            value="{{ config.blocking_duration if config.blocking_duration is not none else 0 }}"
+                            {% if not config.enable %} disabled {% endif %}>
+                    </td>
+                </tr>
+                <tr>
+                    <td><label for="upload_level">アップロードレベル</label></td>
+                    <td>
+                    <input type="number" id="upload_level" name="upload_level"
+                            min="0" step="1"
+                            value="{{ config.upload_level if config.upload_level is not none else 0 }}"
+                            {% if not config.enable %} disabled {% endif %}>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </fieldset>
+
         <fieldset class="config-fieldset">
             <legend>不審者アップロード (Suspicious Person Upload)</legend>
             <table class="config-table">
                 <tbody>
                     <tr>
                         <td><label for="sceptical_device_id">デバイスID</label></td>
-                        <td><input type="text" id="sceptical_device_id" name="sceptical_device_id" value="{{ config.sceptical_image.device_id }}"></td>
+                        <td><input type="text" id="sceptical_device_id" name="sceptical_device_id" 
+                            value="{{ config.sceptical_image.device_id }}"
+                            {% if not config.enable %} disabled {% endif %}>
+                        </td>
                     </tr>
                     <tr>
                         <td><label for="sceptical_action_code">アクションコード</label></td>
-                        <td><input type="text" id="sceptical_action_code" name="sceptical_action_code" value="{{ config.sceptical_image.action_code }}"></td>
+                        <td><input type="text" id="sceptical_action_code" name="sceptical_action_code" 
+                            value="{{ config.sceptical_image.action_code }}"
+                            {% if not config.enable %} disabled {% endif %}></td>
                     </tr>
                 </tbody>
             </table>
@@ -32,18 +70,21 @@
                 <tbody>
                     <tr>
                         <td><label for="patrol_device_id">デバイスID</label></td>
-                        <td><input type="text" id="patrol_device_id" name="patrol_device_id" value="{{ config.patrol_image.device_id }}"></td>
+                        <td><input type="text" id="patrol_device_id" name="patrol_device_id" 
+                            value="{{ config.patrol_image.device_id }}"
+                            {% if not config.enable %} disabled {% endif %}></td>
                     </tr>
                     <tr>
                         <td><label for="patrol_action_code">アクションコード</label></td>
-                        <td><input type="text" id="patrol_action_code" name="patrol_action_code" value="{{ config.patrol_image.action_code }}"></td>
+                        <td><input type="text" id="patrol_action_code" name="patrol_action_code" 
+                            value="{{ config.patrol_image.action_code }}"
+                            {% if not config.enable %} disabled {% endif %}></td>
                     </tr>
                 </tbody>
             </table>
         </fieldset>
 
         <div class="panel-footer" style="justify-content: flex-end;">
-            <!-- "取消" 按钮：目标是 #config-panel，用上一级面板替换自己 -->
             <button
                 type="button"
                 class="danger"
@@ -66,6 +107,7 @@
             </button>
         </div>
     </form>
+
 </div>
 
 <style>
@@ -99,5 +141,13 @@
     }
     .panel-footer button {
         margin-left: 10px;
+    }
+    .config-fieldset[disabled] {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    input[disabled] {
+        background-color: #333;
+        color: #888;
     }
 </style>

@@ -31,17 +31,17 @@ def get_cloud_config_panel(magistrate_id: int):
         cloud = cfg.client_magistrate.cloud
         data = {
             "sceptical_image": {
-                "device_id": cloud.sceptical_image.device_id,
-                "action_code": cloud.sceptical_image.action_code,
+                "device_id":   utils.normalize(cloud.sceptical_image.device_id),
+                "action_code": utils.normalize(cloud.sceptical_image.action_code),
             },
             "patrol_image": {
-                "device_id": cloud.patrol_image.device_id,
-                "action_code": cloud.patrol_image.action_code,
+                "device_id":   utils.normalize(cloud.patrol_image.device_id),
+                "action_code": utils.normalize(cloud.patrol_image.action_code),
             },
             # 其它字段若将来要加到表单，直接在此处补充
-            "enable": cloud.enable,
-            "blocking_duration": cloud.blocking_duration,
-            "upload_level": cloud.upload_level,
+            "enable":            utils.normalize(cloud.enable),
+            "blocking_duration": utils.normalize(cloud.blocking_duration),
+            "upload_level":      utils.normalize(cloud.upload_level),
         }
         return render_template('cloud_config_panel.html', magistrate_id=magistrate_id, config=data)
 
@@ -73,6 +73,16 @@ def update_cloud_config_panel(magistrate_id: int):
         cloud.sceptical_image.action_code = f.get("sceptical_action_code") or cloud.sceptical_image.action_code
         cloud.patrol_image.device_id = f.get("patrol_device_id") or cloud.patrol_image.device_id
         cloud.patrol_image.action_code = f.get("patrol_action_code") or cloud.patrol_image.action_code
+
+        # blocking_duration: 尝试转 int；失败则保留原值
+        bd_raw = f.get("blocking_duration", "").strip()
+        if bd_raw.isdigit():
+            cloud.blocking_duration = int(bd_raw)
+
+        # upload_level: 同样转 int；失败则保留原值
+        ul_raw = f.get("upload_level", "").strip()
+        if ul_raw.isdigit():
+            cloud.upload_level = int(ul_raw)
 
         # 3) 写回并同步
         save_magistrate_config(cfg_path, cfg)
@@ -113,3 +123,84 @@ def update_cloud_config_panel(magistrate_id: int):
     except Exception as e:
         logger.error_trace("update_cloud_config_panel", f"Error updating cloud config for magistrate {magistrate_id}")
         return f"Error updating cloud config for magistrate {magistrate_id}: {e}", 500
+    
+
+# 获取 toggle 按钮（根据当前 cloud.enable 渲染）
+@bp_cloud.route('/panel/cloud/<int:magistrate_id>/toggle_button', methods=['GET'])
+def get_cloud_toggle_button(magistrate_id: int):
+    try:
+        cfg_name = f"magistrate_config{magistrate_id}"
+        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg: MagistrateConfig = load_magistrate_config(cfg_path)
+        is_enabled = bool(cfg.client_magistrate.cloud.enable)
+        return render_template('_cloud_toggle_button.html',
+                               magistrate_id=magistrate_id,
+                               is_enabled=is_enabled)
+    except Exception as e:
+        return f"<button disabled>Error: {e}</button>"
+
+
+# 启用上载
+@bp_cloud.route('/panel/cloud/<int:magistrate_id>/enable_upload', methods=['POST'])
+def enable_cloud_upload(magistrate_id: int):
+    try:
+        cfg_name = f"magistrate_config{magistrate_id}"
+        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg: MagistrateConfig = load_magistrate_config(cfg_path)
+        cfg.client_magistrate.cloud.enable = True
+        save_magistrate_config(cfg_path, cfg)
+        utils.sync_single_config(cfg_name)
+
+        # 重新渲染并返回整个云配置面板
+        cloud = cfg.client_magistrate.cloud
+        data = {
+            "sceptical_image": {
+                "device_id":   utils.normalize(cloud.sceptical_image.device_id),
+                "action_code": utils.normalize(cloud.sceptical_image.action_code),
+            },
+            "patrol_image": {
+                "device_id":   utils.normalize(cloud.patrol_image.device_id),
+                "action_code": utils.normalize(cloud.patrol_image.action_code),
+            },
+            "enable":            utils.normalize(cloud.enable),
+            "blocking_duration": utils.normalize(cloud.blocking_duration),
+            "upload_level":      utils.normalize(cloud.upload_level),
+        }
+        return render_template('cloud_config_panel.html',
+                               magistrate_id=magistrate_id,
+                               config=data)
+    except Exception as e:
+        return f"Error: {e}", 500
+
+
+# 关闭上载
+@bp_cloud.route('/panel/cloud/<int:magistrate_id>/disable_upload', methods=['POST'])
+def disable_cloud_upload(magistrate_id: int):
+    try:
+        cfg_name = f"magistrate_config{magistrate_id}"
+        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg: MagistrateConfig = load_magistrate_config(cfg_path)
+        cfg.client_magistrate.cloud.enable = False
+        save_magistrate_config(cfg_path, cfg)
+        utils.sync_single_config(cfg_name)
+
+        # 重新渲染并返回整个云配置面板
+        cloud = cfg.client_magistrate.cloud
+        data = {
+            "sceptical_image": {
+                "device_id":   utils.normalize(cloud.sceptical_image.device_id),
+                "action_code": utils.normalize(cloud.sceptical_image.action_code),
+            },
+            "patrol_image": {
+                "device_id":   utils.normalize(cloud.patrol_image.device_id),
+                "action_code": utils.normalize(cloud.patrol_image.action_code),
+            },
+            "enable":            utils.normalize(cloud.enable),
+            "blocking_duration": utils.normalize(cloud.blocking_duration),
+            "upload_level":      utils.normalize(cloud.upload_level),
+        }
+        return render_template('cloud_config_panel.html',
+                               magistrate_id=magistrate_id,
+                               config=data)
+    except Exception as e:
+        return f"Error: {e}", 500

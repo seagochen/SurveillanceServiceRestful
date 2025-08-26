@@ -1,3 +1,4 @@
+// 弹出消息 toggle window
 document.body.addEventListener('showsuccessmodal', function(event) {
     const val = event.detail?.value;
     const message = (typeof val === 'string') ? val : (val?.message || '操作が完了しました。');
@@ -13,6 +14,7 @@ document.body.addEventListener('showsuccessmodal', function(event) {
         modal.style.display = 'none';
     }, delay);
 });
+
 
 // 确认对话框：用于“初期設定/読込/同期/再起動”等按钮
 function showConfirmationModal(message, url, method) {
@@ -47,6 +49,7 @@ function showConfirmationModal(message, url, method) {
         });
     };
 }
+
 
 // 切换密码可见性
 function togglePasswordVisibility() {

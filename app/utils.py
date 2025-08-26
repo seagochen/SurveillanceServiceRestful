@@ -206,3 +206,11 @@ def clear_retained_status_messages(broker_host: str, broker_port: int, status_to
         client.disconnect()
     except Exception as e:
         print(f"清空保留消息时发生错误: {e}")
+
+
+def normalize(v):
+    if v is None:
+        return ""
+    if isinstance(v, str) and v.strip().lower() == "none":
+        return ""
+    return v
