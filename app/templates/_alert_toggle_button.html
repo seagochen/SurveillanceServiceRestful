@@ -5,18 +5,19 @@
         hx-include="closest tr"
         hx-target="this"
         hx-swap="outerHTML"
-        title="無効化します">無効 (Disable)</button>
+        title="無効化します">無効</button>
 {% else %}
 <button class="success"
         hx-post="/panel/alert/{{ magistrate_id }}/{{ area }}/{{ strategy }}/toggle"
         hx-include="closest tr"
         hx-target="this"
         hx-swap="outerHTML"
-        title="有効化します">有効 (Enable)</button>
+        title="有効化します">有効</button>
 {% endif %}
 
 {# OOB: 用新状态覆盖同一行的两个输入框；id 必须与 panel 里的完全一致 #}
 <input
+  class="form-input"
   hx-swap-oob="outerHTML"
   id="{{ area }}_{{ strategy }}_threshold"
   name="{{ area }}_{{ strategy }}_threshold"
@@ -25,6 +26,7 @@
   {% if not is_enabled %}disabled{% endif %}>
 
 <input
+  class="form-input"
   hx-swap-oob="outerHTML"
   id="{{ area }}_{{ strategy }}_penalty_score"
   name="{{ area }}_{{ strategy }}_penalty_score"

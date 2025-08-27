@@ -1,4 +1,4 @@
-<div id="config-panel">
+<div id="config-panel" class="cloud-panel">
     <div class="panel-header">
         <h2>クライアント {{ magistrate_id }} - クラウド設定</h2>
     </div>
@@ -24,7 +24,7 @@
                 <tr>
                     <td><label for="blocking_duration">イベント間隔 (秒)</label></td>
                     <td>
-                    <input type="number" id="blocking_duration" name="blocking_duration"
+                    <input class="form-input" type="number" id="blocking_duration" name="blocking_duration"
                             min="0" step="1"
                             value="{{ config.blocking_duration if config.blocking_duration is not none else 0 }}"
                             {% if not config.enable %} disabled {% endif %}>
@@ -33,7 +33,7 @@
                 <tr>
                     <td><label for="upload_level">アップロードレベル</label></td>
                     <td>
-                    <input type="number" id="upload_level" name="upload_level"
+                    <input class="form-input" type="number" id="upload_level" name="upload_level"
                             min="0" step="1"
                             value="{{ config.upload_level if config.upload_level is not none else 0 }}"
                             {% if not config.enable %} disabled {% endif %}>
@@ -49,14 +49,14 @@
                 <tbody>
                     <tr>
                         <td><label for="sceptical_device_id">デバイスID</label></td>
-                        <td><input type="text" id="sceptical_device_id" name="sceptical_device_id" 
+                        <td><input class="form-input" type="text" id="sceptical_device_id" name="sceptical_device_id" 
                             value="{{ config.sceptical_image.device_id }}"
                             {% if not config.enable %} disabled {% endif %}>
                         </td>
                     </tr>
                     <tr>
                         <td><label for="sceptical_action_code">アクションコード</label></td>
-                        <td><input type="text" id="sceptical_action_code" name="sceptical_action_code" 
+                        <td><input class="form-input" type="text" id="sceptical_action_code" name="sceptical_action_code" 
                             value="{{ config.sceptical_image.action_code }}"
                             {% if not config.enable %} disabled {% endif %}></td>
                     </tr>
@@ -70,13 +70,13 @@
                 <tbody>
                     <tr>
                         <td><label for="patrol_device_id">デバイスID</label></td>
-                        <td><input type="text" id="patrol_device_id" name="patrol_device_id" 
+                        <td><input class="form-input" type="text" id="patrol_device_id" name="patrol_device_id" 
                             value="{{ config.patrol_image.device_id }}"
                             {% if not config.enable %} disabled {% endif %}></td>
                     </tr>
                     <tr>
                         <td><label for="patrol_action_code">アクションコード</label></td>
-                        <td><input type="text" id="patrol_action_code" name="patrol_action_code" 
+                        <td><input class="form-input" type="text" id="patrol_action_code" name="patrol_action_code" 
                             value="{{ config.patrol_image.action_code }}"
                             {% if not config.enable %} disabled {% endif %}></td>
                     </tr>
@@ -92,7 +92,7 @@
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
             >
-                取り消し (Cancel)
+                取り消し
             </button>
             
             <button
@@ -103,7 +103,7 @@
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
             >
-                確認 (Confirm)
+                確認
             </button>
         </div>
     </form>
@@ -111,43 +111,34 @@
 </div>
 
 <style>
-    .config-fieldset {
+    .cloud-panel .config-fieldset {
         border: 1px solid #555;
         border-radius: 8px;
         padding: 1.5em;
         margin-bottom: 2em;
     }
-    .config-fieldset legend {
+    .cloud-panel .config-fieldset legend {
         padding: 0 0.5em;
         font-size: 1.2em;
         font-weight: bold;
     }
-    .config-table {
+    .cloud-panel .config-table {
         width: 100%;
         border-collapse: collapse;
     }
-    .config-table td {
+    .cloud-panel .config-table td {
         padding: 12px;
         border-bottom: 1px solid #444;
     }
-    .config-table td:first-child {
+    .cloud-panel .config-table td:first-child {
         width: 150px;
         font-weight: bold;
     }
-    .config-table input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-    }
-    .panel-footer button {
+    .cloud-panel .panel-footer button {
         margin-left: 10px;
     }
-    .config-fieldset[disabled] {
+    .cloud-panel .config-fieldset[disabled] {
         opacity: 0.6;
         pointer-events: none;
-    }
-    input[disabled] {
-        background-color: #333;
-        color: #888;
     }
 </style>

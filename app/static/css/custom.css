@@ -1,83 +1,104 @@
-/* 基本页面样式 */
-body {
-    background-color: #120c0e;
-    color: #d9d8dc;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
-    margin: 2em;
+/* ==========================================================================
+   0) Design tokens / 主题变量
+   统一颜色与间距；全站可复用，后续调色只需改这里
+   ========================================================================== */
+:root{
+  --c-bg: #222;             /* 表单背景 */
+  --c-fg: #eee;             /* 表单前景/文字 */
+  --c-border: #444;         /* 表单边框 */
+  --c-disabled-bg:#333;     /* 禁用背景 */
+  --c-disabled-fg:#888;     /* 禁用文字 */
+  --radius: 4px;            /* 圆角半径 */
+  --pad: 8px;               /* 输入内边距 */
 }
 
-/* --- Header 区域样式 --- */
+/* ==========================================================================
+   1) Base / 页面基础
+   ========================================================================== */
+
+/* 【页面基色与基础排版】 */
+body {
+    background-color: #120c0e;  /* 页面背景（深色） */
+    color: #d9d8dc;             /* 主文字颜色（浅灰） */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif; /* 系统字体栈，跨平台清晰 */
+    margin: 2em;                /* 页面四周留白 */
+}
+
+/* ==========================================================================
+   2) Header / 头部条
+   ========================================================================== */
+
 .main-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
-    margin-bottom: 30px;
+    display: flex;                     /* 左右布局 */
+    justify-content: space-between;    /* 标题与操作分散对齐 */
+    align-items: center;               /* 垂直居中 */
+    border-bottom: 1px solid #444;     /* 分隔线 */
+    padding-bottom: 10px;              /* 下内边距 */
+    margin-bottom: 30px;               /* 与内容区间距 */
 }
 
 .title-group {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 15px;                         /* 图标与标题间距 */
 }
 
 .header-logo {
-    height: 45px;
+    height: 45px;                      /* Logo 高度（自适应宽度） */
 }
 
 .main-header h1 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    margin: 0;
-    padding: 0;
-    border: none;
-    white-space: nowrap;
+    font-size: 2.2rem;                 /* 主标题字号 */
+    font-weight: 700;                  /* 粗体 */
+    margin: 0; padding: 0; border: none; /* 清除默认间距/边框 */
+    white-space: nowrap;               /* 避免换行抖动 */
 }
-/* --- Header 区域样式结束 --- */
+
+/* ==========================================================================
+   3) Dashboard grids / 首页网格
+   ========================================================================== */
 
 .grid-section {
-    margin-top: 40px;
+    margin-top: 40px;                  /* 各区块顶部间距 */
 }
 
 .grid-section h2 {
-    font-size: 1.8rem;
+    font-size: 1.8rem;                 /* 小节标题 */
     font-weight: 600;
     color: #aaa;
     margin-bottom: 15px;
-    padding-left: 5px;
+    padding-left: 5px;                 /* 左侧轻微缩进 */
 }
 
-/* 状态按钮网格容器 */
+/* 状态按钮网格容器：2 行 × 4 列 */
 .status-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(2, 1fr);
-    gap: 15px; /* 間隔を少し狭くしました */
+    grid-template-columns: repeat(4, 1fr); /* 4 列等分 */
+    grid-template-rows: repeat(2, 1fr);    /* 2 行等高 */
+    gap: 15px;                             /* 卡片间距 */
     width: 100%;
-    max-width: 960px;
-    height: 200px; /* 【关键修改】高さを 250px から 200px に縮小 (80%) */
+    max-width: 960px;                      /* 最大宽度约束 */
+    height: 200px;                         /* 固定高度（需要自适应可改为 minmax） */
 }
 
-
-/* 单个状态按钮的通用样式 */
+/* 单个状态卡片共用样式 */
 .status-box {
-    display: flex;
+    display: flex;                         /* 居中内容 */
     justify-content: center;
     align-items: center;
-    border: 2px solid #555;
-    border-radius: 8px;
-    font-size: 0.9em; /* 【关键修改】フォントサイズを 1.5em から 1.2em に縮小 (80%) */
+    border: 2px solid #555;                /* 边框 */
+    border-radius: 8px;                    /* 圆角 */
+    font-size: 0.9em;                      /* 字号（较紧凑） */
     font-weight: bold;
-    transition: all 0.3s ease;
+    transition: all 0.3s ease;             /* 交互动效 */
 }
 
-/* Magistrate 状态颜色定义 */
-.status-enabled-online { background-color: #28a745; border-color: #28a745; color: #fff; }
-.status-enabled-offline { background-color: #dc3545; border-color: #dc3545; color: #fff; }
-.status-disabled { background-color: #495057; border-color: #495057; color: #ccc; }
+/* 状态颜色（Magistrate） */
+.status-enabled-online  { background-color: #28a745; border-color: #28a745; color: #fff; } /* 运行且在线：绿 */
+.status-enabled-offline { background-color: #dc3545; border-color: #dc3545; color: #fff; } /* 运行但离线：红 */
+.status-disabled        { background-color: #495057; border-color: #495057; color: #ccc; } /* 关闭：灰 */
 
-/* Pipeline 状态指示灯样式 */
+/* Pipeline 状态指示灯 */
 #pipeline-status-indicator {
     display: flex;
     align-items: center;
@@ -85,79 +106,48 @@ body {
     color: #aaa;
 }
 
-.dot {
-    height: 12px;
-    width: 12px;
+.dot {                                  /* 小圆点底座 */
+    height: 12px; width: 12px;
     border-radius: 50%;
     display: inline-block;
     margin: 0 8px;
 }
+.dot-green  { background-color: #28a745; } /* 在线 */
+.dot-yellow { background-color: #ffc107; } /* 警告/处理中 */
+.dot-red    { background-color: #dc3545; } /* 离线/错误 */
 
-.dot-green { background-color: #28a745; }
-.dot-yellow { background-color: #ffc107; }
-.dot-red { background-color: #dc3545; }
+/* ==========================================================================
+   4) Buttons / 按钮体系（全局）
+   ========================================================================== */
 
-/* 按钮通用样式 */
 button {
-    display: inline-block;
-    padding: 10px 20px;
+    display: inline-block;            /* 行内块，方便排布 */
+    padding: 10px 20px;               /* 内边距 */
     text-align: center;
     text-decoration: none;
-    white-space: nowrap;
-    background-color: #6c757d;
+    white-space: nowrap;              /* 不换行 */
+    background-color: #6c757d;        /* 默认灰 */
     color: #fff;
-    border-radius: 5px;
-    border: 1px solid #6c757d;
+    border-radius: 5px;               /* 圆角 */
+    border: 1px solid #6c757d;        /* 同色边框 */
     cursor: pointer;
     font-size: 1em;
 }
-button:hover {
-    opacity: 0.9;
-}
+button:hover { opacity: 0.9; }       /* 悬停轻微变暗 */
 
-button.primary {
-    background-color: #007bff;
-    border-color: #007bff;
-}
+button.primary  { background-color: #007bff; border-color: #007bff; } /* 主操作：蓝 */
+button.secondary{ background-color: #6c757d; border-color: #6c757d; } /* 次要：灰 */
+button.success  { background-color: #28a745; border-color: #28a745; } /* 成功：绿 */
+button.danger   { background-color: #dc3545; border-color: #dc3545; } /* 危险：红 */
+button.warning  { background-color: #ffc107; border-color: #ffc107; } /* 警告：黄 */
+button.info     { background-color: #17a2b8; border-color: #17a2b8; } /* 信息：青 */
+button.light    { background-color: #f8f9fa; color: #212529; border-color: #ced4da; } /* 亮色 */
+button.dark     { background-color: #343a40; color: #fff; border-color: #343a40; }   /* 暗黑 */
 
-button.secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-}
+/* ==========================================================================
+   5) Panel scaffolding / 面板通用骨架
+   ========================================================================== */
 
-button.success {
-    background-color: #28a745;
-    border-color: #28a745;
-}
-
-button.danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-}
-
-button.warning {
-    background-color: #ffc107;
-    border-color: #ffc107;
-}
-
-button.info {
-    background-color: #17a2b8;
-    border-color: #17a2b8;
-}
-
-button.light {
-    background-color: #f8f9fa;
-    color: #212529;
-    border-color: #ced4da;
-}
-
-button.dark {
-    background-color: #343a40;
-    color: #fff;
-    border-color: #343a40;
-}
-
-/* --- 【关键修复】Panel 页面专用样式 --- */
 .panel-header {
     display: flex;
     justify-content: space-between;
@@ -167,30 +157,33 @@ button.dark {
 
 .panel-button-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr); /* 定义为4列 */
+    grid-template-columns: repeat(4, 1fr); /* 四列网格 */
     gap: 20px;
     margin: 2em 0;
 }
 
-/* 统一的页脚/操作区样式 */
+/* 底部操作区：面板与首页共用 */
 .main-actions,
 .panel-footer {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-end;      /* 操作靠右 */
     align-items: center;
-    gap: 15px;
+    gap: 15px;                      /* 按钮间距 */
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 1px solid #444;
+    border-top: 1px solid #444;     /* 顶部分隔线 */
 }
 
-/* 弹窗样式 */
+/* ==========================================================================
+   6) Toast / 模态
+   ========================================================================== */
+
+/* 成功提示（居中浮层） */
 .success-modal {
     position: fixed;
-    top: 50%; /* 【关键修改】从 20px 改为 50% */
-    left: 50%;
-    transform: translate(-50%, -50%); /* 【关键修改】添加 Y 轴的位移 */
-    background-color: #28a745;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);   /* 居中定位 */
+    background-color: #28a745;          /* 绿色底 */
     color: white;
     padding: 15px 30px;
     border-radius: 8px;
@@ -200,20 +193,16 @@ button.dark {
     font-weight: bold;
 }
 
-/* --- 【新追加】確認ダイアログのスタイル --- */
+/* 确认对话框：遮罩 + 内容盒 */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.6);
+    inset: 0;                            /* top/right/bottom/left:0 的简写 */
+    background-color: rgba(0, 0, 0, 0.6);/* 半透明遮罩 */
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 999;
 }
-
 .modal-box {
     background-color: #2c2c2c;
     padding: 30px;
@@ -223,15 +212,83 @@ button.dark {
     width: 90%;
     max-width: 400px;
 }
-
 .modal-box p {
     margin-top: 0;
     margin-bottom: 25px;
     font-size: 1.2em;
 }
-
 .modal-actions {
     display: flex;
     justify-content: center;
     gap: 15px;
 }
+
+/* ==========================================================================
+   7) Forms / 表单通用外观（统一到 .form-input）
+   将此类用于 <input> / <select> / <textarea>
+   ========================================================================== */
+
+.form-input{
+  width: 100%;                                         /* 占满容器宽度 */
+  padding: var(--pad);                                 /* 统一内边距 */
+  box-sizing: border-box;                              /* 包含边框与内边距 */
+  border-radius: var(--radius);                        /* 统一圆角 */
+  border: 1px solid var(--c-border);                   /* 统一边框颜色 */
+  background-color: #fff;                            /* 背景色 */
+  color: #111;                                       /* 字体颜色 */
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease; /* 交互动效 */
+
+  /* 统一各浏览器原生外观，保持一致 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+.form-input:focus{
+  background-color: #FAF1C0;                        /* 聚焦时背景 */
+  color: #111;
+  border-color: #FF8FAB;                            /* 边框高亮 */
+  box-shadow: 0 0 0 2px rgba(250,110,145, 0.7);     /* 阴影圈 */
+}
+.form-input[disabled]{
+  background-color: var(--c-disabled-bg);              /* 禁用背景 */
+  color: var(--c-disabled-fg);                         /* 禁用文字 */
+  cursor: not-allowed;                                 /* 禁用指针 */
+}
+
+/* 数字输入：隐藏浏览器原生的 spin 按钮并统一外观 */
+.form-input[type="number"]{
+  -moz-appearance: textfield;                          /* Firefox 取消数字外观 */
+  appearance: textfield;                               /* 标准写法（放最后） */
+}
+.form-input[type="number"]::-webkit-outer-spin-button,
+.form-input[type="number"]::-webkit-inner-spin-button{
+  -webkit-appearance: none;                            /* Chrome/Safari 隐藏上下箭头 */
+  margin: 0;
+}
+
+/* 下拉：如 select 也使用 .form-input，可取消原生外观（需要箭头可自定义背景） */
+select.form-input{
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  /* background-image: url(data-uri-of-arrow.svg);   自定义箭头（可选） */
+  /* background-position: right 10px center; */
+  /* background-repeat: no-repeat; */
+}
+
+/* ==========================================================================
+   8) Tables / 可复用表格骨架（面板各自还有命名空间布局规则）
+   ========================================================================== */
+.config-table{
+  width: 100%;
+  border-collapse: collapse;
+}
+.config-table th,
+.config-table td{
+  padding: 12px;
+  border-bottom: 1px solid #444;
+  vertical-align: middle;
+}
+
+/* 简易工具类：常用于“按钮列居中” */
+.td-center{ text-align:center; }

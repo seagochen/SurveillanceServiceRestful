@@ -1,4 +1,4 @@
-<div id="config-panel">
+<div id="config-panel" class="alert-panel">
     <div class="panel-header">
         <h2>クライアント {{ magistrate_id }} - アラート設定</h2>
     </div>
@@ -26,14 +26,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_look_around_threshold" name="normal_area_look_around_threshold"
+                            <input class="form-input" type="number" id="normal_area_look_around_threshold" name="normal_area_look_around_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.normal_area.look_around.threshold }}"
                                    {% if not config.normal_area.look_around.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_look_around_penalty_score" name="normal_area_look_around_penalty_score"
+                            <input class="form-input" type="number" id="normal_area_look_around_penalty_score" name="normal_area_look_around_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.normal_area.look_around.penalty_score }}"
@@ -49,14 +49,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_theft_detection_threshold" name="normal_area_theft_detection_threshold"
+                            <input class="form-input" type="number" id="normal_area_theft_detection_threshold" name="normal_area_theft_detection_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.normal_area.theft_detection.threshold }}"
                                    {% if not config.normal_area.theft_detection.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_theft_detection_penalty_score" name="normal_area_theft_detection_penalty_score"
+                            <input class="form-input" type="number" id="normal_area_theft_detection_penalty_score" name="normal_area_theft_detection_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.normal_area.theft_detection.penalty_score }}"
@@ -72,14 +72,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_long_time_squat_threshold" name="normal_area_long_time_squat_threshold"
+                            <input class="form-input" type="number" id="normal_area_long_time_squat_threshold" name="normal_area_long_time_squat_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.normal_area.long_time_squat.threshold }}"
                                    {% if not config.normal_area.long_time_squat.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_long_time_squat_penalty_score" name="normal_area_long_time_squat_penalty_score"
+                            <input class="form-input" type="number" id="normal_area_long_time_squat_penalty_score" name="normal_area_long_time_squat_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.normal_area.long_time_squat.penalty_score }}"
@@ -95,14 +95,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_loitering_distance_threshold" name="normal_area_loitering_distance_threshold"
+                            <input class="form-input" type="number" id="normal_area_loitering_distance_threshold" name="normal_area_loitering_distance_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.normal_area.loitering_distance.threshold }}"
                                    {% if not config.normal_area.loitering_distance.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_loitering_distance_penalty_score" name="normal_area_loitering_distance_penalty_score"
+                            <input class="form-input" type="number" id="normal_area_loitering_distance_penalty_score" name="normal_area_loitering_distance_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.normal_area.loitering_distance.penalty_score }}"
@@ -118,14 +118,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_loitering_reentry_threshold" name="normal_area_loitering_reentry_threshold"
+                            <input class="form-input" type="number" id="normal_area_loitering_reentry_threshold" name="normal_area_loitering_reentry_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.normal_area.loitering_reentry.threshold }}"
                                    {% if not config.normal_area.loitering_reentry.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_loitering_reentry_penalty_score" name="normal_area_loitering_reentry_penalty_score"
+                            <input class="form-input" type="number" id="normal_area_loitering_reentry_penalty_score" name="normal_area_loitering_reentry_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.normal_area.loitering_reentry.penalty_score }}"
@@ -141,14 +141,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_loitering_enter_area_threshold" name="normal_area_loitering_enter_area_threshold"
+                            <input class="form-input" type="number" id="normal_area_loitering_enter_area_threshold" name="normal_area_loitering_enter_area_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.normal_area.loitering_enter_area.threshold }}"
                                    {% if not config.normal_area.loitering_enter_area.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="normal_area_loitering_enter_area_penalty_score" name="normal_area_loitering_enter_area_penalty_score"
+                            <input class="form-input" type="number" id="normal_area_loitering_enter_area_penalty_score" name="normal_area_loitering_enter_area_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.normal_area.loitering_enter_area.penalty_score }}"
@@ -180,14 +180,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="key_area_look_around_threshold" name="key_area_look_around_threshold"
+                            <input class="form-input" type="number" id="key_area_look_around_threshold" name="key_area_look_around_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.key_area.look_around.threshold }}"
                                    {% if not config.key_area.look_around.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="key_area_look_around_penalty_score" name="key_area_look_around_penalty_score"
+                            <input class="form-input" type="number" id="key_area_look_around_penalty_score" name="key_area_look_around_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.key_area.look_around.penalty_score }}"
@@ -203,14 +203,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="key_area_theft_detection_threshold" name="key_area_theft_detection_threshold"
+                            <input class="form-input" type="number" id="key_area_theft_detection_threshold" name="key_area_theft_detection_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.key_area.theft_detection.threshold }}"
                                    {% if not config.key_area.theft_detection.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="key_area_theft_detection_penalty_score" name="key_area_theft_detection_penalty_score"
+                            <input class="form-input" type="number" id="key_area_theft_detection_penalty_score" name="key_area_theft_detection_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.key_area.theft_detection.penalty_score }}"
@@ -226,14 +226,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="key_area_long_time_squat_threshold" name="key_area_long_time_squat_threshold"
+                            <input class="form-input" type="number" id="key_area_long_time_squat_threshold" name="key_area_long_time_squat_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.key_area.long_time_squat.threshold }}"
                                    {% if not config.key_area.long_time_squat.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="key_area_long_time_squat_penalty_score" name="key_area_long_time_squat_penalty_score"
+                            <input class="form-input" type="number" id="key_area_long_time_squat_penalty_score" name="key_area_long_time_squat_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.key_area.long_time_squat.penalty_score }}"
@@ -249,14 +249,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="key_area_loitering_distance_threshold" name="key_area_loitering_distance_threshold"
+                            <input class="form-input" type="number" id="key_area_loitering_distance_threshold" name="key_area_loitering_distance_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.key_area.loitering_distance.threshold }}"
                                    {% if not config.key_area.loitering_distance.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="key_area_loitering_distance_penalty_score" name="key_area_loitering_distance_penalty_score"
+                            <input class="form-input" type="number" id="key_area_loitering_distance_penalty_score" name="key_area_loitering_distance_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.key_area.loitering_distance.penalty_score }}"
@@ -272,14 +272,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="key_area_loitering_reentry_threshold" name="key_area_loitering_reentry_threshold"
+                            <input class="form-input" type="number" id="key_area_loitering_reentry_threshold" name="key_area_loitering_reentry_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.key_area.loitering_reentry.threshold }}"
                                    {% if not config.key_area.loitering_reentry.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="key_area_loitering_reentry_penalty_score" name="key_area_loitering_reentry_penalty_score"
+                            <input class="form-input" type="number" id="key_area_loitering_reentry_penalty_score" name="key_area_loitering_reentry_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.key_area.loitering_reentry.penalty_score }}"
@@ -295,14 +295,14 @@
                             </div>
                         </td>
                         <td>
-                            <input type="number" id="key_area_loitering_enter_area_threshold" name="key_area_loitering_enter_area_threshold"
+                            <input class="form-input" type="number" id="key_area_loitering_enter_area_threshold" name="key_area_loitering_enter_area_threshold"
                                    placeholder="閾値"
                                    min="0" step="1"
                                    value="{{ config.key_area.loitering_enter_area.threshold }}"
                                    {% if not config.key_area.loitering_enter_area.enable %} disabled {% endif %}>
                         </td>
                         <td>
-                            <input type="number" id="key_area_loitering_enter_area_penalty_score" name="key_area_loitering_enter_area_penalty_score"
+                            <input class="form-input" type="number" id="key_area_loitering_enter_area_penalty_score" name="key_area_loitering_enter_area_penalty_score"
                                    placeholder="ペナルティ"
                                    min="0" step="1"
                                    value="{{ config.key_area.loitering_enter_area.penalty_score }}"
@@ -327,7 +327,7 @@
                     <tr>
                         <td><label for="level{{ i }}">レベル{{ i }}</label></td>
                         <td>
-                            <input type="number" id="alert_settings_level{{ i }}" name="alert_settings_level{{ i }}"
+                            <input class="form-input" type="number" id="alert_settings_level{{ i }}" name="alert_settings_level{{ i }}"
                                    value="{{ config.alert_settings['level' + i|string] }}" min="0">
                         </td>
                     </tr>
@@ -342,50 +342,50 @@
                 <tbody>
                     <tr>
                         <td><label for="cache_retention_duration">キャッシュ保持時間 (秒)</label></td>
-                        <td><input type="number" id="general_settings_cache_retention_duration" name="general_settings_cache_retention_duration"
+                        <td><input class="form-input" type="number" id="general_settings_cache_retention_duration" name="general_settings_cache_retention_duration"
                             value="{{ config.general_settings.cache_retention_duration }}" min="0" step="1">
                         </td>
                     </tr>
                     <tr>
                         <td><label for="use_enhanced_tracking">エンハンストトラッキングを使用</label></td>
                         <td>
-                            <input type="checkbox" id="general_settings_use_enhanced_tracking" name="general_settings_use_enhanced_tracking"
+                            <input class="form-input" type="checkbox" id="general_settings_use_enhanced_tracking" name="general_settings_use_enhanced_tracking"
                                    {% if config.general_settings.use_enhanced_tracking %} checked {% endif %}>
                         </td>
                     </tr>
                      <tr>
                         <td><label for="sma_window_size">SMAウィンドウサイズ</label></td>
-                        <td><input type="number" id="general_settings_sma_window_size" name="general_settings_sma_window_size"
+                        <td><input class="form-input" type="number" id="general_settings_sma_window_size" name="general_settings_sma_window_size"
                             value="{{ config.general_settings.sma_window_size }}" min="0" step="1">
                         </td>
                     </tr>
                     <tr>
                         <td><label for="delta_duration_threshold">デルタ時間閾値</label></td>
-                        <td><input type="number" id="general_settings_delta_duration_threshold" name="general_settings_delta_duration_threshold"
+                        <td><input class="form-input" type="number" id="general_settings_delta_duration_threshold" name="general_settings_delta_duration_threshold"
                             value="{{ config.general_settings.delta_duration_threshold }}" min="0" step="any">
                         </td>
                     </tr>
                     <tr>
                         <td><label for="delta_distance_threshold">デルタ距離閾値</label></td>
-                        <td><input type="number" id="general_settings_delta_distance_threshold" name="general_settings_delta_distance_threshold"
+                        <td><input class="form-input" type="number" id="general_settings_delta_distance_threshold" name="general_settings_delta_distance_threshold"
                             value="{{ config.general_settings.delta_distance_threshold }}" min="0" step="any">
                         </td>
                     </tr>
                     <tr>
                         <td><label for="reentry_angle_threshold">再入角度閾値</label></td>
-                        <td><input type="number" id="general_settings_reentry_angle_threshold" name="general_settings_reentry_angle_threshold"
+                        <td><input class="form-input" type="number" id="general_settings_reentry_angle_threshold" name="general_settings_reentry_angle_threshold"
                             value="{{ config.general_settings.reentry_angle_threshold }}" min="0" step="any">
                         </td>
                     </tr>
                     <tr>
                         <td><label for="min_consecutive_count">最小連続カウント</label></td>
-                        <td><input type="number" id="general_settings_min_consecutive_count" name="general_settings_min_consecutive_count"
+                        <td><input class="form-input" type="number" id="general_settings_min_consecutive_count" name="general_settings_min_consecutive_count"
                             value="{{ config.general_settings.min_consecutive_count }}" min="0" step="1">
                         </td>
                     </tr>
                     <tr>
                         <td><label for="min_keypoint_distance">最小キーポイント距離</label></td>
-                        <td><input type="number" id="general_settings_min_keypoint_distance" name="general_settings_min_keypoint_distance"
+                        <td><input class="form-input" type="number" id="general_settings_min_keypoint_distance" name="general_settings_min_keypoint_distance"
                             value="{{ config.general_settings.min_keypoint_distance }}" min="0" step="any">
                         </td>
                     </tr>
@@ -401,7 +401,7 @@
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
             >
-                取り消し (Cancel)
+                取り消し
             </button>
             <button
                 type="submit"
@@ -411,84 +411,69 @@
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
             >
-                確認 (Confirm)
+                確認
             </button>
         </div>
     </form>
 </div>
 
 <style>
-    /* ... 您已有的其他样式保持不变 ... */
-    .config-fieldset {
+    .alert-panel .config-fieldset {
         border: 1px solid #555;
         border-radius: 8px;
         padding: 1.5em;
         margin-bottom: 2em;
     }
-    .config-fieldset legend {
+    .alert-panel .config-fieldset legend {
         padding: 0 0.5em;
         font-size: 1.2em;
         font-weight: bold;
     }
-    .config-table {
+    .alert-panel .config-table {
         width: 100%;
         border-collapse: collapse;
     }
     
     /* 【修改】为所有 th 和 td 添加垂直居中对齐 */
-    .config-table th, .config-table td {
+    .alert-panel .config-table th, 
+    .alert-panel .config-table td {
         padding: 12px;
         border-bottom: 1px solid #444;
         vertical-align: middle; /* 新增：确保内容垂直居中 */
     }
 
     /* 【修改】为除第一列外的所有 td 设置文本居中 */
-    .config-table td {
+    .alert-panel .config-table td {
         text-align: center;
     }
     
     /* 【修改】保持第一列（策略标签）左对齐 */
-    .config-table td:first-child {
+    .alert-panel .config-table td:first-child {
         width: 150px;
         font-weight: bold;
         text-align: left; /* 覆盖上面的居中设置，保持左对齐 */
     }
 
-    .config-table input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-    }
-    .panel-footer button {
+    .alert-panel .panel-footer button {
         margin-left: 10px;
     }
 
     /* 新增样式 */
-    .config-table .strategy-label {
+    .alert-panel .config-table .strategy-label {
         width: 120px;
         font-weight: bold;
         text-align: left; /* 确保 strategy-label 强制左对齐 */
     }
-    .config-table td:nth-child(2) { /* 按钮列 */
+    .alert-panel .config-table td:nth-child(2) { /* 按钮列 */
         width: 120px;
     }
-    .config-table td:nth-child(3), .config-table td:nth-child(4) { /* 输入框列 */
+
+    .alert-panel .config-table td:nth-child(3), 
+    .alert-panel .config-table td:nth-child(4) { /* 输入框列 */
         width: 150px;
     }
-    .config-table input[type="number"], .config-table input[type="text"] {
-        padding: 8px;
-        border-radius: 4px;
-        border: 1px solid #444;
-        background-color: #222;
-        color: #eee;
-        transition: background-color 0.3s ease;
-    }
-    .config-table input[disabled] {
-        background-color: #333;
-        color: #888;
-        cursor: not-allowed;
-    }
-    .config-table .status-toggle {
+
+    .alert-panel .config-table .status-toggle {
         display: inline-flex;
     }
 </style>
