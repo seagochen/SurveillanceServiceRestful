@@ -25,7 +25,7 @@ def create_app():
     # 导入并注册蓝图
     # 显式注册每个蓝图（URL 保持不变，无需调整前端）
     from .routes.index import bp_index
-    from .routes.magistrate import bp_mag
+    from .routes.panel import bp_panel
     from .routes.camera import bp_camera
     from .routes.cloud import bp_cloud
     from .routes.monitor import bp_monitor
@@ -33,7 +33,7 @@ def create_app():
     from .routes.alert import bp_alert
 
     app.register_blueprint(bp_index)    # '/'
-    app.register_blueprint(bp_mag)      # '/panel/magistrate/*'
+    app.register_blueprint(bp_panel)      # '/panel/magistrate/*'
     app.register_blueprint(bp_camera)   # '/panel/camera/*'
     app.register_blueprint(bp_cloud)    # '/panel/cloud/*'
     app.register_blueprint(bp_monitor)  # '/get-*'

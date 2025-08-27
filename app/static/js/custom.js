@@ -41,8 +41,8 @@ function showConfirmationModal(message, url, method) {
     confirmBtn.onclick = function() {
         modal.style.display = 'none';
         htmx.ajax(method, url, {
-            target: '#main-content', // 后端主要靠 HX-Trigger，所以 target/swap 不是必须
-            swap: 'innerHTML'
+            // target: '#main-content', // 后端主要靠 HX-Trigger，所以 target/swap 不是必须
+            // swap: 'innerHTML'
         }).catch(error => {
             console.error('HTMX request failed:', error);
             htmx.trigger('body', 'showsuccessmodal', { value: "操作が失敗しました！" });

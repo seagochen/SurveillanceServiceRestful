@@ -1,19 +1,33 @@
+{# 按钮本体：点击时带上本行数据 #}
 {% if is_enabled %}
 <button class="danger"
         hx-post="/panel/alert/{{ magistrate_id }}/{{ area }}/{{ strategy }}/toggle"
+        hx-include="closest tr"
         hx-target="this"
         hx-swap="outerHTML"
-        hx-on::after-swap="htmx.trigger(this.closest('tr'), 'strategy-status-changed', { detail: { enabled: false } })"
-        title="無効化します">
-  無効 (Disable)
-</button>
+        title="無効化します">無効 (Disable)</button>
 {% else %}
 <button class="success"
         hx-post="/panel/alert/{{ magistrate_id }}/{{ area }}/{{ strategy }}/toggle"
+        hx-include="closest tr"
         hx-target="this"
         hx-swap="outerHTML"
-        hx-on::after-swap="htmx.trigger(this.closest('tr'), 'strategy-status-changed', { detail: { enabled: true } })"
-        title="有効化します">
-  有効 (Enable)
-</button>
+        title="有効化します">有効 (Enable)</button>
 {% endif %}
+
+{# OOB: 用新状态覆盖同一行的两个输入框；id 必须与 panel 里的完全一致 #}
+<input
+  hx-swap-oob="outerHTML"
+  id="{{ area }}_{{ strategy }}_threshold"
+  name="{{ area }}_{{ strategy }}_threshold"
+  type="number" min="0" step="1"
+  value="{{ current_threshold }}"
+  {% if not is_enabled %}disabled{% endif %}>
+
+<input
+  hx-swap-oob="outerHTML"
+  id="{{ area }}_{{ strategy }}_penalty_score"
+  name="{{ area }}_{{ strategy }}_penalty_score"
+  type="number" min="0" step="1"
+  value="{{ current_penalty_score }}"
+  {% if not is_enabled %}disabled{% endif %}>

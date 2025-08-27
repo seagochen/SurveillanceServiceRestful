@@ -23,47 +23,44 @@ def sync_config(magistrate_id: int):
     
     return resp
 
-# def sync_config(magistrate_id: int):
-#     cfg = f"magistrate_config{magistrate_id}"
-#     utils.sync_single_config(cfg)
-
-#     payload = {
-#         "message": f"設定が同期されました ({cfg}.yaml)",
-#         "redirect": "/",   # 显式回首页
-#         "delay": 2000
-#     }
-
-#     print("hello")
-
-#     # 返回一点点内容即可；hx-swap="none" 下不会插入到页面
-#     resp = make_response("")
-#     resp.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": payload})
-#     resp.headers['HX-Trigger-After-Settle'] = json.dumps({"showsuccessmodal": payload})
-#     return resp
-
 
 @bp_ops.route('/config/sync_all', methods=['POST'])
 def sync_all_configs():
+    # 分别同步各文件
     for i in range(1, 9):
         utils.sync_single_config(f"magistrate_config{i}")
     utils.sync_single_config("pipeline_config")
+
+    # 生成回复信息
     resp = make_response("")
     resp.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": "すべての設定ファイルが同期されました！"})
+    
+    # 增加 HX-Redirect 头部，指示 HTMX 重定向到主页
+    resp.headers['HX-Redirect'] = "/"
     return resp
+
 
 @bp_ops.route('/config/reset', methods=['POST'])
 def reset_configs():
     utils.load_configs(os.path.join("configs", "defaults"), "configs")
     resp = make_response("")
     resp.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": "初期設定が読み込まれました"})
+
+    # 增加 HX-Redirect 头部，指示 HTMX 重定向到主页
+    resp.headers['HX-Redirect'] = "/"
     return resp
+
 
 @bp_ops.route('/config/load_all', methods=['POST'])
 def load_all_configs():
-    utils.load_configs_from_device("/opt/SafeGuard/configs", "configs")
+    utils.load_configs_from_device()
     resp = make_response("")
     resp.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": "デバイスから設定が読み込まれました"})
+
+    # 增加 HX-Redirect 头部，指示 HTMX 重定向到主页
+    resp.headers['HX-Redirect'] = "/"
     return resp
+
 
 @bp_ops.route('/system/restart', methods=['POST'])
 def restart_system():
