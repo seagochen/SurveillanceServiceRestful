@@ -54,7 +54,7 @@ def _save_pipeline_enable_sources(magistrate_id: int, enable: bool):
 
     # 解析文件路径
     cfg_name = "pipeline_config"
-    cfg_path = utils.get_config(cfg_name, return_path=True)
+    cfg_path = utils.get_config(cfg_name)
     cfg: PipelineConfig = load_pipeline_config(cfg_path)
 
     # 确认配置 key

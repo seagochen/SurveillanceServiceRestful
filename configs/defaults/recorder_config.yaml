@@ -1,8 +1,0 @@
-client_record:
-  filename_base: "record"
-  format: "h264"
-  input_width:  800
-  input_height: 600
-  input_fps: -1
-  # url: "rtsp://admin:Admin00000@192.168.1.150"  # Camera shooting the shelf
-  url: "rtsp://admin:Admin00000@192.168.1.102"  # Camera shooting the meeting room

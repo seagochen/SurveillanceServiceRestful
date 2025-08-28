@@ -31,6 +31,7 @@ def create_app():
     from .routes.monitor import bp_monitor
     from .routes.ops import bp_ops
     from .routes.alert import bp_alert
+    from .routes.keyarea import bp_keyarea
 
     app.register_blueprint(bp_index)    # '/'
     app.register_blueprint(bp_panel)    # '/panel/magistrate/*'
@@ -39,5 +40,6 @@ def create_app():
     app.register_blueprint(bp_monitor)  # '/get-*'
     app.register_blueprint(bp_ops)      # '/panel/sync/*', '/config/*', '/system/*'
     app.register_blueprint(bp_alert)    # '/panel/alert/*'
+    app.register_blueprint(bp_keyarea)  # '/panel/keyarea/*'
 
     return app

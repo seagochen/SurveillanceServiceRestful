@@ -29,6 +29,7 @@ protobufs/*.py
 
 # Ignore the link
 pyengine
+protobufs
 
 # Ignore the onsite folder
 onsite/
