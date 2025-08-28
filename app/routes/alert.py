@@ -22,7 +22,7 @@ def get_alert_config_panel(magistrate_id: int):
     """
     cfg_name = f"magistrate_config{magistrate_id}"
     try:
-        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
 
         low_area = cfg.client_magistrate.normal_area_strategy
@@ -82,7 +82,7 @@ def toggle_alert_strategy(magistrate_id: int, area: str, strategy: str):
     """
     try:
         cfg_name = f"magistrate_config{magistrate_id}"
-        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
 
         # 映射 normal_area/key_area -> 对象属性
@@ -94,7 +94,7 @@ def toggle_alert_strategy(magistrate_id: int, area: str, strategy: str):
         if request.method == 'POST':
             target_strategy.enable = not bool(target_strategy.enable)
             save_magistrate_config(cfg_path, cfg)
-            utils.sync_single_config(cfg_name)
+            utils.copy_single_config(cfg_name)
 
         # 读取“新的”启用状态
         is_enabled = bool(target_strategy.enable)
@@ -140,7 +140,7 @@ def update_alert_config_panel(magistrate_id: int):
     cfg_name = f"magistrate_config{magistrate_id}"
     try:
         # 1) 读取 & 解析
-        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
         f = request.form
 
@@ -202,11 +202,11 @@ def update_alert_config_panel(magistrate_id: int):
 
         # 5) 保存 & 同步
         save_magistrate_config(cfg_path, cfg)
-        utils.sync_single_config(cfg_name)
+        utils.copy_single_config(cfg_name)
 
         # 6) 渲染回上一级面板（需要 alias/IP，和 cloud/camera 一样从 pipeline_config 取）
         from app.config.pipeline_config_parser import load_pipeline_config, PipelineConfig
-        p_path = utils.get_config("pipeline_config", return_path=True)
+        p_path = utils.get_config("pipeline_config")
         pcfg: PipelineConfig = load_pipeline_config(p_path)
         inf_name = f"pipeline_inference_{magistrate_id}"
         inf = pcfg.client_pipeline.inferences.get(inf_name)

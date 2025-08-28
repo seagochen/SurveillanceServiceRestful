@@ -33,7 +33,7 @@ def create_app():
     from .routes.alert import bp_alert
 
     app.register_blueprint(bp_index)    # '/'
-    app.register_blueprint(bp_panel)      # '/panel/magistrate/*'
+    app.register_blueprint(bp_panel)    # '/panel/magistrate/*'
     app.register_blueprint(bp_camera)   # '/panel/camera/*'
     app.register_blueprint(bp_cloud)    # '/panel/cloud/*'
     app.register_blueprint(bp_monitor)  # '/get-*'

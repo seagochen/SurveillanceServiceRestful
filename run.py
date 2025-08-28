@@ -1,8 +1,8 @@
 import os
 
-from app import create_app
-from app.utils import synchronize_configs
+from app import create_app, utils
 from pyengine.io.network.mqtt_bus import MqttBus
+from pyengine.io.network.mqtt_plugins import MqttPluginManager
 from pyengine.io.network.plugins.heart_beat_receiver import HeartbeatReceiverPlugin
 
 app = create_app()
@@ -17,9 +17,13 @@ def _start_mqtt_receiver_and_inject(app):
     bus = MqttBus(host=host, port=port, client_id=client_id)
     bus.start()
 
-    # 启动接收插件（订阅 pipelines/+/status 与 magistrates/+/status）
-    receiver = HeartbeatReceiverPlugin(stale_sec=20, debug=False)
-    receiver.start(bus)
+    # 注册插件
+    pm = MqttPluginManager(bus)
+    receiver = HeartbeatReceiverPlugin(topics=["pipelines/+/status", "magistrates/+/status"], timeout_sec=20, debug=False)
+    pm.register(receiver)
+
+    # 启动插件
+    pm.start()
 
     # 注入到 Flask（路由用 current_app.config["hb_receiver"] 访问）
     app.config["mqtt_bus"] = bus
@@ -41,7 +45,8 @@ def _stop_mqtt_receiver(bus, receiver):
 if __name__ == '__main__':
 
     # 1) 同步配置
-    synchronize_configs()
+    utils.copy_configs(src_folder="/opt/SurveillanceService/configs",
+                       dest_folder="/opt/SurveillanceServiceRestful/configs")
 
     # 2) 仅在主工作进程里启动 MQTT（避免 Flask reloader 启两份）
     bus = receiver = None

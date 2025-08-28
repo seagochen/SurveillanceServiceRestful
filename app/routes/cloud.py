@@ -25,7 +25,7 @@ def get_cloud_config_panel(magistrate_id: int):
     """
     cfg_name = f"magistrate_config{magistrate_id}"
     try:
-        cfg_path = utils.get_config(cfg_name, return_path=True)   # -> configs/magistrate_config{id}.yaml
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
 
         cloud = cfg.client_magistrate.cloud
@@ -62,7 +62,7 @@ def update_cloud_config_panel(magistrate_id: int):
     cfg_name = f"magistrate_config{magistrate_id}"
     try:
         # 1) 读取为模型
-        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
 
         f = request.form
@@ -86,10 +86,10 @@ def update_cloud_config_panel(magistrate_id: int):
 
         # 3) 写回并同步
         save_magistrate_config(cfg_path, cfg)
-        utils.sync_single_config(cfg_name)
+        utils.copy_single_config(cfg_name)
 
         # 4) 渲染回上一级面板（alias/IP 从 pipeline_config 读取）
-        p_path = utils.get_config("pipeline_config", return_path=True)
+        p_path = utils.get_config("pipeline_config")
         pcfg: PipelineConfig = load_pipeline_config(p_path)
         inf_name = f"pipeline_inference_{magistrate_id}"
         inf = pcfg.client_pipeline.inferences.get(inf_name)
@@ -130,7 +130,7 @@ def update_cloud_config_panel(magistrate_id: int):
 def get_cloud_toggle_button(magistrate_id: int):
     try:
         cfg_name = f"magistrate_config{magistrate_id}"
-        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
         is_enabled = bool(cfg.client_magistrate.cloud.enable)
         return render_template('_cloud_toggle_button.html',
@@ -145,11 +145,11 @@ def get_cloud_toggle_button(magistrate_id: int):
 def enable_cloud_upload(magistrate_id: int):
     try:
         cfg_name = f"magistrate_config{magistrate_id}"
-        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
         cfg.client_magistrate.cloud.enable = True
         save_magistrate_config(cfg_path, cfg)
-        utils.sync_single_config(cfg_name)
+        utils.copy_single_config(cfg_name)
 
         # 重新渲染并返回整个云配置面板
         cloud = cfg.client_magistrate.cloud
@@ -178,11 +178,11 @@ def enable_cloud_upload(magistrate_id: int):
 def disable_cloud_upload(magistrate_id: int):
     try:
         cfg_name = f"magistrate_config{magistrate_id}"
-        cfg_path = utils.get_config(cfg_name, return_path=True)
+        cfg_path = utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
         cfg.client_magistrate.cloud.enable = False
         save_magistrate_config(cfg_path, cfg)
-        utils.sync_single_config(cfg_name)
+        utils.copy_single_config(cfg_name)
 
         # 重新渲染并返回整个云配置面板
         cloud = cfg.client_magistrate.cloud

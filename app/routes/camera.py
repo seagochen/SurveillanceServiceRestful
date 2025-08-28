@@ -36,7 +36,7 @@ def get_camera_config_panel(camera_id: int):
 @bp_camera.route('/panel/camera/<int:camera_id>', methods=['POST'])
 def update_camera_config_panel(camera_id: int):
     try:
-        cfg_path = utils.get_config("pipeline_config", return_path=True)
+        cfg_path = utils.get_config("pipeline_config")
         cfg: PipelineConfig = load_pipeline_config(cfg_path)
 
         name = f"pipeline_inference_{camera_id}"
@@ -68,7 +68,7 @@ def update_camera_config_panel(camera_id: int):
 
         # —— 保存并同步（保持不变）——
         save_pipeline_config(cfg_path, cfg)
-        utils.sync_single_config("pipeline_config")
+        utils.copy_single_config("pipeline_config")
 
         # —— 仅回上一级面板，不再发送 HX-Trigger —— ★关键修改
         alias = inf.alias

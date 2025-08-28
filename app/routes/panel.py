@@ -2,25 +2,11 @@
 import json
 from flask import Blueprint, make_response, render_template, request
 from app import utils
-from app.config.pipeline_config_parser import PipelineInferenceDetail, load_pipeline_config
+from app.config.pipeline_config_parser import PipelineInferenceDetail, load_pipeline_config, PipelineConfig, \
+    save_pipeline_config
 
 bp_panel = Blueprint('panel', __name__)
 
-
-
-# @bp_panel.route('/panel/magistrate/<int:magistrate_id>')
-# def magistrate_panel(magistrate_id: int):
-#     """读取 pipeline_config 获取别名/IP，渲染面板抬头"""
-#     cfg = load_pipeline_config(utils.get_config("pipeline_config"))
-#     name = f"pipeline_inference_{magistrate_id}"
-#     inf: PipelineInferenceDetail = cfg.client_pipeline.inferences.get(name)
-#     if not inf:
-#         return f"Error: '{name}' not found in pipeline_config.yaml", 404
-
-#     alias = getattr(inf, 'alias', f"クライアント {magistrate_id}")
-#     ip_address = (inf.camera_config.address if inf.camera_config else "N/A")
-#     return render_template('panel.html', magistrate_id=magistrate_id,
-#                            alias=alias, ip_address=ip_address)
 
 @bp_panel.route('/panel/magistrate/<int:magistrate_id>')
 def magistrate_panel(magistrate_id: int):
@@ -65,24 +51,25 @@ def get_toggle_button(magistrate_id: int):
 
 
 def _save_pipeline_enable_sources(magistrate_id: int, enable: bool):
+
+    # 解析文件路径
     cfg_name = "pipeline_config"
-    raw = utils.get_config(cfg_name, return_path=False)
-    name = f"pipeline_inference_{magistrate_id}"
-    # 简单就地改 list（可结合模型更严格校验）
-    raw.setdefault('client_pipeline', {})
-    raw['client_pipeline'].setdefault('enable_sources', [])
-    raw['client_pipeline'].setdefault('disable_sources', [])
-    if enable:
-        if name in raw['client_pipeline']['disable_sources']:
-            raw['client_pipeline']['disable_sources'].remove(name)
-        if name not in raw['client_pipeline']['enable_sources']:
-            raw['client_pipeline']['enable_sources'].append(name)
+    cfg_path = utils.get_config(cfg_name, return_path=True)
+    cfg: PipelineConfig = load_pipeline_config(cfg_path)
+
+    # 确认配置 key
+    key_name = f"pipeline_inference_{magistrate_id}"
+
+    # 修改配置信息
+    if key_name in cfg.client_pipeline.enable_sources:
+        cfg.client_pipeline.enable_sources.remove(key_name)
+        cfg.client_pipeline.disable_sources.append(key_name)
     else:
-        if name in raw['client_pipeline']['enable_sources']:
-            raw['client_pipeline']['enable_sources'].remove(name)
-        if name not in raw['client_pipeline']['disable_sources']:
-            raw['client_pipeline']['disable_sources'].append(name)
-    utils.save_config(cfg_name, raw)
+        cfg.client_pipeline.disable_sources.remove(key_name)
+        cfg.client_pipeline.enable_sources.append(key_name)
+
+    # 更新文件
+    save_pipeline_config(cfg_path, cfg)
 
 
 @bp_panel.route('/panel/magistrate/<int:magistrate_id>/start_source', methods=['POST'])

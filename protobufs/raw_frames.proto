@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message RawFrame {
+    uint64 frame_fps = 1;          // 数据帧的FPS
+    int32 frame_width = 2;         // 数据帧的宽度
+    int32 frame_height = 3;        // 数据帧的高度
+    int32 frame_channels = 4;      // 数据帧的通道数
+    bytes frame_raw_data = 5;      // 数据帧数据
+}
