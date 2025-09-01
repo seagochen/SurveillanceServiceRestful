@@ -23,12 +23,23 @@ def create_app():
     app.config['SECRET_KEY'] = 'your_super_secret_key' # 生产环境请使用更复杂的密钥
 
     # 导入并注册蓝图
-    from .routes import main_bp
+    # 显式注册每个蓝图（URL 保持不变，无需调整前端）
+    from .routes.index import bp_index
+    from .routes.panel import bp_panel
+    from .routes.camera import bp_camera
+    from .routes.cloud import bp_cloud
+    from .routes.monitor import bp_monitor
+    from .routes.ops import bp_ops
+    from .routes.alert import bp_alert
+    from .routes.keyarea import bp_keyarea
 
-    # 2. 导入 mqtt_status 模块，这会执行其中的代码，
-    #    从而将其中的路由注册到上面导入的 main_bp 上
-    from . import mqtt_status
-
-    app.register_blueprint(main_bp)
+    app.register_blueprint(bp_index)    # '/'
+    app.register_blueprint(bp_panel)    # '/panel/magistrate/*'
+    app.register_blueprint(bp_camera)   # '/panel/camera/*'
+    app.register_blueprint(bp_cloud)    # '/panel/cloud/*'
+    app.register_blueprint(bp_monitor)  # '/get-*'
+    app.register_blueprint(bp_ops)      # '/panel/sync/*', '/config/*', '/system/*'
+    app.register_blueprint(bp_alert)    # '/panel/alert/*'
+    app.register_blueprint(bp_keyarea)  # '/panel/keyarea/*'
 
     return app

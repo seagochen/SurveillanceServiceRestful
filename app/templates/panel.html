@@ -7,9 +7,9 @@
 
     <div class="panel-button-grid">
         <button hx-get="/panel/camera/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">カメラ設定</button>
-        <button>重点エリア設定</button>
+        <button hx-get="/panel/keyarea/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">重点エリア設定</button>
         <button hx-get="/panel/cloud/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">クラウド設定</button>
-        <button>アラート設定</button>
+        <button hx-get="/panel/alert/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">アラート設定</button>
         <div 
             hx-get="/panel/magistrate/{{ magistrate_id }}/toggle_button"
             hx-trigger="load"
@@ -21,10 +21,10 @@
 
     <div class="panel-footer">
         <button class="danger" hx-get="/" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">
-            取り消し (Back)
+            取り消し
         </button>
         <button class="primary" hx-post="/panel/sync/{{ magistrate_id }}" hx-swap="none" hx-target-error="#sync-status">
-            確認 (Sync)
+            確認
         </button>
     </div>
 </div>

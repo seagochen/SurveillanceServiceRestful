@@ -1,105 +1,117 @@
-<div id="config-panel">
+<div id="config-panel" class="camera-panel">
     <div class="panel-header">
-        <h2>クライアント {{ magistrate_id }} - カメラ接続設定</h2>
+        <h2>クライアント {{ camera_id }} - カメラ接続設定</h2>
     </div>
 
     <form id="camera-form" autocomplete="off">
-        <table class="config-table">
-            <tbody>
-                <tr>
-                    <td><label for="alias">エイリアス (別名)</label></td>
-                    <td><input type="text" id="alias" name="alias" value="{{ config.alias }}"></td>
-                </tr>
-                <tr>
-                    <td><label for="camera_id">カメラID</label></td>
-                    <td><input type="text" id="camera_id" name="camera_id" value="{{ config.camera_id }}"></td>
-                </tr>
-                <tr>
-                    <td><label for="address">IPアドレス</label></td>
-                    <td><input type="text" id="address" name="address" value="{{ config.address }}"></td>
-                </tr>
-                <tr>
-                    <td><label for="port">ポート</label></td>
-                    <td><input type="number" id="port" name="port" value="{{ config.port }}"></td>
-                </tr>
-                <tr>
-                    <td><label for="path">パース</label></td>
-                    <td><input type="text" id="path" name="path" value="{{ config.path }}"></td>
-                </tr>
-                <tr>
-                    <td><label for="username">ユーザー</label></td>
-                    <td><input type="text" id="username" name="username" value="{{ config.username }}"></td>
-                </tr>
-                <tr>
-                    <td>
-                        <label for="password">
-                            パスワード
-                            <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
-                        </label>
-                    </td>
-                    <td>
-                        <input type="password" id="password" name="password" value="{{ config.password }}">
-                        <p class="password-warning-info">
-                            <small>※ Chromeの「パスワードの変更」警告が表示されることがありますが、これはChromeの一般的なセキュリティ機能です。<br/>※ 本ツールは内部利用を目的としております。</small>
-                        </p>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <fieldset class="config-fieldset">
+            <legend>カメラ設置</legend>
+                <table class="config-table">
+                    <tbody>
+                        <tr>
+                            <td><label for="alias">エイリアス</label></td>
+                            <td><input class="form-input" type="text" id="alias" name="alias" value="{{ config.alias }}"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="camera_id">カメラID</label></td>
+                            <td><input class="form-input" type="text" id="camera_id" name="camera_id" value="{{ config.camera_id }}"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="address">IPアドレス</label></td>
+                            <td><input class="form-input" type="text" id="address" name="address" value="{{ config.address }}"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="port">ポート</label></td>
+                            <td><input class="form-input" type="number" id="port" name="port" value="{{ config.port }}"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="path">パース</label></td>
+                            <td><input class="form-input" type="text" id="path" name="path" value="{{ config.path }}"></td>
+                        </tr>
+                        <tr>
+                            <td><label for="username">ユーザー</label></td>
+                            <td><input class="form-input" type="text" id="username" name="username" value="{{ config.username }}"></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <label for="password">
+                                    パスワード
+                                    <span class="toggle-password" onclick="togglePasswordVisibility()">👁️</span>
+                                </label>
+                            </td>
+                            <td>
+                                <input class="form-input" type="password" id="password" name="password" value="{{ config.password }}">
+                                <p class="password-warning-info">
+                                    <small>※ Chromeの「パスワードの変更」警告が表示されることがありますが、これはChromeの一般的なセキュリティ機能です。<br/>※ 本ツールは内部利用を目的としております。</small>
+                                </p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+        </fieldset>
 
         <div class="panel-footer" style="justify-content: flex-end;">
             <button
                 type="button"
                 class="danger"
-                hx-get="/panel/magistrate/{{ magistrate_id }}"
+                hx-get="/panel/magistrate/{{ camera_id }}"
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
             >
-                取り消し (Cancel)
+                取り消し
             </button>
             
             <button
                 type="button"
                 class="primary"
-                hx-post="/panel/camera/{{ magistrate_id }}"
+                hx-post="/panel/camera/{{ camera_id }}"
                 hx-include="#camera-form"
                 hx-target="#config-panel"
                 hx-swap="outerHTML"
             >
-                確認 (Confirm)
+                確認
             </button>
         </div>
+
     </form>
 </div>
 
 <style>
-    .toggle-password {
+    .camera-panel .config-fieldset {
+        border: 1px solid #555;
+        border-radius: 8px;
+        padding: 1.5em;
+        margin-bottom: 2em;
+    }
+    .camera-panel .config-fieldset legend {
+        padding: 0 0.5em;
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    .camera-panel .config-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .camera-panel .config-table td {
+        padding: 12px;
+        border-bottom: 1px solid #444;
+    }
+    .camera-panel .config-table td:first-child {
+        width: 150px; /* 固定标签宽度 */
+        font-weight: bold;
+    }
+    .camera-panel .panel-footer button {
+        margin-left: 10px;
+    }
+
+    /* Password显示或隐藏功能 */
+    .camera-panel .toggle-password {
         margin-left: 8px;
         cursor: pointer;
         user-select: none;
     }
-    .config-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    .config-table td {
-        padding: 12px;
-        border-bottom: 1px solid #444;
-    }
-    .config-table td:first-child {
-        width: 150px; /* 固定标签宽度 */
-        font-weight: bold;
-    }
-    .config-table input {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box; /* 确保 padding 不会撑大宽度 */
-    }
-    .panel-footer button {
-        margin-left: 10px;
-    }
-    /* Added for the password warning info */
-    .password-warning-info {
+    /* 对于Chrome的提示信息 */
+    .camera-panel .password-warning-info {
         color: #aaa;
         font-size: 0.85em;
         margin-top: 5px;

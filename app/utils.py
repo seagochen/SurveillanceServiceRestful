@@ -1,134 +1,190 @@
-# utils.py
-
 import os
 import shutil
+from typing import Dict, List, Optional, Union
+from urllib.parse import quote
 
-import yaml
+from pyengine.utils.logger import logger
 
-def get_config(config_name: str):
+
+def get_config(config_name: str,
+               default_folder: str = "configs"):
     """
     从 'configs' 目录读取指定的 YAML 配置文件。
-
-    Args:
-        config_name (str): 配置文件的名称 (不带 .yaml 后缀)。
-
-    Returns:
-        dict: 解析后的配置数据。
-
-    Raises:
-        FileNotFoundError: 如果配置文件不存在。
     """
     # 构建配置文件的完整路径
-    filepath = os.path.join("configs", f"{config_name}.yaml")
+    filepath = os.path.join(default_folder, f"{config_name}.yaml")
     print(f"Loading config from {filepath}")
 
     # 检查文件是否存在
     if not os.path.isfile(filepath):
         print(f"File {filepath} does not exist.")
         raise FileNotFoundError(f"Configuration file '{filepath}' not found")
+    # end-if
 
-    # 读取并解析 YAML 文件
-    with open(filepath, 'r', encoding='utf-8') as file:
-        config_data = yaml.safe_load(file)
-    return config_data
+    return filepath
 
 
-def save_config(config_name: str, data: dict):
+# def copy_configs(src_folder: str, dest_folder: str):
+#     """
+#     将源文件夹中的所有 .yaml 文件复制到目标文件夹。
+#     如果目标文件夹不存在，则会创建它。
+#     """
+#     def _has_configs(proj_dir: str = "/opt/SurveillanceService/configs") -> bool | None:
+#         """检查指定目录中是否存在核心配置文件。"""
+#         if not os.path.isdir(proj_dir):
+#             return False
+
+#         # 检查是否存在 magistrate, pipeline 的配置文件
+#         pipeline_file = os.path.join(proj_dir, "pipeline_config.yaml")
+#         magistrate_files = [f for f in os.listdir(proj_dir) if
+#                             f.startswith("magistrate_config") and f.endswith(".yaml")]
+#         magistrate_files = [os.path.join(proj_dir, f) for f in magistrate_files]
+
+#         # Make sure the size of magistrate_files is at least 8
+#         if len(magistrate_files) < 8:
+#             return False
+
+#         # If pipeline_file exists, return True
+#         if os.path.isfile(pipeline_file):
+#             return True
+
+#     # 检查源文件夹是否存在
+#     if not os.path.isdir(src_folder):
+#         raise FileNotFoundError(f"源文件夹不存在或不是一个目录: {src_folder}")
+
+#     # 检查源文件是否有Yaml文件
+#     if not _has_configs(src_folder):
+#         logger.info("copy_configs", "Source folder has nothing to copy")
+#         return []
+
+#     # 确保目标文件夹存在
+#     os.makedirs(dest_folder, exist_ok=True)
+
+#     copied_files = []
+
+#     # 遍历源文件夹中的所有文件
+#     for filename in os.listdir(src_folder):
+#         if filename.endswith(".yaml"):
+#             src_path = os.path.join(src_folder, filename)
+#             dest_path = os.path.join(dest_folder, filename)
+
+#             # 复制文件并保留元数据
+#             shutil.copy2(src_path, dest_path)
+#             copied_files.append(filename)
+#             logger.info("copy_configs", f"Copied {filename} to {dest_path}")
+
+#     return copied_files
+
+# from __future__ import annotations
+# import os
+# import shutil
+# from pathlib import Path
+# from typing import Iterable, List, Dict, Optional
+
+def copy_configs(
+    src_folder: str,
+    dest_folder: str,
+    default_folder: Optional[str] = None,
+    *,
+    overwrite: bool = False,
+    dry_run: bool = False,
+    logger=None,
+) -> Dict[str, List[str]]:
     """
-    将数据保存为 YAML 文件到 'configs' 目录。
-
-    Args:
-        config_name (str): 配置文件的名称 (不带 .yaml 后缀)。
-        data (dict): 需要保存的数据。
-    """
-    # 构建配置文件的完整路径
-    filepath = os.path.join("configs", f"{config_name}.yaml")
-    print(f"Saving config to {filepath}")
-
-    # 将 Python 字典写入 YAML 文件
-    with open(filepath, 'w', encoding='utf-8') as file:
-        # default_flow_style=False 使其输出为更易读的块样式
-        # sort_keys=False 保持字典中的键顺序
-        yaml.dump(data, file, default_flow_style=False, sort_keys=False, allow_unicode=True)
-
-
-# 保留旧函数以实现向后兼容，但新的路由将使用通用函数
-def get_magistrate_config_in_json(file_id: int):
-    filename = f"magistrate_config{file_id}"
-    return get_config(filename)
-
-
-# --- 以下是新增/移动的函数 ---
-
-def load_configs(src_folder: str, dest_folder: str):
-    """
-    将源文件夹中的所有 .yaml 文件复制到目标文件夹。
-    如果目标文件夹不存在，则会创建它。
-    """
-    # 检查源文件夹是否存在
-    if not os.path.isdir(src_folder):
-        raise FileNotFoundError(f"源文件夹不存在或不是一个目录: {src_folder}")
-
-    # 确保目标文件夹存在
-    os.makedirs(dest_folder, exist_ok=True)
-
-    copied_files = []
-
-    # 遍历源文件夹中的所有文件
-    for filename in os.listdir(src_folder):
-        if filename.endswith(".yaml"):
-            src_path = os.path.join(src_folder, filename)
-            dest_path = os.path.join(dest_folder, filename)
-
-            # 复制文件并保留元数据
-            shutil.copy2(src_path, dest_path)
-            copied_files.append(filename)
-            print(f"已复制 {src_path} 到 {dest_path}")
-
-    return copied_files
-
-
-def has_configs(proj_dir: str = "/opt/SafeGuard/configs") -> bool:
-    """检查指定目录中是否存在核心配置文件。"""
-    if not os.path.isdir(proj_dir):
-        return False
-    # 检查是否存在 magistrate, pipeline, 和 recorder 的配置文件
-    magistrate_found = any(f.startswith("magistrate_config") and f.endswith(".yaml") for f in os.listdir(proj_dir))
-    pipeline_found = os.path.exists(os.path.join(proj_dir, "pipeline_config.yaml"))
-    recorder_found = os.path.exists(os.path.join(proj_dir, "recorder_config.yaml"))
-    return magistrate_found and pipeline_found and recorder_found
-
-
-def synchronize_configs(target_dir: str = "/opt/SurveillanceServiceRestful/configs",
-                        source_dir: str = "/opt/SafeGuard/configs"):
-    """
-    在应用启动时，从主配置目录同步配置到应用目录。
-    如果主目录缺少配置，则会尝试从 './configs/defaults' 加载默认配置。
-    """
-    # 1. 首先检查主配置目录 (source_dir)
-    if has_configs(source_dir):
-        print(f"在主目录 '{source_dir}' 中找到有效配置。")
-        print(f"正在从 '{source_dir}' 同步配置到 '{target_dir}'...")
-        load_configs(source_dir, target_dir)
-        return
-
-    # 2. 如果主目录无效，则尝试从默认目录加载
-    print(f"主目录 '{source_dir}' 中未找到必要的配置，尝试从默认位置加载。")
+    按优先级将 .yaml 配置拷贝到目标目录：
+    1) 如果目标目录(dest_folder) 已具备核心配置 -> 不做任何拷贝。
+    2) 否则尝试从 src_folder 拷贝核心配置与其它 .yaml。
+    3) 若 src_folder 也不具备核心配置，且提供了 default_folder，则从 default_folder 回落拷贝。
     
-    # 定义默认配置的源目录
-    default_source_dir = os.path.join("configs", "defaults")
+    参数:
+        src_folder:     首选配置来源目录（例如 /opt/SurveillanceService/configs）
+        dest_folder:    目标目录（例如 /opt/SurveillanceServiceRestful/configs）
+        default_folder: 回落配置目录（例如 项目内的 configs/default）
+        overwrite:      同名文件是否覆盖（默认 False）
+        dry_run:        只打印/返回将要发生的动作，不实际拷贝
+        logger:         可选日志器，需具备 .info/.warning/.error
+    
+    返回:
+        {
+          "source": "dest|src|default|none",
+          "copied": [...],     # 实际拷贝的文件名
+          "skipped": [...],    # 因已存在且不覆盖而跳过
+          "failed":  [...],    # 拷贝失败
+        }
+    """
 
-    # 检查默认目录是否存在
-    if os.path.isdir(default_source_dir):
-        print(f"正在从默认目录 '{default_source_dir}' 同步配置到 '{target_dir}'...")
-        load_configs(default_source_dir, target_dir)
+    def _log(level: str, msg: str):
+        if logger:
+            getattr(logger, level)("copy_configs", msg)
+        else:
+            # 没有 logger 时退化打印
+            print(f"[{level.upper()}] copy_configs: {msg}")
+
+    def _has_core_configs(dir_path: Path) -> bool:
+        if not dir_path.is_dir():
+            return False
+        pipeline = dir_path / "pipeline_config.yaml"
+        magistrates = [p for p in dir_path.glob("magistrate_config*.yaml") if p.suffix == ".yaml"]
+        if len(magistrates) < 8:
+            return False
+        return pipeline.is_file()
+
+    def _collect_yaml(dir_path: Path) -> List[Path]:
+        if not dir_path.is_dir():
+            return []
+        return [p for p in dir_path.iterdir() if p.is_file() and p.suffix == ".yaml"]
+
+    dest = Path(dest_folder)
+    src = Path(src_folder)
+    default = Path(default_folder) if default_folder else None
+
+    result = {"source": "none", "copied": [], "skipped": [], "failed": []}
+
+    # 0) 目标目录已具备核心配置则直接返回
+    if _has_core_configs(dest):
+        _log("info", f"目标目录已具备核心配置，跳过拷贝: {dest}")
+        result["source"] = "dest"
+        return result
+
+    # 1) 决定最终的来源目录：优先 src，其次 default
+    chosen_source: Optional[Path] = None
+    if _has_core_configs(src):
+        chosen_source = src
+        result["source"] = "src"
+    elif default and _has_core_configs(default):
+        chosen_source = default
+        result["source"] = "default"
     else:
-        # 3. 如果默认目录也不存在，则报告错误
-        print(f"严重错误：主目录 '{source_dir}' 和默认目录 '{default_source_dir}' 均无法提供配置。")
-        print("应用可能无法正常启动。请检查配置！")
+        # 两个来源都不满足核心条件，仍可选择“尽力而为”拷贝所有 .yaml（可选）
+        # 这里保守处理：直接返回，不做非核心拷贝，避免混乱。
+        _log("warning", "未在 src 或 default 找到完整的核心配置，未执行拷贝。")
+        return result
+
+    # 2) 准备目标目录
+    if not dry_run:
+        dest.mkdir(parents=True, exist_ok=True)
+
+    # 3) 枚举来源目录中的 .yaml 并拷贝
+    for src_file in _collect_yaml(chosen_source):
+        dest_file = dest / src_file.name
+        if dest_file.exists() and not overwrite:
+            result["skipped"].append(src_file.name)
+            _log("info", f"已存在且不覆盖，跳过: {dest_file}")
+            continue
+        try:
+            if not dry_run:
+                shutil.copy2(str(src_file), str(dest_file))
+            result["copied"].append(src_file.name)
+            _log("info", f"复制 {src_file.name} -> {dest_file}")
+        except Exception as e:
+            result["failed"].append(src_file.name)
+            _log("error", f"复制失败 {src_file} -> {dest_file}: {e}")
+
+    return result
 
 
-def sync_single_config(config_name: str, dest_folder: str = "/opt/SafeGuard/configs"):
+
+def copy_single_config(config_name: str, dest_folder: str = "/opt/SurveillanceService/configs"):
     """
     将单个指定的 .yaml 文件从本地 'configs' 目录同步到目标文件夹。
 
@@ -154,3 +210,12 @@ def sync_single_config(config_name: str, dest_folder: str = "/opt/SafeGuard/conf
     shutil.copy2(source_path, dest_path)
     print(f"已将 {source_path} 同步到 {dest_path}")
     return dest_path
+
+
+def normalize(v):
+    if v is None:
+        return ""
+    if isinstance(v, str) and v.strip().lower() == "none":
+        return ""
+    return v
+
