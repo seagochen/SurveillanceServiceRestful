@@ -8,11 +8,17 @@ from pyengine.io.network.plugins.inference_result_receiver import InferenceResul
 
 app = create_app()
 
-
 def _start_mqtt_receiver_and_inject(app):
     """启动 MQTT 总线与心跳接收插件，并把插件实例放进 Flask app.config。"""
+
+    # 获取当前的进程ID
+    current_pid = os.getpid()
+
     # 从 pipeline_config 读取 broker 配置（容错）
-    host, port, client_id = "127.0.0.1", 1883, "status_dashboard"
+    host = "127.0.0.1"
+    port = 1883
+    # client_id = f"status_dashboard_{current_pid}"  # 测试用ID
+    client_id = "status_dashboard"
 
     # 启动总线
     bus = MqttBus(host=host, port=port, client_id=client_id)
@@ -70,17 +76,25 @@ def _stop_mqtt_service(bus, pm):
 
 if __name__ == '__main__':
 
-    # 1) 同步配置
-    utils.copy_configs(src_folder="/opt/SurveillanceService/configs",
-                       dest_folder="/opt/SurveillanceServiceRestful/configs")
-
-    # 2) 仅在主工作进程里启动 MQTT（避免 Flask reloader 启两份）
     bus = pm = None
-    if os.environ.get('WERKZEUG_RUN_MAIN') == 'true' or not app.debug:
-        bus, pm = _start_mqtt_receiver_and_inject(app)
-
     try:
-        # 3) 启动 Flask
-        app.run(debug=True, host='0.0.0.0', port=5000)
+
+        # 拷贝文件
+        # utils.copy_configs(src_folder="/opt/SurveillanceService/configs",
+        #                    dest_folder="/opt/SurveillanceServiceRestful/configs")
+
+        utils.copy_configs(
+            src_folder="/opt/SurveillanceService/configs",
+            dest_folder="/opt/SurveillanceServiceRestful/configs",
+            default_folder="/opt/SurveillanceServiceRestful/configs_default",
+            overwrite=False,   # 不覆盖
+        )
+
+        # 只在真正的工作进程里启动 MQTT（避免重复连接）
+        if os.environ.get('WERKZEUG_RUN_MAIN') == 'true':   # 子进程
+            bus, pm = _start_mqtt_receiver_and_inject(app)
+
+        # 设置 use_reloader=False 时，可以关闭 reloader
+        app.run(debug=True, host='0.0.0.0', port=5000)      # reloader 依旧开启
     finally:
         _stop_mqtt_service(bus, pm)

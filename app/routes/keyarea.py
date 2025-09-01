@@ -4,10 +4,14 @@ import numpy as np
 import time
 from flask import Blueprint, render_template, Response, current_app
 from app import utils
-from app.config.pipeline_config_parser import load_pipeline_config
+from pyengine.config.pipeline_config_parser import PipelineConfig, load_pipeline_config
+from pyengine.config.magistrate_config_parser import MagistrateConfig, load_magistrate_config
 from pyengine.io.network.plugins.inference_result_receiver import InferenceResultReceiverPlugin
+from pyengine.utils import scale_utils
+from pyengine.visualization import polygon_drawer
 
 bp_keyarea = Blueprint("keyarea", __name__)
+
 
 # ---- 小工具：把 MQTT 的 protobuf 里携带的裸像素还原成 np.ndarray ----
 def _pb_to_ndarray(msg) -> np.ndarray | None:
@@ -52,7 +56,7 @@ def keyarea_panel(magistrate_id: int):
     展示重点エリア設定页面。
     说明：帧数据不在这里拉流，而是由 /frame 路由通过 MQTT 读取。
     """
-    cfg = load_pipeline_config(utils.get_config("pipeline_config"))
+    cfg: PipelineConfig = load_pipeline_config(utils.get_config("pipeline_config"))
     name = f"pipeline_inference_{magistrate_id}"
     inf = cfg.client_pipeline.inferences.get(name)
     if not inf:
@@ -73,14 +77,33 @@ def keyarea_frame(magistrate_id: int):
     通过 MQTT 订阅器读取最新一帧，转成 MJPEG 推到前端。
     订阅器实例在 run.py 启动时已注入 app.config（见 run.py）。
     """
+    
+    # 从 Application Context 获取 mqtt receiver
     topic_key = f"pipeline_inference_{magistrate_id}"
     receiver: InferenceResultReceiverPlugin = current_app.config.get(f"inference_{magistrate_id}")
     if receiver is None:
         return f"MQTT receiver not found for {topic_key}", 404
-
+    
+    # 显示画面使用 640 x 480
     TARGET_W, TARGET_H = 640, 480
     BOUNDARY = b"--frame"
+    
+    # 从配置文件中读取检测区域
+    cfg: MagistrateConfig = load_magistrate_config(utils.get_config(f"magistrate_config{magistrate_id}"))
+    key_area = cfg.client_magistrate.key_area_settings.area
+    key_color = cfg.client_magistrate.key_area_settings.color
+    key_alpha = cfg.client_magistrate.key_area_settings.alpha
 
+    # 对配置区域进行缩放
+    key_area = scale_utils.scale_euler_pts(
+        src_width=800,
+        src_height=600,
+        dst_width=640,
+        dst_height=480,
+        points=key_area
+    )
+
+    # 生成显示画面
     def generate():
         # 若长时间没有新数据，也保持连接，发一张占位图降低闪烁
         blank = np.zeros((TARGET_H, TARGET_W, 3), dtype=np.uint8)
@@ -105,6 +128,9 @@ def keyarea_frame(magistrate_id: int):
                     continue
                 frame_bgr = blank
 
+            # 绘制检测区域
+            frame_bgr = polygon_drawer.fill_area(frame_bgr, key_area, key_color, key_alpha)
+
             ok, buf = cv2.imencode(".jpg", frame_bgr)
             if not ok:
                 continue
@@ -117,3 +143,5 @@ def keyarea_frame(magistrate_id: int):
             )
 
     return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
+
+

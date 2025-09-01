@@ -2,7 +2,7 @@
 import json
 from flask import Blueprint, make_response, render_template, request
 from app import utils
-from app.config.pipeline_config_parser import (
+from pyengine.config.pipeline_config_parser import (
     load_pipeline_config, save_pipeline_config, PipelineConfig, CameraConfig
 )
 from pyengine.utils.logger import logger

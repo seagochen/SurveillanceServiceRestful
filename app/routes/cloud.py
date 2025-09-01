@@ -4,13 +4,13 @@ from flask import Blueprint, make_response, render_template, request
 from app import utils
 from pyengine.utils.logger import logger
 
-from app.config.magistrate_config_parser import (
+from pyengine.config.magistrate_config_parser import (
     load_magistrate_config,
     save_magistrate_config,
     MagistrateConfig,
 )
 
-from app.config.pipeline_config_parser import (
+from pyengine.config.pipeline_config_parser import (
     load_pipeline_config,
     PipelineConfig,
 )

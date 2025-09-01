@@ -1,8 +1,7 @@
 # app/routes/panel.py
-import json
 from flask import Blueprint, make_response, render_template, request
 from app import utils
-from app.config.pipeline_config_parser import PipelineInferenceDetail, load_pipeline_config, PipelineConfig, \
+from pyengine.config.pipeline_config_parser import PipelineInferenceDetail, load_pipeline_config, PipelineConfig, \
     save_pipeline_config
 
 bp_panel = Blueprint('panel', __name__)

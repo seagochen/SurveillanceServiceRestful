@@ -4,7 +4,7 @@ from flask import Blueprint, render_template, request, make_response
 from app import utils
 from pyengine.utils.logger import logger
 
-from app.config.magistrate_config_parser import (
+from pyengine.config.magistrate_config_parser import (
     load_magistrate_config,
     save_magistrate_config,
     MagistrateConfig,
@@ -205,7 +205,7 @@ def update_alert_config_panel(magistrate_id: int):
         utils.copy_single_config(cfg_name)
 
         # 6) 渲染回上一级面板（需要 alias/IP，和 cloud/camera 一样从 pipeline_config 取）
-        from app.config.pipeline_config_parser import load_pipeline_config, PipelineConfig
+        from pyengine.config.pipeline_config_parser import load_pipeline_config, PipelineConfig
         p_path = utils.get_config("pipeline_config")
         pcfg: PipelineConfig = load_pipeline_config(p_path)
         inf_name = f"pipeline_inference_{magistrate_id}"

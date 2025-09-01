@@ -1,8 +1,8 @@
 # app/routes/monitor.py
 from flask import Blueprint, current_app
 from app import utils
-from app.config.pipeline_config_parser import PipelineConfig, load_pipeline_config
-from pyengine.io.network.plugins.heart_beat_receiver import HeartbeatReceiverPlugin, HeartbeatState
+from pyengine.config.pipeline_config_parser import PipelineConfig, load_pipeline_config
+from pyengine.io.network.plugins.heart_beat_receiver import HeartbeatReceiverPlugin
 
 bp_monitor = Blueprint('monitor', __name__)
 
@@ -15,7 +15,7 @@ def get_magistrate_grid():
     cfg: PipelineConfig = load_pipeline_config(cfg_path)
 
     # 获取心跳
-    receiver = current_app.config.get("hb_receiver")
+    receiver:HeartbeatReceiverPlugin = current_app.config.get("hb_receiver")
 
     for i in range(1, 9):
         magistrate_name = f"pipeline_inference_{i}"
