@@ -41,21 +41,6 @@
             <input class="form-input" type="number" name="principal_coord_cy" value="{{ cfg.principal_coord[1] }}" required>
           </td>
         </tr>
-
-        <tr>
-          <td>検知深度[m]</td> <!-- depth_scale -->
-          <td>
-            <label style="margin-right:12px;">
-              <input type="radio" name="depth_scale" value="1.5" {% if cfg.depth_scale == 1.5 %}checked{% endif %}> 1.5m
-            </label>
-            <label style="margin-right:12px;">
-              <input type="radio" name="depth_scale" value="3" {% if cfg.depth_scale == 3 %}checked{% endif %}> 3m
-            </label>
-            <label>
-              <input type="radio" name="depth_scale" value="5" {% if cfg.depth_scale == 5 %}checked{% endif %}> 5m
-            </label>
-          </td>
-        </tr>
       </table>
 
       <div class="modal-actions" style="margin-top: 20px;">

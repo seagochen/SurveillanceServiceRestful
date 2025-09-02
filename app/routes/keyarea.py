@@ -2,8 +2,8 @@
 import cv2
 import numpy as np
 import time
-from flask import Blueprint, render_template, Response, current_app, request
-from app.utils import file_utils
+from flask import Blueprint, render_template, Response, current_app, request, jsonify
+from app.utils import file_utils, ground_utils
 from pyengine.config.camera_setting_parser import load_camera_settings, CameraParametersConfig, save_camera_settings
 from pyengine.config.pipeline_config_parser import PipelineConfig, load_pipeline_config
 from pyengine.config.magistrate_config_parser import MagistrateConfig, load_magistrate_config
@@ -191,8 +191,8 @@ def camera_settings_submit(magistrate_id: int):
         yaw_angle=_get_int("yaw_angle", old.yaw_angle),
         focal_length=(fx, fy),
         principal_coord=(cx, cy),
-        ground_coords=old.ground_coords,  # 表单未编辑，沿用
-        depth_scale=_get_float("depth_scale", old.depth_scale),
+        ground_coords=old.ground_coords,
+        depth_scale=old.depth_scale,  # MODIFIED: depth_scale 不再从此表单提交，直接沿用旧值
         ground_x_length_calculated=old.ground_x_length_calculated,
         ground_y_length_calculated=old.ground_y_length_calculated,
         ground_z_length_calculated=old.ground_z_length_calculated,
@@ -200,8 +200,168 @@ def camera_settings_submit(magistrate_id: int):
 
     save_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"), new_cfg)
 
-    # 返回一个小的成功提示片段（HTMX 直接替换当前 modal 内容）
+    # 返回一个小的成功提示片段
     return render_template(
         "partials/save_success_snackbar.html",
         message="カメラパラメータを保存しました。"
     )
+
+#-------------------------------------------------------------------
+# Ground Setting
+#-------------------------------------------------------------------
+
+# ----------- 新增：800x600 的帧流（供地面設定弹窗左侧使用） -----------
+@bp_keyarea.route("/panel/keyarea/<int:magistrate_id>/frame800")
+def keyarea_frame_800(magistrate_id: int):
+    receiver: InferenceResultReceiverPlugin = current_app.config.get(f"inference_{magistrate_id}")
+    if receiver is None:
+        return f"MQTT receiver not found for pipeline_inference_{magistrate_id}", 404
+
+    TARGET_W, TARGET_H = 800, 600
+    BOUNDARY = b"--frame"
+
+    # 取当前重点区域涂色（可与主界面一致）
+    cfg: MagistrateConfig = load_magistrate_config(file_utils.get_config(f"magistrate_config{magistrate_id}"))
+    key_area = cfg.client_magistrate.key_area_settings.area
+    key_color = cfg.client_magistrate.key_area_settings.color
+    key_alpha = cfg.client_magistrate.key_area_settings.alpha
+
+    def generate():
+        blank = np.zeros((TARGET_H, TARGET_W, 3), dtype=np.uint8)
+        last_send_ts = 0.0
+        while True:
+            msg = receiver.read()
+            frame = _pb_to_ndarray(msg) if msg is not None else None
+
+            if frame is not None:
+                if frame.ndim == 2:
+                    frame_bgr = cv2.cvtColor(frame, cv2.COLOR_GRAY2BGR)
+                else:
+                    frame_bgr = frame
+                frame_bgr = cv2.resize(frame_bgr, (TARGET_W, TARGET_H))
+            else:
+                if time.time() - last_send_ts < 0.5:
+                    time.sleep(0.02)
+                    continue
+                frame_bgr = blank
+
+            # 可选：绘制当前重点区域
+            if key_area:
+                frame_bgr = polygon_drawer.fill_area(frame_bgr, key_area, key_color, key_alpha)
+
+            ok, buf = cv2.imencode(".jpg", frame_bgr)
+            if not ok:
+                continue
+            last_send_ts = time.time()
+            yield (BOUNDARY + b"\r\n"
+                   b"Content-Type: image/jpeg\r\n\r\n" + buf.tobytes() + b"\r\n")
+
+    return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
+
+
+# ----------- 新增：地面設定 弹窗（GET） -----------
+@bp_keyarea.route("/panel/keyarea/<int:magistrate_id>/ground-settings", methods=["GET"])
+def ground_settings_modal(magistrate_id: int):
+    cam = load_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"))
+    # 传入当前 ground_coords & 已计算尺寸
+    return render_template(
+        "partials/ground_settings_modal.html",
+        magistrate_id=magistrate_id,
+        cam=cam
+    )
+
+
+# ----------- 新增：地面尺寸计算（POST） -----------
+# ----------- 地面尺寸计算（POST） -----------
+@bp_keyarea.route("/panel/keyarea/<int:magistrate_id>/ground-settings/calc", methods=["POST"])
+def ground_settings_calc(magistrate_id: int):
+    cam = load_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"))
+
+    # 读取 points，支持 JSON 或 form
+    pts = request.json.get("points") if request.is_json else request.form.get("points")
+    depth_scale_req = None
+    if request.is_json:
+        depth_scale_req = request.json.get("depth_scale")
+    else:
+        depth_scale_req = request.form.get("depth_scale")
+    try:
+        depth_scale = float(depth_scale_req) if depth_scale_req is not None else float(cam.depth_scale)
+    except Exception:
+        depth_scale = float(cam.depth_scale)
+
+    if isinstance(pts, str):
+        import json
+        pts = json.loads(pts)
+
+    if not pts or len(pts) < 4:
+        return jsonify({"ok": False, "msg": "請先在左側選取 4 個點"}), 400
+
+    # 调用 ground_utils 计算
+    width_m, depth_m = ground_utils.calculate_ground_dimensions(
+        camera_height=cam.camera_height,
+        pitch_angle=cam.pitch_angle,
+        roll_angle=cam.roll_angle,
+        yaw_angle=cam.yaw_angle,
+        focal_length=list(cam.focal_length),
+        principal_coord=list(cam.principal_coord),
+        ground_coords=pts,
+        depth_scale=depth_scale
+    )
+
+    # 【修正】添加 return 语句，将计算结果渲染到模板并返回
+    return render_template(
+        "partials/ground_calc_result.html",
+        ground_x=width_m,
+        ground_y=depth_m
+    )
+
+# ----------- 新增：地面設定 保存（POST） -----------
+@bp_keyarea.route("/panel/keyarea/<int:magistrate_id>/ground-settings", methods=["POST"])
+def ground_settings_submit(magistrate_id: int):
+    """
+    保存 ground_coords, depth_scale, 以及计算出的 ground lengths。
+    """
+    cam_old = load_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"))
+
+    if request.is_json:
+        payload = request.json
+    else:
+        # Fallback for form data if needed
+        import json
+        payload = {
+            "points": json.loads(request.form.get("points", "[]")),
+            "ground_x": request.form.get("ground_x"),
+            "ground_y": request.form.get("ground_y"),
+            "depth_scale": request.form.get("depth_scale"),
+        }
+
+    pts = payload.get("points") or []
+    try:
+        gx = float(payload.get("ground_x"))
+        gy = float(payload.get("ground_y"))
+        # MODIFIED: 从 payload 中读取 depth_scale
+        depth_scale = float(payload.get("depth_scale", cam_old.depth_scale))
+    except (TypeError, ValueError):
+        return jsonify({"ok": False, "msg": "尺寸或深度格式不正确"}), 400
+
+    if len(pts) != 4:
+        return jsonify({"ok": False, "msg": "需要 4 個點"}), 400
+
+    pts_int = [(int(round(p[0])), int(round(p[1]))) for p in pts]
+    new_cam = CameraParametersConfig(
+        camera_height=cam_old.camera_height,
+        roll_angle=cam_old.roll_angle,
+        pitch_angle=cam_old.pitch_angle,
+        yaw_angle=cam_old.yaw_angle,
+        focal_length=tuple(cam_old.focal_length),
+        principal_coord=tuple(cam_old.principal_coord),
+        ground_coords=pts_int,
+        depth_scale=depth_scale,  # MODIFIED: 保存新的 depth_scale
+        ground_x_length_calculated=int(round(gx * 1000)),
+        ground_y_length_calculated=int(round(gy * 1000)),
+        ground_z_length_calculated=cam_old.ground_z_length_calculated,
+    )
+
+    save_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"), new_cam)
+
+    return render_template("partials/save_success_snackbar.html", message="地面設定を保存しました。")
