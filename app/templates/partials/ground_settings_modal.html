@@ -1,7 +1,7 @@
 <!-- templates/partials/ground_settings_modal.html -->
 <div class="modal-overlay" id="ground-settings-modal">
   <div class="modal-box" style="max-width: 1120px; width: 96%;">
-    <h3 style="margin-top:0;">地面設定</h3>
+    <h3 style="margin-top:0;">敷地設定</h3>
 
     <div style="display:grid; grid-template-columns: 800px 1fr; gap:16px; align-items:start;">
 
@@ -20,7 +20,7 @@
         <fieldset class="config-fieldset">
           <legend>描画</legend>
           <div class="button-group" style="margin-bottom:12px;">
-            <button type="button" id="gs-reset">重绘</button>
+            <button type="button" id="gs-reset">クリア</button>
           </div>
         </fieldset>
 
@@ -42,18 +42,16 @@
 
         <!-- 3) 计算场地 -->
         <fieldset class="config-fieldset">
-          <legend>計算場地</legend>
+          <legend>敷地を計算</legend>
           <div class="button-group" style="margin-top:12px;">
             <button type="button" id="gs-calc">計算</button>
           </div>
+
           <div id="gs-calc-result" style="margin-top:8px; font-size:.95em; opacity:.9;">
             <!-- 计算结果片段会塞这里 -->
           </div>
-        </fieldset>
 
-        <!-- 4) 场地长宽显示 -->
-        <fieldset class="config-fieldset">
-          <legend>場地尺寸</legend>
+          <!-- 场地长宽显示 -->
           <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; align-items:end;">
             <div>
               <label style="display:block; font-size:.9em; opacity:.8;">幅さ[m]</label>
@@ -68,9 +66,10 @@
           </div>
         </fieldset>
 
-        <!-- 5) 确认 / 取消 -->
+        <!-- 4) 确认 / 取消 -->
         <div class="modal-actions" style="margin-top: 18px;">
-          <button type="button" class="secondary" onclick="document.getElementById('ground-settings-modal')?.remove();">取消</button>
+          <button type="button" class="secondary"
+                  onclick="document.getElementById('ground-settings-modal')?.remove();">取り消し</button>
           <button type="button" class="primary" id="gs-save">確認</button>
         </div>
 
@@ -86,7 +85,9 @@
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
 
-  let points = []; // [{x,y}, ...] 最多 4 个
+  // 【修改】从后端注入已保存的 ground_coords，如果没有则为空数组
+  let points = ({{ cam.ground_coords | tojson or [] }}).map(p => ({x: p[0], y: p[1]}));
+
   const fillColor = 'rgba(0,255,0,0.25)';
   const edgeColor = 'rgba(0,255,0,0.8)';
   const vertexColor = '#00FF00';

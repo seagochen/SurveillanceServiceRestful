@@ -1,0 +1,121 @@
+<div class="modal-overlay" id="keyarea-settings-modal">
+  <div class="modal-box" style="max-width: 1120px; width: 96%;">
+    <h3 style="margin-top:0;">重点エリア設定</h3>
+
+    <div style="display:grid; grid-template-columns: 800px 1fr; gap:16px; align-items:start;">
+
+      <div style="position:relative; width:800px; height:600px; background:#000; border-radius:6px; overflow:hidden;">
+        <img id="ka-stream" src="/panel/keyarea/{{ magistrate_id }}/frame800" alt="RTSP Stream 800x600"
+             style="position:absolute; inset:0; width:100%; height:100%; object-fit: fill;">
+        <canvas id="ka-canvas" width="800" height="600"
+                style="position:absolute; inset:0; cursor: crosshair;"></canvas>
+      </div>
+
+      <div>
+
+        <fieldset class="config-fieldset">
+          <legend>描画</legend>
+          <div class="button-group" style="margin-bottom:12px;">
+            <button type="button" id="ka-reset">クリア</button>
+          </div>
+        </fieldset>
+
+        <div class="modal-actions" style="margin-top: 18px;">
+          <button type="button" class="secondary" onclick="document.getElementById('keyarea-settings-modal')?.remove();">取り消し</button>
+          <button type="button" class="primary" id="ka-save">確認</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const canvas = document.getElementById('ka-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // 从后端注入当前区域点位
+  let points = {{ current_area | tojson }}.map(p => ({x: p[0], y: p[1]}));
+  const maxPoints = 4; // 最多 4 个点
+
+  const fillColor = 'rgba(255,0,0,0.25)'; // 透明红色
+  const edgeColor = 'rgba(255,0,0,0.8)';
+  const vertexColor = '#FF0000';
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = edgeColor;
+    ctx.fillStyle = fillColor;
+
+    if(points.length > 0){
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for(let i=1;i<points.length;i++) ctx.lineTo(points[i].x, points[i].y);
+      if(points.length === maxPoints) ctx.closePath();
+      ctx.stroke();
+
+      if(points.length === maxPoints){
+        ctx.fill();
+      }
+
+      for(const p of points){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+        ctx.fillStyle = vertexColor;
+        ctx.fill();
+      }
+    }
+  }
+
+  function addPoint(x,y){
+    if(points.length >= maxPoints) return;
+    points.push({x,y});
+    draw();
+  }
+
+  function resetPoints(){
+    points = [];
+    draw();
+  }
+
+  canvas.addEventListener('click', (e)=>{
+    const rect = canvas.getBoundingClientRect();
+    addPoint(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  document.getElementById('ka-reset').addEventListener('click', resetPoints);
+
+  // --- 保存按钮 ---
+  document.getElementById('ka-save').addEventListener('click', async ()=>{
+    if(points.length !== maxPoints){
+      alert(maxPoints + ' 個點を選んでください');
+      return;
+    }
+
+    const resp = await fetch("/panel/keyarea/{{ magistrate_id }}/keyarea-settings", {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        points: points.map(p=>[Math.round(p.x), Math.round(p.y)])
+      })
+    });
+
+    const html = await resp.text();
+    if(resp.ok){
+        document.getElementById('keyarea-settings-modal').outerHTML = html;
+        const snackbar = document.getElementById('camera-settings-modal'); // 模板共用ID
+        if (snackbar) {
+            setTimeout(()=> snackbar.remove(), 1200);
+        }
+    } else {
+        alert('保存に失敗しました: ' + html);
+    }
+  });
+
+  // 初始渲染
+  draw();
+})();
+</script>

@@ -39,7 +39,14 @@
                 <fieldset class="config-fieldset">
                     <legend>エリア操作</legend>
                     <div class="button-group">
-                        <button type="button">重点エリアを設置</button>
+                        <button
+                            type="button"
+                            hx-get="/panel/keyarea/{{ magistrate_id }}/keyarea-settings"
+                            hx-target="body"
+                            hx-swap="beforeend"
+                        >
+                            重点エリアを設置
+                        </button>
                     </div>
                 </fieldset>
 
