@@ -32,20 +32,42 @@ def get_alert_config_panel(magistrate_id: int):
 
         data = {
             "normal_area": {
-                "look_around":       { "enable": low_area.look_around.enable,       "threshold": low_area.look_around.threshold,       "penalty_score": low_area.look_around.penalty_score }, 
-                "theft_detection":   { "enable": low_area.theft_detection.enable,   "threshold": low_area.theft_detection.threshold,   "penalty_score": low_area.theft_detection.penalty_score },
-                "long_time_squat":   { "enable": low_area.long_time_squat.enable,   "threshold": low_area.long_time_squat.threshold,   "penalty_score": low_area.long_time_squat.penalty_score },
-                "loitering_distance":{ "enable": low_area.loitering_distance.enable,"threshold": low_area.loitering_distance.threshold,"penalty_score": low_area.loitering_distance.penalty_score },
-                "loitering_reentry": { "enable": low_area.loitering_reentry.enable, "threshold": low_area.loitering_reentry.threshold, "penalty_score": low_area.loitering_reentry.penalty_score },
-                "loitering_enter_area":{ "enable": low_area.loitering_enter_area.enable, "threshold": low_area.loitering_enter_area.threshold, "penalty_score": low_area.loitering_enter_area.penalty_score }
+                "look_around": {"enable": low_area.look_around.enable, "threshold": low_area.look_around.threshold,
+                                "penalty_score": low_area.look_around.penalty_score},
+                "theft_detection": {"enable": low_area.theft_detection.enable,
+                                    "threshold": low_area.theft_detection.threshold,
+                                    "penalty_score": low_area.theft_detection.penalty_score},
+                "long_time_squat": {"enable": low_area.long_time_squat.enable,
+                                    "threshold": low_area.long_time_squat.threshold,
+                                    "penalty_score": low_area.long_time_squat.penalty_score},
+                "loitering_distance": {"enable": low_area.loitering_distance.enable,
+                                       "threshold": low_area.loitering_distance.threshold,
+                                       "penalty_score": low_area.loitering_distance.penalty_score},
+                "loitering_reentry": {"enable": low_area.loitering_reentry.enable,
+                                      "threshold": low_area.loitering_reentry.threshold,
+                                      "penalty_score": low_area.loitering_reentry.penalty_score},
+                "loitering_enter_area": {"enable": low_area.loitering_enter_area.enable,
+                                         "threshold": low_area.loitering_enter_area.threshold,
+                                         "penalty_score": low_area.loitering_enter_area.penalty_score}
             },
             "key_area": {
-                "look_around":       { "enable": high_area.look_around.enable,       "threshold": high_area.look_around.threshold,       "penalty_score": high_area.look_around.penalty_score }, 
-                "theft_detection":   { "enable": high_area.theft_detection.enable,   "threshold": high_area.theft_detection.threshold,   "penalty_score": high_area.theft_detection.penalty_score },
-                "long_time_squat":   { "enable": high_area.long_time_squat.enable,   "threshold": high_area.long_time_squat.threshold,   "penalty_score": high_area.long_time_squat.penalty_score },
-                "loitering_distance":{ "enable": high_area.loitering_distance.enable,"threshold": high_area.loitering_distance.threshold,"penalty_score": high_area.loitering_distance.penalty_score },
-                "loitering_reentry": { "enable": high_area.loitering_reentry.enable, "threshold": high_area.loitering_reentry.threshold, "penalty_score": high_area.loitering_reentry.penalty_score },
-                "loitering_enter_area":{ "enable": high_area.loitering_enter_area.enable, "threshold": high_area.loitering_enter_area.threshold, "penalty_score": high_area.loitering_enter_area.penalty_score }
+                "look_around": {"enable": high_area.look_around.enable, "threshold": high_area.look_around.threshold,
+                                "penalty_score": high_area.look_around.penalty_score},
+                "theft_detection": {"enable": high_area.theft_detection.enable,
+                                    "threshold": high_area.theft_detection.threshold,
+                                    "penalty_score": high_area.theft_detection.penalty_score},
+                "long_time_squat": {"enable": high_area.long_time_squat.enable,
+                                    "threshold": high_area.long_time_squat.threshold,
+                                    "penalty_score": high_area.long_time_squat.penalty_score},
+                "loitering_distance": {"enable": high_area.loitering_distance.enable,
+                                       "threshold": high_area.loitering_distance.threshold,
+                                       "penalty_score": high_area.loitering_distance.penalty_score},
+                "loitering_reentry": {"enable": high_area.loitering_reentry.enable,
+                                      "threshold": high_area.loitering_reentry.threshold,
+                                      "penalty_score": high_area.loitering_reentry.penalty_score},
+                "loitering_enter_area": {"enable": high_area.loitering_enter_area.enable,
+                                         "threshold": high_area.loitering_enter_area.threshold,
+                                         "penalty_score": high_area.loitering_enter_area.penalty_score}
             },
             "alert_settings": {
                 "level0": file_utils.normalize(alert_settings.level0),
@@ -124,12 +146,14 @@ def toggle_alert_strategy(magistrate_id: int, area: str, strategy: str):
         )
 
     except AttributeError:
-        logger.error_trace("toggle_alert_strategy", f"Invalid area or strategy: {area}.{strategy} for magistrate {magistrate_id}")
+        logger.error_trace("toggle_alert_strategy",
+                           f"Invalid area or strategy: {area}.{strategy} for magistrate {magistrate_id}")
         return f"<button disabled>Error: Invalid Area/Strategy</button>"
     except Exception as e:
-        logger.error_trace("toggle_alert_strategy", f"Error toggling {area}.{strategy} for magistrate {magistrate_id}: {e}")
+        logger.error_trace("toggle_alert_strategy",
+                           f"Error toggling {area}.{strategy} for magistrate {magistrate_id}: {e}")
         return f"<button disabled>Error: {e}</button>"
-    
+
 
 @bp_alert.route('/panel/alert/<int:magistrate_id>', methods=['POST'])
 def update_alert_config_panel(magistrate_id: int):
@@ -147,12 +171,12 @@ def update_alert_config_panel(magistrate_id: int):
         # 2) 更新 normal_area / key_area（阈值/罚点）
         def update_strategy_field(area_key: str):
             form_prefix = area_key + "_"
-            area_attr   = f"{area_key}_strategy"
+            area_attr = f"{area_key}_strategy"
             target_area = getattr(cfg.client_magistrate, area_attr)
             for key, value in f.items():
                 if not key.startswith(form_prefix):
                     continue
-                rest = key[len(form_prefix):]          # e.g. "look_around_threshold"
+                rest = key[len(form_prefix):]  # e.g. "look_around_threshold"
                 if "_" not in rest:
                     continue
                 strategy_name, field_name = rest.rsplit("_", 1)
@@ -171,27 +195,29 @@ def update_alert_config_panel(magistrate_id: int):
 
         # 3) 更新 alert_settings_levelX
         for key, value in f.items():
-            if not key.startswith("alert_settings_"):
-                continue
-            suffix = key[len("alert_settings_"):]   # "level0".. "level5"
+            if not key.startswith("alert_settings_"): continue
+            suffix = key[len("alert_settings_"):]
             if suffix.startswith("level") and hasattr(cfg.client_magistrate.alert_settings, suffix):
                 try:
                     setattr(cfg.client_magistrate.alert_settings, suffix, int(value))
                 except ValueError:
                     pass
 
-        # 4) 更新 general_settings（含 checkbox）
-        bool_fields = {"use_enhanced_tracking"}
-        for bf in bool_fields:
-            html_name = f"general_settings_{bf}"
-            setattr(cfg.general_settings, bf, html_name in f)     # 勾上才会出现在 form
-
+        # --- 【修改】更新 general_settings 的逻辑 ---
         for key, value in f.items():
             if not key.startswith("general_settings_"):
                 continue
+
             field = key[len("general_settings_"):]
-            if field in bool_fields:
+            if not hasattr(cfg.general_settings, field):
                 continue
+
+            # 特殊处理下拉菜单的布尔值
+            if field == "use_enhanced_tracking":
+                setattr(cfg.general_settings, field, value == 'true')
+                continue
+
+            # 其他字段的通用处理
             try:
                 setattr(cfg.general_settings, field, int(value))
             except ValueError:
@@ -211,7 +237,7 @@ def update_alert_config_panel(magistrate_id: int):
         inf_name = f"pipeline_inference_{magistrate_id}"
         inf = pcfg.client_pipeline.inferences.get(inf_name)
         alias = getattr(inf, "alias", f"クライアント {magistrate_id}") if inf else f"クライアント {magistrate_id}"
-        ip    = (inf.camera_config.address if (inf and inf.camera_config) else "N/A")
+        ip = (inf.camera_config.address if (inf and inf.camera_config) else "N/A")
 
         panel_html = render_template('panel.html',
                                      magistrate_id=magistrate_id,
