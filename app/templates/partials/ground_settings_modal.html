@@ -1,0 +1,252 @@
+<!-- templates/partials/ground_settings_modal.html -->
+<div class="modal-overlay" id="ground-settings-modal">
+  <div class="modal-box" style="max-width: 1120px; width: 96%;">
+    <h3 style="margin-top:0;">敷地設定</h3>
+
+    <div style="display:grid; grid-template-columns: 800px 1fr; gap:16px; align-items:start;">
+
+      <!-- 左：画面 + 画布（原样保留） -->
+      <div style="position:relative; width:800px; height:600px; background:#000; border-radius:6px; overflow:hidden;">
+        <img id="gs-stream" src="/panel/keyarea/{{ magistrate_id }}/frame800" alt="RTSP Stream 800x600"
+             style="position:absolute; inset:0; width:100%; height:100%; object-fit: fill;">
+        <canvas id="gs-canvas" width="800" height="600"
+                style="position:absolute; inset:0; cursor: crosshair;"></canvas>
+      </div>
+
+      <!-- 右：控制面板（顺序已调整） -->
+      <div>
+
+        <!-- 1) 重绘 -->
+        <fieldset class="config-fieldset">
+          <legend>描画</legend>
+          <div class="button-group" style="margin-bottom:12px;">
+            <button type="button" id="gs-reset">クリア</button>
+          </div>
+        </fieldset>
+
+        <!-- 2) 检测距离 -->
+        <fieldset class="config-fieldset">
+          <legend>検知深度</legend>
+          <div id="gs-depth-scale-group">
+            <label style="margin-right:12px;">
+              <input type="radio" name="depth_scale" value="1.5" {% if cam.depth_scale == 1.5 %}checked{% endif %}> 1.5m
+            </label>
+            <label style="margin-right:12px;">
+              <input type="radio" name="depth_scale" value="3" {% if cam.depth_scale == 3 %}checked{% endif %}> 3m
+            </label>
+            <label>
+              <input type="radio" name="depth_scale" value="5" {% if cam.depth_scale == 5 %}checked{% endif %}> 5m
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- 3) 计算场地 -->
+        <fieldset class="config-fieldset">
+          <legend>敷地を計算</legend>
+          <div class="button-group" style="margin-top:12px;">
+            <button type="button" id="gs-calc">計算</button>
+          </div>
+
+          <div id="gs-calc-result" style="margin-top:8px; font-size:.95em; opacity:.9;">
+            <!-- 计算结果片段会塞这里 -->
+          </div>
+
+          <!-- 场地长宽显示 -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; align-items:end;">
+            <div>
+              <label style="display:block; font-size:.9em; opacity:.8;">幅さ[m]</label>
+              <input class="form-input" id="gs-ground-x" type="number" step="0.001"
+                     value="{{ (cam.ground_x_length_calculated or 0) / 1000 if cam.ground_x_length_calculated else 0 }}">
+            </div>
+            <div>
+              <label style="display:block; font-size:.9em; opacity:.8;">深さ[m]</label>
+              <input class="form-input" id="gs-ground-y" type="number" step="0.001"
+                     value="{{ (cam.ground_y_length_calculated or 0) / 1000 if cam.ground_y_length_calculated else 0 }}">
+            </div>
+          </div>
+        </fieldset>
+
+        <!-- 4) 确认 / 取消 -->
+        <div class="modal-actions" style="margin-top: 18px;">
+          <button type="button" class="secondary"
+                  onclick="document.getElementById('ground-settings-modal')?.remove();">取り消し</button>
+          <button type="button" class="primary" id="gs-save">確認</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ------------------ 画布交互 & 透视网格 ------------------
+(function(){
+  const canvas = document.getElementById('gs-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // 【修改】从后端注入已保存的 ground_coords，如果没有则为空数组
+  let points = ({{ cam.ground_coords | tojson or [] }}).map(p => ({x: p[0], y: p[1]}));
+
+  const fillColor = 'rgba(0,255,0,0.25)';
+  const edgeColor = 'rgba(0,255,0,0.8)';
+  const vertexColor = '#00FF00';
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+
+    // 绘制点、边和填充
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = edgeColor;
+    ctx.fillStyle = fillColor;
+
+    if(points.length > 0){
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for(let i=1;i<points.length;i++) ctx.lineTo(points[i].x, points[i].y);
+      if(points.length === 4) ctx.closePath();
+      ctx.stroke();
+
+      if(points.length === 4){
+        ctx.fill();
+      }
+
+      for(const p of points){
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+        ctx.fillStyle = vertexColor;
+        ctx.fill();
+      }
+    }
+
+    // 当有 4 个点时，绘制透视网格
+    if(points.length === 4){
+      drawInterpolatedGrid(points, 10, 10); // 使用新的稳定绘图函数
+    }
+  }
+
+  // 【新增】更稳定、简单的网格绘制函数
+  function drawInterpolatedGrid(quad, rows, cols) {
+    const p0 = quad[0], p1 = quad[1], p2 = quad[2], p3 = quad[3];
+
+    ctx.save();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)'; // 白色半透明网格线
+    ctx.beginPath();
+
+    // 绘制“纵向”网格线
+    for (let i = 1; i < cols; i++) {
+        const t = i / cols;
+        const x1 = p0.x + t * (p1.x - p0.x);
+        const y1 = p0.y + t * (p1.y - p0.y);
+        const x2 = p3.x + t * (p2.x - p3.x);
+        const y2 = p3.y + t * (p2.y - p3.y);
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+    }
+
+    // 绘制“横向”网格线
+    for (let i = 1; i < rows; i++) {
+        const t = i / rows;
+        const x1 = p0.x + t * (p3.x - p0.x);
+        const y1 = p0.y + t * (p3.y - p0.y);
+        const x2 = p1.x + t * (p2.x - p1.x);
+        const y2 = p1.y + t * (p2.y - p1.y);
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+    }
+
+    ctx.stroke();
+    ctx.restore();
+  }
+
+
+  function addPoint(x,y){
+    if(points.length >= 4) return;
+    points.push({x,y});
+    draw();
+  }
+
+  function resetPoints(){
+    points = [];
+    draw();
+  }
+
+  canvas.addEventListener('click', (e)=>{
+    const rect = canvas.getBoundingClientRect();
+    addPoint(e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  document.getElementById('gs-reset').addEventListener('click', resetPoints);
+
+  // --- 计算按钮 ---
+  document.getElementById('gs-calc').addEventListener('click', async ()=>{
+    if(points.length !== 4){
+      document.getElementById('gs-calc-result').innerText = '請先在左側選取 4 個點';
+      return;
+    }
+    try{
+        const depthScaleInput = document.querySelector('input[name="depth_scale"]:checked');
+        const depthScale = depthScaleInput ? parseFloat(depthScaleInput.value) : 1.5;
+        const resp = await fetch("/panel/keyarea/{{ magistrate_id }}/ground-settings/calc", {
+            method:"POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({
+                points: points.map(p=>[Math.round(p.x), Math.round(p.y)]),
+                depth_scale: depthScale
+            })
+        });
+        const html = await resp.text();
+        if(resp.ok){
+            document.getElementById('gs-calc-result').innerHTML = html;
+            const gxEl = document.querySelector('#gs-calc-result input[name="ground_x"]');
+            const gyEl = document.querySelector('#gs-calc-result input[name="ground_y"]');
+            if(gxEl && gyEl){
+                document.getElementById('gs-ground-x').value = gxEl.value;
+                document.getElementById('gs-ground-y').value = gyEl.value;
+            }
+        }else{
+            document.getElementById('gs-calc-result').innerHTML = html;
+        }
+    }catch(err){
+      document.getElementById('gs-calc-result').innerText = '計算エラー';
+    }
+  });
+
+  // --- 保存按钮 ---
+  document.getElementById('gs-save').addEventListener('click', async ()=>{
+    if(points.length !== 4){
+      alert('4 個點を選んでください');
+      return;
+    }
+    const gx = parseFloat(document.getElementById('gs-ground-x').value || '0');
+    const gy = parseFloat(document.getElementById('gs-ground-y').value || '0');
+    const depthScaleInput = document.querySelector('input[name="depth_scale"]:checked');
+    const depthScale = depthScaleInput ? parseFloat(depthScaleInput.value) : 1.5;
+
+    const resp = await fetch("/panel/keyarea/{{ magistrate_id }}/ground-settings", {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        points: points.map(p=>[Math.round(p.x), Math.round(p.y)]),
+        ground_x: gx,
+        ground_y: gy,
+        depth_scale: depthScale
+      })
+    });
+    const html = await resp.text();
+    if(resp.ok){
+        document.getElementById('ground-settings-modal').outerHTML = html;
+        const snackbar = document.getElementById('camera-settings-modal');
+        if (snackbar) {
+            setTimeout(()=> snackbar.remove(), 1200);
+        }
+    } else {
+        alert('保存に失敗しました');
+    }
+  });
+
+  // 初始渲染
+  draw();
+})();
+</script>

@@ -1,11 +1,11 @@
 camera_height: 300  # 高度，单位厘米
-roll_angle: 0       # 滚动角
-yaw_angle:  0       # 偏航角
-pitch_angle: -45    # 俯仰角
+roll_angle: 0       # 滚动角，单位度
+yaw_angle:  0       # 偏航角，单位度
+pitch_angle: -45    # 俯仰角，单位度
 focal_length: [800, 800]      # 焦距 fx, fy
 principal_coord: [400, 300]   # 常见的主坐标 cx, cy （以800x600的画面为主）
-furniture_line1: [0, 0, 100, 100]   # 深度采样样本直线1
-furniture_line2: [0, 0, 100, 100]   # 深度采样样本直线2
-furniture_line1_sampling_depth: [0, 100]    # 深度采样值
-furniture_line2_sampling_depth: [0, 100]    # 深度采样值
-average_depth_values: [0, 100]              # 平均深度值
+ground_coords: [[0, 0], [0, 100], [100, 100], [100,0]] # 画面中表示地面的矩形坐标
+depth_scale: 3      # 检测深度，单位米
+ground_x_length_calculated: 100   # 计算后的地面宽度，相对于镜头的横向长度
+ground_y_length_calculated: 100   # 计算后的地面深度，相对于镜头的纵向深度
+ground_z_length_calculated: 0     # 计算后的地面高度，这个值为0，保留

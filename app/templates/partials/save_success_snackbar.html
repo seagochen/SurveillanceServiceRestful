@@ -1,0 +1,11 @@
+<!-- templates/partials/save_success_snackbar.html -->
+<div class="modal-overlay" id="camera-settings-modal">
+  <div class="success-modal">
+    {{ message }}
+  </div>
+</div>
+<script>
+  setTimeout(function(){
+    document.getElementById('camera-settings-modal')?.remove();
+  }, 1200);
+</script>

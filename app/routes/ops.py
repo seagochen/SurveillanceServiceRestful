@@ -1,7 +1,7 @@
 # app/routes/ops.py
 import json, os
 from flask import Blueprint, make_response, render_template
-from app import utils
+from app.utils import file_utils
 
 bp_ops = Blueprint('ops', __name__)
 
@@ -9,7 +9,7 @@ bp_ops = Blueprint('ops', __name__)
 @bp_ops.route('/panel/sync/<int:magistrate_id>', methods=['POST'])
 def sync_config(magistrate_id: int):
     cfg = f"magistrate_config{magistrate_id}"
-    utils.copy_single_config(cfg)
+    file_utils.copy_single_config(cfg)
 
     # 【关键修改】使用 HX-Redirect 头部，让 HTMX 自己处理跳转
     resp = make_response("") # 可以发送空响应，因为 hx-swap="none"
@@ -28,8 +28,8 @@ def sync_config(magistrate_id: int):
 def sync_all_configs():
     # 分别同步各文件
     for i in range(1, 9):
-        utils.copy_single_config(f"magistrate_config{i}")
-    utils.copy_single_config("pipeline_config")
+        file_utils.copy_single_config(f"magistrate_config{i}")
+    file_utils.copy_single_config("pipeline_config")
 
     # 生成回复信息
     resp = make_response("")
@@ -42,7 +42,7 @@ def sync_all_configs():
 
 @bp_ops.route('/config/reset', methods=['POST'])
 def reset_configs():
-    utils.copy_configs(os.path.join("configs", "defaults"), "configs")
+    file_utils.copy_configs(os.path.join("configs", "defaults"), "configs")
     resp = make_response("")
     resp.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": "初期設定が読み込まれました"})
 
@@ -54,7 +54,7 @@ def reset_configs():
 @bp_ops.route('/config/load_all', methods=['POST'])
 def load_all_configs():
     # utils.load_configs_from_device()
-    utils.copy_configs(src_folder="/opt/SurveillanceService/configs",
+    file_utils.copy_configs(src_folder="/opt/SurveillanceService/configs",
                        dest_folder="configs")
     resp = make_response("")
     resp.headers['HX-Trigger'] = json.dumps({"showsuccessmodal": "デバイスから設定が読み込まれました"})

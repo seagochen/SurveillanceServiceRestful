@@ -1,0 +1,56 @@
+<!-- templates/partials/camera_settings_modal.html -->
+<div class="modal-overlay" id="camera-settings-modal">
+  <div class="modal-box" style="max-width: 560px; width: 96%;">
+    <h3 style="margin-top:0;">カメラパラメータ設定</h3>
+
+    <form
+      id="camera-settings-form"
+      hx-post="/panel/keyarea/{{ magistrate_id }}/camera-settings"
+      hx-target="#camera-settings-modal"
+      hx-swap="outerHTML"
+      autocomplete="off"
+    >
+      <table class="config-table">
+        <tr>
+          <td>カメラ高さ[cm]</td>
+          <td><input class="form-input" type="number" name="camera_height" value="{{ cfg.camera_height }}" required></td>
+        </tr>
+        <tr>
+          <td>ロール角[°]</td> <!-- roll angle -->
+          <td><input class="form-input" type="number" name="roll_angle" value="{{ cfg.roll_angle }}" required></td>
+        </tr>
+        <tr>
+          <td>ヨー角[°]</td> <!-- yaw angle -->
+          <td><input class="form-input" type="number" name="yaw_angle" value="{{ cfg.yaw_angle }}" required></td>
+        </tr>
+        <tr>
+          <td>ピッチ角[°]</td> <!-- pitch angle -->
+          <td><input class="form-input" type="number" name="pitch_angle" value="{{ cfg.pitch_angle }}" required></td>
+        </tr>
+        <tr>
+          <td>焦点距離 fx / fy</td> <!-- focal_length fx / fy -->
+          <td style="display:flex; gap:8px;">
+            <input class="form-input" type="number" name="focal_length_fx" value="{{ cfg.focal_length[0] }}" required>
+            <input class="form-input" type="number" name="focal_length_fy" value="{{ cfg.focal_length[1] }}" required>
+          </td>
+        </tr>
+        <tr>
+          <td>メイン座標 cx / cy</td> <!--principal_coord cx / cy-->
+          <td style="display:flex; gap:8px;">
+            <input class="form-input" type="number" name="principal_coord_cx" value="{{ cfg.principal_coord[0] }}" required>
+            <input class="form-input" type="number" name="principal_coord_cy" value="{{ cfg.principal_coord[1] }}" required>
+          </td>
+        </tr>
+      </table>
+
+      <div class="modal-actions" style="margin-top: 20px;">
+        <button type="button"
+                class="secondary"
+                onclick="document.getElementById('camera-settings-modal')?.remove();">
+            取り消し
+        </button>
+        <button type="submit" class="primary">確認</button>
+      </div>
+    </form>
+  </div>
+</div>

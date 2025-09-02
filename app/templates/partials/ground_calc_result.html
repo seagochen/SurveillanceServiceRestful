@@ -1,0 +1,9 @@
+<!-- templates/partials/ground_calc_result.html -->
+<div>
+  <div style="margin-bottom:6px;">
+    幅さ(ground_x): <b>{{ '%.3f' % ground_x }}</b> m</br>
+    深さ(ground_y): <b>{{ '%.3f' % ground_y }}</b> m
+  </div>
+  <input type="hidden" name="ground_x" value="{{ '%.3f' % ground_x }}">
+  <input type="hidden" name="ground_y" value="{{ '%.3f' % ground_y }}">
+</div>
