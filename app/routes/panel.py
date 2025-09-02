@@ -1,6 +1,6 @@
 # app/routes/panel.py
 from flask import Blueprint, make_response, render_template, request
-from app import utils
+from app.utils import file_utils
 from pyengine.config.pipeline_config_parser import PipelineInferenceDetail, load_pipeline_config, PipelineConfig, \
     save_pipeline_config
 
@@ -10,7 +10,7 @@ bp_panel = Blueprint('panel', __name__)
 @bp_panel.route('/panel/magistrate/<int:magistrate_id>')
 def magistrate_panel(magistrate_id: int):
     """读取 pipeline_config 获取别名/IP，渲染面板抬头；支持直链 & HTMX 两种入口。"""
-    cfg = load_pipeline_config(utils.get_config("pipeline_config"))
+    cfg = load_pipeline_config(file_utils.get_config("pipeline_config"))
     name = f"pipeline_inference_{magistrate_id}"
     inf: PipelineInferenceDetail = cfg.client_pipeline.inferences.get(name)
     if not inf:
@@ -42,7 +42,7 @@ def magistrate_panel(magistrate_id: int):
 
 @bp_panel.route('/panel/magistrate/<int:magistrate_id>/toggle_button')
 def get_toggle_button(magistrate_id: int):
-    cfg = load_pipeline_config(utils.get_config("pipeline_config"))
+    cfg = load_pipeline_config(file_utils.get_config("pipeline_config"))
     name = f"pipeline_inference_{magistrate_id}"
     is_enabled = name in cfg.client_pipeline.enable_sources
     return render_template('_panel_toggle_button.html',
@@ -53,7 +53,7 @@ def _save_pipeline_enable_sources(magistrate_id: int, enable: bool):
 
     # 解析文件路径
     cfg_name = "pipeline_config"
-    cfg_path = utils.get_config(cfg_name)
+    cfg_path = file_utils.get_config(cfg_name)
     cfg: PipelineConfig = load_pipeline_config(cfg_path)
 
     # 确认配置 key

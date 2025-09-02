@@ -2,8 +2,9 @@
 import cv2
 import numpy as np
 import time
-from flask import Blueprint, render_template, Response, current_app
-from app import utils
+from flask import Blueprint, render_template, Response, current_app, request
+from app.utils import file_utils
+from pyengine.config.camera_setting_parser import load_camera_settings, CameraParametersConfig, save_camera_settings
 from pyengine.config.pipeline_config_parser import PipelineConfig, load_pipeline_config
 from pyengine.config.magistrate_config_parser import MagistrateConfig, load_magistrate_config
 from pyengine.io.network.plugins.inference_result_receiver import InferenceResultReceiverPlugin
@@ -13,7 +14,10 @@ from pyengine.visualization import polygon_drawer
 bp_keyarea = Blueprint("keyarea", __name__)
 
 
-# ---- 小工具：把 MQTT 的 protobuf 里携带的裸像素还原成 np.ndarray ----
+#------------------------------------------------------------------
+# MQTT Display
+#------------------------------------------------------------------
+
 def _pb_to_ndarray(msg) -> np.ndarray | None:
     """
     期望字段:
@@ -49,14 +53,13 @@ def _pb_to_ndarray(msg) -> np.ndarray | None:
     except Exception:
         return None
 
-
 @bp_keyarea.route("/panel/keyarea/<int:magistrate_id>")
 def keyarea_panel(magistrate_id: int):
     """
     展示重点エリア設定页面。
     说明：帧数据不在这里拉流，而是由 /frame 路由通过 MQTT 读取。
     """
-    cfg: PipelineConfig = load_pipeline_config(utils.get_config("pipeline_config"))
+    cfg: PipelineConfig = load_pipeline_config(file_utils.get_config("pipeline_config"))
     name = f"pipeline_inference_{magistrate_id}"
     inf = cfg.client_pipeline.inferences.get(name)
     if not inf:
@@ -69,7 +72,6 @@ def keyarea_panel(magistrate_id: int):
         magistrate_id=magistrate_id,
         config={"key_area": default_key_area}
     )
-
 
 @bp_keyarea.route("/panel/keyarea/<int:magistrate_id>/frame")
 def keyarea_frame(magistrate_id: int):
@@ -89,7 +91,7 @@ def keyarea_frame(magistrate_id: int):
     BOUNDARY = b"--frame"
     
     # 从配置文件中读取检测区域
-    cfg: MagistrateConfig = load_magistrate_config(utils.get_config(f"magistrate_config{magistrate_id}"))
+    cfg: MagistrateConfig = load_magistrate_config(file_utils.get_config(f"magistrate_config{magistrate_id}"))
     key_area = cfg.client_magistrate.key_area_settings.area
     key_color = cfg.client_magistrate.key_area_settings.color
     key_alpha = cfg.client_magistrate.key_area_settings.alpha
@@ -145,3 +147,61 @@ def keyarea_frame(magistrate_id: int):
     return Response(generate(), mimetype="multipart/x-mixed-replace; boundary=frame")
 
 
+#-------------------------------------------------------------------
+# Camera Setting
+#-------------------------------------------------------------------
+
+@bp_keyarea.route("/panel/keyarea/<int:magistrate_id>/camera-settings", methods=["GET"])
+def camera_settings_modal(magistrate_id: int):
+    # 读取相机参数
+    cfg = load_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"))
+    return render_template(
+        "partials/camera_settings_modal.html",
+        magistrate_id=magistrate_id,
+        cfg=cfg
+    )
+
+@bp_keyarea.route("/panel/keyarea/<int:magistrate_id>/camera-settings", methods=["POST"])
+def camera_settings_submit(magistrate_id: int):
+    # 读原配置，未出现在表单里的字段保持不变（如 ground_coords / 计算结果等）
+    old = load_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"))
+
+    # 逐项获取表单并类型转换；缺省则用旧值
+    def _get_int(name, default):
+        try:
+            return int(request.form.get(name, default))
+        except Exception:
+            return default
+
+    def _get_float(name, default):
+        try:
+            return float(request.form.get(name, default))
+        except Exception:
+            return default
+
+    fx = _get_int("focal_length_fx", old.focal_length[0])
+    fy = _get_int("focal_length_fy", old.focal_length[1])
+    cx = _get_int("principal_coord_cx", old.principal_coord[0])
+    cy = _get_int("principal_coord_cy", old.principal_coord[1])
+
+    new_cfg = CameraParametersConfig(
+        camera_height=_get_int("camera_height", old.camera_height),
+        roll_angle=_get_int("roll_angle", old.roll_angle),
+        pitch_angle=_get_int("pitch_angle", old.pitch_angle),
+        yaw_angle=_get_int("yaw_angle", old.yaw_angle),
+        focal_length=(fx, fy),
+        principal_coord=(cx, cy),
+        ground_coords=old.ground_coords,  # 表单未编辑，沿用
+        depth_scale=_get_float("depth_scale", old.depth_scale),
+        ground_x_length_calculated=old.ground_x_length_calculated,
+        ground_y_length_calculated=old.ground_y_length_calculated,
+        ground_z_length_calculated=old.ground_z_length_calculated,
+    )
+
+    save_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"), new_cfg)
+
+    # 返回一个小的成功提示片段（HTMX 直接替换当前 modal 内容）
+    return render_template(
+        "partials/save_success_snackbar.html",
+        message="カメラパラメータを保存しました。"
+    )

@@ -1,7 +1,7 @@
 # app/routes/alert.py
 import json
 from flask import Blueprint, render_template, request, make_response
-from app import utils
+from app.utils import file_utils
 from pyengine.utils.logger import logger
 
 from pyengine.config.magistrate_config_parser import (
@@ -22,7 +22,7 @@ def get_alert_config_panel(magistrate_id: int):
     """
     cfg_name = f"magistrate_config{magistrate_id}"
     try:
-        cfg_path = utils.get_config(cfg_name)
+        cfg_path = file_utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
 
         low_area = cfg.client_magistrate.normal_area_strategy
@@ -48,22 +48,22 @@ def get_alert_config_panel(magistrate_id: int):
                 "loitering_enter_area":{ "enable": high_area.loitering_enter_area.enable, "threshold": high_area.loitering_enter_area.threshold, "penalty_score": high_area.loitering_enter_area.penalty_score }
             },
             "alert_settings": {
-                "level0": utils.normalize(alert_settings.level0),
-                "level1": utils.normalize(alert_settings.level1),
-                "level2": utils.normalize(alert_settings.level2),
-                "level3": utils.normalize(alert_settings.level3),
-                "level4": utils.normalize(alert_settings.level4),
-                "level5": utils.normalize(alert_settings.level5),
+                "level0": file_utils.normalize(alert_settings.level0),
+                "level1": file_utils.normalize(alert_settings.level1),
+                "level2": file_utils.normalize(alert_settings.level2),
+                "level3": file_utils.normalize(alert_settings.level3),
+                "level4": file_utils.normalize(alert_settings.level4),
+                "level5": file_utils.normalize(alert_settings.level5),
             },
             "general_settings": {
-                "cache_retention_duration": utils.normalize(settings.cache_retention_duration),
-                "use_enhanced_tracking": utils.normalize(settings.use_enhanced_tracking),
-                "sma_window_size": utils.normalize(settings.sma_window_size),
-                "delta_duration_threshold": utils.normalize(settings.delta_duration_threshold),
-                "delta_distance_threshold": utils.normalize(settings.delta_distance_threshold),
-                "reentry_angle_threshold": utils.normalize(settings.reentry_angle_threshold),
-                "min_consecutive_count": utils.normalize(settings.min_consecutive_count),
-                "min_keypoint_distance": utils.normalize(settings.min_keypoint_distance)
+                "cache_retention_duration": file_utils.normalize(settings.cache_retention_duration),
+                "use_enhanced_tracking": file_utils.normalize(settings.use_enhanced_tracking),
+                "sma_window_size": file_utils.normalize(settings.sma_window_size),
+                "delta_duration_threshold": file_utils.normalize(settings.delta_duration_threshold),
+                "delta_distance_threshold": file_utils.normalize(settings.delta_distance_threshold),
+                "reentry_angle_threshold": file_utils.normalize(settings.reentry_angle_threshold),
+                "min_consecutive_count": file_utils.normalize(settings.min_consecutive_count),
+                "min_keypoint_distance": file_utils.normalize(settings.min_keypoint_distance)
             }
         }
         return render_template('alert_config_panel.html', magistrate_id=magistrate_id, config=data)
@@ -82,7 +82,7 @@ def toggle_alert_strategy(magistrate_id: int, area: str, strategy: str):
     """
     try:
         cfg_name = f"magistrate_config{magistrate_id}"
-        cfg_path = utils.get_config(cfg_name)
+        cfg_path = file_utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
 
         # 映射 normal_area/key_area -> 对象属性
@@ -94,7 +94,7 @@ def toggle_alert_strategy(magistrate_id: int, area: str, strategy: str):
         if request.method == 'POST':
             target_strategy.enable = not bool(target_strategy.enable)
             save_magistrate_config(cfg_path, cfg)
-            utils.copy_single_config(cfg_name)
+            file_utils.copy_single_config(cfg_name)
 
         # 读取“新的”启用状态
         is_enabled = bool(target_strategy.enable)
@@ -140,7 +140,7 @@ def update_alert_config_panel(magistrate_id: int):
     cfg_name = f"magistrate_config{magistrate_id}"
     try:
         # 1) 读取 & 解析
-        cfg_path = utils.get_config(cfg_name)
+        cfg_path = file_utils.get_config(cfg_name)
         cfg: MagistrateConfig = load_magistrate_config(cfg_path)
         f = request.form
 
@@ -202,11 +202,11 @@ def update_alert_config_panel(magistrate_id: int):
 
         # 5) 保存 & 同步
         save_magistrate_config(cfg_path, cfg)
-        utils.copy_single_config(cfg_name)
+        file_utils.copy_single_config(cfg_name)
 
         # 6) 渲染回上一级面板（需要 alias/IP，和 cloud/camera 一样从 pipeline_config 取）
         from pyengine.config.pipeline_config_parser import load_pipeline_config, PipelineConfig
-        p_path = utils.get_config("pipeline_config")
+        p_path = file_utils.get_config("pipeline_config")
         pcfg: PipelineConfig = load_pipeline_config(p_path)
         inf_name = f"pipeline_inference_{magistrate_id}"
         inf = pcfg.client_pipeline.inferences.get(inf_name)

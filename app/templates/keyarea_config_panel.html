@@ -18,7 +18,14 @@
                     <legend>キャリブレーション</legend>
                     <div class="button-group">
                         <button type="button">地面設定</button>
-                        <button type="button">カメラパラメータ設定</button>
+                        <button
+                                type="button"
+                                hx-get="/panel/keyarea/{{ magistrate_id }}/camera-settings"
+                                hx-target="body"
+                                hx-swap="beforeend"
+                        >
+                          カメラパラメータ設定
+                        </button>
                     </div>
                 </fieldset>
 

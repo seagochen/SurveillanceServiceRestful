@@ -1,6 +1,7 @@
 import os
 
-from app import create_app, utils
+from app import create_app
+from app.utils import file_utils
 from pyengine.io.network.mqtt_bus import MqttBus
 from pyengine.io.network.mqtt_plugins import MqttPluginManager
 from pyengine.io.network.plugins.heart_beat_receiver import HeartbeatReceiverPlugin
@@ -77,7 +78,7 @@ if __name__ == '__main__':
     try:
 
         # 拷贝文件
-        utils.copy_configs(
+        file_utils.copy_configs(
             src_folder="/opt/SurveillanceService/configs",
             dest_folder="/opt/SurveillanceServiceRestful/configs",
             default_folder="/opt/SurveillanceServiceRestful/configs/defaults",

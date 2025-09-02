@@ -1,18 +1,15 @@
 import os
-from typing import List, Dict, Any, Optional
-
-import cv2
+from typing import List
 
 from pyengine.io.network.mqtt_bus import MqttBus
 from pyengine.io.network.mqtt_plugins import MqttPluginManager
 from pyengine.io.network.plugins.heart_beat_sender import HeartbeatSenderPlugin
-from pyengine.io.network.protobufs import import_inference_result, import_rawframe
 
 # ===== Configurable Parameters (can be overridden by environment variables) =====
 BROKER_HOST = os.getenv("BROKER_HOST", "127.0.0.1")
 BROKER_PORT = int(os.getenv("BROKER_PORT", "1883"))
 VID_PATH = os.getenv("VID_PATH", "/opt/videos/onsite_normal_test.mp4")
-NUM_MAGISTRATES = 8  # Fixed number of magistrate clients to simulate
+NUM_MAGISTRATES = int(os.getenv("NUM_MAGISTRATES", "8"))  # Fixed number of magistrate clients to simulate
 
 
 # ===== Heartbeat Client Wrapper =====
@@ -68,76 +65,6 @@ class SimClient:
             if self._started:
                 self.bus.stop()
                 self._started = False
-
-
-def make_inference_result_packer(pb2_dir: str,
-                                 jpeg_quality: int = 85,
-                                 publisher: str = "test",
-                                 results_bytes_func: Optional[callable] = None):
-    """
-    返回 pack(frame, meta) -> bytes
-    - 将 BGR 帧压成 JPEG，写入 InferenceResult.frame_raw_data
-    - inference_results:
-        * 如果 results_bytes_func 不为 None：用其返回的 bytes
-        * 否则为空字节 b""
-    - frame_number:
-        * 优先 meta["frame_number"]；否则使用内部计数器自增
-    """
-    InferenceResult = import_inference_result(pb2_dir)  # 正确的类
-
-    def pack(frame, meta: Dict[str, Any]) -> bytes:
-        ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)])
-        if not ok:
-            raise RuntimeError("JPEG encode failed")
-        h, w = frame.shape[:2]
-
-        msg = InferenceResult()
-        msg.frame_number    = 0
-        msg.frame_width     = int(meta.get("width",  w))
-        msg.frame_height    = int(meta.get("height", h))
-        msg.frame_channels  = 3  # BGR
-        msg.frame_raw_data  = buf.tobytes()
-        msg.publish_by      = str(meta.get("publish_by", publisher))
-
-        if results_bytes_func is not None:
-            # 约定：results_bytes_func 返回“已序列化好的检测结果 bytes”
-            # 例如：DetectionSet().SerializeToString()
-            rb = results_bytes_func(frame, meta)
-            if not isinstance(rb, (bytes, bytearray, memoryview)):
-                raise TypeError("results_bytes_func must return bytes")
-            msg.inference_results = bytes(rb)
-        else:
-            msg.inference_results = b""
-
-        return msg.SerializeToString()
-
-    return pack
-
-
-def make_rawframe_packer(pb2_dir: str, jpeg_quality: int = 85):
-    """
-    如果你想用 RawFrame（raw_frames.proto）而不是 InferenceResult：
-    - 只包含帧的宽高通道和 JPEG 字节。
-    """
-    RawFrame = import_rawframe(pb2_dir)
-
-    def pack(frame, meta: Dict[str, Any]) -> bytes:
-        ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)])
-        if not ok:
-            raise RuntimeError("JPEG encode failed")
-        h, w = frame.shape[:2]
-
-        msg = RawFrame()
-        # 该 proto 有 frame_fps 字段；可从 meta 传，没有就置 0
-        msg.frame_fps       = int(meta.get("fps", 0))
-        msg.frame_width     = int(meta.get("width",  w))
-        msg.frame_height    = int(meta.get("height", h))
-        msg.frame_channels  = 3
-        msg.frame_raw_data  = buf.tobytes()
-        return msg.SerializeToString()
-
-    return pack
-
 
 # ===== Interactive Command-Line Interface =====
 def print_status(pipeline_client: SimClient, mag_clients: List[SimClient]):

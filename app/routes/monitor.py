@@ -1,6 +1,6 @@
 # app/routes/monitor.py
 from flask import Blueprint, current_app
-from app import utils
+from app.utils import file_utils
 from pyengine.config.pipeline_config_parser import PipelineConfig, load_pipeline_config
 from pyengine.io.network.plugins.heart_beat_receiver import HeartbeatReceiverPlugin
 
@@ -11,7 +11,7 @@ def get_magistrate_grid():
     html_parts = []
 
     # 获取YAML配置
-    cfg_path = utils.get_config("pipeline_config")
+    cfg_path = file_utils.get_config("pipeline_config")
     cfg: PipelineConfig = load_pipeline_config(cfg_path)
 
     # 获取心跳
@@ -55,7 +55,7 @@ def get_magistrate_grid():
 def get_pipeline_indicator():
     try:
         # Get the YAML file
-        cfg_path = utils.get_config("pipeline_config")
+        cfg_path = file_utils.get_config("pipeline_config")
         cfg: PipelineConfig = load_pipeline_config(cfg_path)
 
         # Get the client id

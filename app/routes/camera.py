@@ -1,7 +1,7 @@
 # app/routes/camera.py
 import json
 from flask import Blueprint, make_response, render_template, request
-from app import utils
+from app.utils import file_utils
 from pyengine.config.pipeline_config_parser import (
     load_pipeline_config, save_pipeline_config, PipelineConfig, CameraConfig
 )
@@ -14,19 +14,19 @@ bp_camera = Blueprint('camera', __name__)
 def get_camera_config_panel(camera_id: int):
     config_name = "pipeline_config"
     try:
-        pipeline_config = utils.get_config(config_name)
+        pipeline_config = file_utils.get_config(config_name)
         magistrate_config = load_pipeline_config(pipeline_config)
         inference_name = f"pipeline_inference_{camera_id}"
         cam_cfg = magistrate_config.client_pipeline.inferences[inference_name]
 
         data = {
-            "alias":     utils.normalize(cam_cfg.alias),
-            "camera_id": utils.normalize(cam_cfg.camera_config.camera_id),
-            "address":   utils.normalize(cam_cfg.camera_config.address),
-            "port":      utils.normalize(cam_cfg.camera_config.port),
-            "path":      utils.normalize(cam_cfg.camera_config.path),
-            "username":  utils.normalize(cam_cfg.camera_config.username),
-            "password":  utils.normalize(cam_cfg.camera_config.password),
+            "alias":     file_utils.normalize(cam_cfg.alias),
+            "camera_id": file_utils.normalize(cam_cfg.camera_config.camera_id),
+            "address":   file_utils.normalize(cam_cfg.camera_config.address),
+            "port":      file_utils.normalize(cam_cfg.camera_config.port),
+            "path":      file_utils.normalize(cam_cfg.camera_config.path),
+            "username":  file_utils.normalize(cam_cfg.camera_config.username),
+            "password":  file_utils.normalize(cam_cfg.camera_config.password),
         }
         return render_template('camera_config_panel.html', camera_id=camera_id, config=data)
     except Exception as e:
@@ -36,7 +36,7 @@ def get_camera_config_panel(camera_id: int):
 @bp_camera.route('/panel/camera/<int:camera_id>', methods=['POST'])
 def update_camera_config_panel(camera_id: int):
     try:
-        cfg_path = utils.get_config("pipeline_config")
+        cfg_path = file_utils.get_config("pipeline_config")
         cfg: PipelineConfig = load_pipeline_config(cfg_path)
 
         name = f"pipeline_inference_{camera_id}"
@@ -68,7 +68,7 @@ def update_camera_config_panel(camera_id: int):
 
         # —— 保存并同步（保持不变）——
         save_pipeline_config(cfg_path, cfg)
-        utils.copy_single_config("pipeline_config")
+        file_utils.copy_single_config("pipeline_config")
 
         # —— 仅回上一级面板，不再发送 HX-Trigger —— ★关键修改
         alias = inf.alias

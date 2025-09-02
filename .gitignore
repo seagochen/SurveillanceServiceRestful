@@ -15,6 +15,9 @@
 # Ignore the generated CSV files
 *.csv
 
+# Ignore the generated tar.gz files
+*.tar.gz
+
 # Ignore all the jupyternote files
 *.ipynb
 
@@ -23,9 +26,6 @@ libs/
 deprecated/
 plugin_c/
 notes/
-
-# Ignore the protobuf generated files
-protobufs/*.py
 
 # Ignore the link
 pyengine
