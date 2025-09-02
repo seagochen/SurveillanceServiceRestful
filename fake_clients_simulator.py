@@ -1,164 +1,232 @@
-import paho.mqtt.client as mqtt
-import threading
-import time
-import json
-import sys
+import os
+from typing import List, Dict, Any, Optional
 
-# --- 全局配置 ---
-BROKER_HOST = "localhost"
-BROKER_PORT = 1883
-NUM_MAGISTRATES = 8
-HEARTBEAT_INTERVAL = 1  # seconds
-PIPELINE_CLIENT_ID = "pipeline_client"
+import cv2
+
+from pyengine.io.network.mqtt_bus import MqttBus
+from pyengine.io.network.mqtt_plugins import MqttPluginManager
+from pyengine.io.network.plugins.heart_beat_sender import HeartbeatSenderPlugin
+from pyengine.io.network.protobufs import import_inference_result, import_rawframe
+
+# ===== Configurable Parameters (can be overridden by environment variables) =====
+BROKER_HOST = os.getenv("BROKER_HOST", "127.0.0.1")
+BROKER_PORT = int(os.getenv("BROKER_PORT", "1883"))
+VID_PATH = os.getenv("VID_PATH", "/opt/videos/onsite_normal_test.mp4")
+NUM_MAGISTRATES = 8  # Fixed number of magistrate clients to simulate
 
 
-class FakeClient:
-    """一个通用的模拟客户端基类，处理连接和心跳。"""
+# ===== Heartbeat Client Wrapper =====
+class SimClient:
+    """A wrapper for a simulated client that handles its MQTT connection and heartbeat."""
 
     def __init__(self, client_id: str, status_topic: str):
         self.client_id = client_id
         self.status_topic = status_topic
+        # Each client gets its own MQTT bus instance
+        self.bus = MqttBus(host=BROKER_HOST, port=BROKER_PORT, client_id=client_id)
+        # The heartbeat plugin sends 'online' status every 15s and 'offline' on stop
+        self.hb = HeartbeatSenderPlugin(topic=status_topic, interval=15.0, retain=True, debug=False)
+        # Use plugin manager to manage the plugins
+        self.pm = MqttPluginManager(self.bus)
+
+        # Flags
         self.is_active = False
-        self.heartbeat_thread = None
+        self._started = False
 
-        # 创建 Paho MQTT 客户端实例
-        self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION1, self.client_id)
-
-        # 设置遗嘱消息 (LWT)
-        offline_payload = json.dumps({"timestamp": time.time(), "status": "offline"})
-        self.client.will_set(self.status_topic, payload=offline_payload, qos=1, retain=True)
+        # Add the plugins to the bus
+        self.pm.register(self.hb)
 
     def connect(self):
-        """连接到 Broker"""
-        try:
-            self.client.connect(BROKER_HOST, BROKER_PORT, 60)
-            self.client.loop_start()
-            print(f"  - Client '{self.client_id}' connected.")
-            return True
-        except Exception as e:
-            print(f"  - Client '{self.client_id}' FAILED to connect: {e}")
-            return False
+        """Starts the underlying MQTT connection loop."""
+        if not self._started:
+            self.bus.start()
+            self._started = True
+        return True
 
-    def start(self):
-        """启动心跳并发布 'online' 状态"""
+    def start_heartbeat(self):
+        """Activates the heartbeat, sending 'online' messages."""
         if not self.is_active:
             self.is_active = True
-            print(f"\n---> Client '{self.client_id}' is now ONLINE.")
+            # 启动插件管理器 → HeartbeatSenderPlugin.start(...) 线程才会运行
+            self.pm.start()
+            print(f"---> Client '{self.client_id}' is now ONLINE (topic={self.status_topic})")
 
-            online_payload = json.dumps({"timestamp": time.time(), "status": "online"})
-            self.client.publish(self.status_topic, payload=online_payload, qos=1, retain=True)
-
-            self.heartbeat_thread = threading.Thread(target=self._heartbeat_loop, daemon=True)
-            self.heartbeat_thread.start()
-
-    def stop(self):
-        """停止心跳并发布 'offline' 状态"""
+    def stop_heartbeat(self):
+        """Deactivates the heartbeat, sending a final 'offline' message."""
         if self.is_active:
             self.is_active = False
-            print(f"\n---> Client '{self.client_id}' is now OFFLINE.")
-
-            offline_payload = json.dumps({"timestamp": time.time(), "status": "offline"})
-            self.client.publish(self.status_topic, payload=offline_payload, qos=1, retain=True)
-
-            if self.heartbeat_thread:
-                self.heartbeat_thread.join()
-
-    def _heartbeat_loop(self):
-        """在后台线程中循环发送心跳"""
-        while self.is_active:
-            payload = json.dumps({"timestamp": time.time(), "status": "online"})
-            self.client.publish(self.status_topic, payload=payload, qos=1, retain=True)
-            time.sleep(HEARTBEAT_INTERVAL)
+            # 停止插件 → 触发 HeartbeatSenderPlugin 在退出时发送 'offline'
+            self.pm.stop()
+            print(f"---> Client '{self.client_id}' is now OFFLINE")
 
     def disconnect(self):
-        """断开连接"""
-        self.client.loop_stop()
-        self.client.disconnect()
+        """Stops the heartbeat and disconnects the client completely."""
+        try:
+            if self.is_active:
+                self.pm.stop()
+        finally:
+            if self._started:
+                self.bus.stop()
+                self._started = False
 
 
-def print_status(pipeline_client, magistrate_clients):
-    """打印所有客户端的当前状态"""
+def make_inference_result_packer(pb2_dir: str,
+                                 jpeg_quality: int = 85,
+                                 publisher: str = "test",
+                                 results_bytes_func: Optional[callable] = None):
+    """
+    返回 pack(frame, meta) -> bytes
+    - 将 BGR 帧压成 JPEG，写入 InferenceResult.frame_raw_data
+    - inference_results:
+        * 如果 results_bytes_func 不为 None：用其返回的 bytes
+        * 否则为空字节 b""
+    - frame_number:
+        * 优先 meta["frame_number"]；否则使用内部计数器自增
+    """
+    InferenceResult = import_inference_result(pb2_dir)  # 正确的类
+
+    def pack(frame, meta: Dict[str, Any]) -> bytes:
+        ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)])
+        if not ok:
+            raise RuntimeError("JPEG encode failed")
+        h, w = frame.shape[:2]
+
+        msg = InferenceResult()
+        msg.frame_number    = 0
+        msg.frame_width     = int(meta.get("width",  w))
+        msg.frame_height    = int(meta.get("height", h))
+        msg.frame_channels  = 3  # BGR
+        msg.frame_raw_data  = buf.tobytes()
+        msg.publish_by      = str(meta.get("publish_by", publisher))
+
+        if results_bytes_func is not None:
+            # 约定：results_bytes_func 返回“已序列化好的检测结果 bytes”
+            # 例如：DetectionSet().SerializeToString()
+            rb = results_bytes_func(frame, meta)
+            if not isinstance(rb, (bytes, bytearray, memoryview)):
+                raise TypeError("results_bytes_func must return bytes")
+            msg.inference_results = bytes(rb)
+        else:
+            msg.inference_results = b""
+
+        return msg.SerializeToString()
+
+    return pack
+
+
+def make_rawframe_packer(pb2_dir: str, jpeg_quality: int = 85):
+    """
+    如果你想用 RawFrame（raw_frames.proto）而不是 InferenceResult：
+    - 只包含帧的宽高通道和 JPEG 字节。
+    """
+    RawFrame = import_rawframe(pb2_dir)
+
+    def pack(frame, meta: Dict[str, Any]) -> bytes:
+        ok, buf = cv2.imencode(".jpg", frame, [int(cv2.IMWRITE_JPEG_QUALITY), int(jpeg_quality)])
+        if not ok:
+            raise RuntimeError("JPEG encode failed")
+        h, w = frame.shape[:2]
+
+        msg = RawFrame()
+        # 该 proto 有 frame_fps 字段；可从 meta 传，没有就置 0
+        msg.frame_fps       = int(meta.get("fps", 0))
+        msg.frame_width     = int(meta.get("width",  w))
+        msg.frame_height    = int(meta.get("height", h))
+        msg.frame_channels  = 3
+        msg.frame_raw_data  = buf.tobytes()
+        return msg.SerializeToString()
+
+    return pack
+
+
+# ===== Interactive Command-Line Interface =====
+def print_status(pipeline_client: SimClient, mag_clients: List[SimClient]):
+    """Prints the current status of all simulated clients to the console."""
     print("\n" + "=" * 50)
-    print(" Unified Clients Simulator Status")
+    print(" Fake Clients Simulator Status (Heartbeat Only)")
     print("-" * 50)
-
-    # 打印 Pipeline 状态
-    pipeline_status = "ONLINE" if pipeline_client.is_active else "OFFLINE"
+    # Print pipeline status
+    pipeline_status = 'ONLINE' if pipeline_client.is_active else 'OFFLINE'
     print(f"  Pipeline ({pipeline_client.client_id}): {pipeline_status}")
     print("-" * 50)
-
-    # 打印 Magistrate 状态
-    for i, client in enumerate(magistrate_clients):
-        status = "ONLINE" if client.is_active else "OFFLINE"
-        print(f"  Magistrate {i + 1} ({client.client_id}): {status}")
-
+    # Print magistrate statuses
+    for i, c in enumerate(mag_clients, start=1):
+        status = 'ONLINE' if c.is_active else 'OFFLINE'
+        print(f"  Magistrate {i} ({c.client_id}): {status}")
     print("=" * 50)
 
 
 def main():
-    print("Initializing all fake clients...")
+    """Main function to run the interactive simulator."""
+    print("=" * 50)
+    print("Initializing fake clients...")
 
-    # 初始化 Pipeline 客户端
-    pipeline_client = FakeClient(PIPELINE_CLIENT_ID, f"pipelines/{PIPELINE_CLIENT_ID}/status")
-    if not pipeline_client.connect():
-        print("\nCould not connect pipeline client. Exiting.")
-        sys.exit(1)
+    # Initialize the pipeline client
+    pipeline = SimClient("pipeline_client", "pipelines/pipeline_client/status")
+    pipeline.connect()
 
-    # 初始化 Magistrate 客户端
-    magistrate_clients = []
+    # Initialize magistrate clients 1 through 8
+    mag_clients: List[SimClient] = []
     for i in range(1, NUM_MAGISTRATES + 1):
-        client_id = f"magistrate_client_{i}"
-        status_topic = f"magistrates/{client_id}/status"
-        client = FakeClient(client_id, status_topic)
-        if client.connect():
-            magistrate_clients.append(client)
+        cid = f"magistrate_client_{i}"
+        topic = f"magistrates/{cid}/status"
+        cli = SimClient(cid, topic)
+        cli.connect()
+        mag_clients.append(cli)
 
     try:
+        # An instance to hold the user input
+        user_input = None
+
         while True:
-            print_status(pipeline_client, magistrate_clients)
+            print_status(pipeline, mag_clients)
             try:
-                user_input = input("Enter command ('on'/'off', 1-8) or 'q' to quit: ").lower()
-
-                if user_input == 'q':
-                    break
-
-                elif user_input == 'on':
-                    pipeline_client.start()
-
-                elif user_input == 'off':
-                    pipeline_client.stop()
-
-                else:
-                    try:
-                        client_num_to_toggle = int(user_input)
-                        if 1 <= client_num_to_toggle <= len(magistrate_clients):
-                            client = magistrate_clients[client_num_to_toggle - 1]
-                            if client.is_active:
-                                client.stop()
-                            else:
-                                client.start()
-                        else:
-                            print(f"Invalid number. Please enter a number between 1 and {NUM_MAGISTRATES}.")
-                    except ValueError:
-                        print("Invalid command. Please enter 'on', 'off', a number, or 'q'.")
-
+                user_input = input(
+                    "Enter command ('on'/'off' for pipeline, 1-8 for magistrates, 'q' to quit): ").lower().strip()
             except KeyboardInterrupt:
-                break
+                break  # Exit on Ctrl+C
 
-    except KeyboardInterrupt:
-        print("\nCtrl+C detected. Shutting down...")
+            if user_input == 'q':
+                break
+            elif user_input == 'on':
+                if not pipeline.is_active:
+                    pipeline.start_heartbeat()
+                else:
+                    print("[Info] Pipeline is already ON.")
+            elif user_input == 'off':
+                if pipeline.is_active:
+                    pipeline.stop_heartbeat()
+                else:
+                    print("[Info] Pipeline is already OFF.")
+            else:
+                try:
+                    k = int(user_input)
+                    if 1 <= k <= NUM_MAGISTRATES:
+                        client_to_toggle = mag_clients[k - 1]
+                        if client_to_toggle.is_active:
+                            client_to_toggle.stop_heartbeat()
+                        else:
+                            client_to_toggle.start_heartbeat()
+                    else:
+                        print(f"Invalid number. Please enter a number between 1 and {NUM_MAGISTRATES}.")
+                except ValueError:
+                    print("Invalid command. Please enter 'on', 'off', a number, or 'q'.")
+
     finally:
         print("\nCleaning up and disconnecting all clients...")
-        # 清理 Pipeline
-        if pipeline_client.is_active:
-            pipeline_client.stop()
-        pipeline_client.disconnect()
+        # Disconnect all clients gracefully
+        try:
+            if pipeline.is_active: pipeline.stop_heartbeat()
+            pipeline.disconnect()
+        except Exception as e:
+            print(f"Error disconnecting pipeline: {e}")
 
-        # 清理 Magistrates
-        for client in magistrate_clients:
-            if client.is_active:
-                client.stop()
-            client.disconnect()
+        for c in mag_clients:
+            try:
+                if c.is_active: c.stop_heartbeat()
+                c.disconnect()
+            except Exception as e:
+                print(f"Error disconnecting {c.client_id}: {e}")
 
         print("All clients disconnected. Exiting.")
 

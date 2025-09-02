@@ -11,13 +11,10 @@ app = create_app()
 def _start_mqtt_receiver_and_inject(app):
     """启动 MQTT 总线与心跳接收插件，并把插件实例放进 Flask app.config。"""
 
-    # 获取当前的进程ID
-    current_pid = os.getpid()
-
     # 从 pipeline_config 读取 broker 配置（容错）
     host = "127.0.0.1"
     port = 1883
-    # client_id = f"status_dashboard_{current_pid}"  # 测试用ID
+    # client_id = f"status_dashboard_{os.getpid()}"  # 测试用ID
     client_id = "status_dashboard"
 
     # 启动总线
@@ -80,13 +77,10 @@ if __name__ == '__main__':
     try:
 
         # 拷贝文件
-        # utils.copy_configs(src_folder="/opt/SurveillanceService/configs",
-        #                    dest_folder="/opt/SurveillanceServiceRestful/configs")
-
         utils.copy_configs(
             src_folder="/opt/SurveillanceService/configs",
             dest_folder="/opt/SurveillanceServiceRestful/configs",
-            default_folder="/opt/SurveillanceServiceRestful/configs_default",
+            default_folder="/opt/SurveillanceServiceRestful/configs/defaults",
             overwrite=False,   # 不覆盖
         )
 
