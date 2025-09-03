@@ -1,3 +1,4 @@
+import cv2
 import numpy as np
 from typing import List, Tuple, Optional
 
@@ -111,3 +112,59 @@ def calculate_ground_dimensions(
     width_x = float(X.max() - X.min())
     depth_y = float(Y.max() - Y.min())
     return max(width_x, 0.0), max(depth_y, 0.0)
+
+
+def calculate_area_real_dimensions(
+        area_pixel_coords: List[Tuple[int, int]],
+        ground_pixel_coords: List[Tuple[int, int]],
+        ground_real_width_mm: int,
+        ground_real_depth_mm: int
+) -> Tuple[int, int]:
+    """
+    Calculates the real-world dimensions (width, height) of a given area using a perspective transform.
+
+    Args:
+        area_pixel_coords (List[Tuple[int, int]]): The 4 pixel coordinates of the target area.
+        ground_pixel_coords (List[Tuple[int, int]]): The 4 pixel coordinates of the calibrated ground plane.
+        ground_real_width_mm (int): The real-world width of the ground plane in millimeters.
+        ground_real_depth_mm (int): The real-world depth (height) of the ground plane in millimeters.
+
+    Returns:
+        Tuple[int, int]: A tuple containing the calculated real width and height in millimeters.
+    """
+    if not all([area_pixel_coords, ground_pixel_coords, ground_real_width_mm > 0, ground_real_depth_mm > 0]):
+        return 0, 0
+
+    # 1. Define source (pixel) and destination (real-world) points for the transformation matrix
+    src_pts = np.array(ground_pixel_coords, dtype="float32")
+
+    dst_pts = np.array([
+        [0, 0],
+        [ground_real_width_mm - 1, 0],
+        [ground_real_width_mm - 1, ground_real_depth_mm - 1],
+        [0, ground_real_depth_mm - 1]
+    ], dtype="float32")
+
+    # 2. Compute the perspective transform matrix
+    matrix = cv2.getPerspectiveTransform(src_pts, dst_pts)
+
+    # 3. Transform the key area's pixel coordinates to real-world coordinates
+    key_area_pts_np = np.array([area_pixel_coords], dtype="float32")  # Needs to be in a list for perspectiveTransform
+    real_coords = cv2.perspectiveTransform(key_area_pts_np, matrix)[0]
+
+    # 4. Calculate the average width and height from the transformed points
+    # real_coords now holds the 4 corners in the real-world millimeter coordinate system
+    # Example: p0=(x0,y0), p1=(x1,y1), p2=(x2,y2), p3=(x3,y3)
+    p0, p1, p2, p3 = real_coords
+
+    # Calculate distances of opposing sides
+    width1 = np.linalg.norm(p0 - p1)
+    width2 = np.linalg.norm(p3 - p2)
+    height1 = np.linalg.norm(p0 - p3)
+    height2 = np.linalg.norm(p1 - p2)
+
+    # Calculate the average and convert to integer
+    avg_width = int(round((width1 + width2) / 2.0))
+    avg_height = int(round((height1 + height2) / 2.0))
+
+    return avg_width, avg_height

@@ -467,18 +467,35 @@ def keyarea_settings_submit(magistrate_id: int):
         return "需要 4 個點", 400
 
     try:
-        # 读取、更新、保存配置
-        cfg_path = file_utils.get_config(f"magistrate_config{magistrate_id}")
-        cfg = load_magistrate_config(cfg_path)
+        # --- 1. Read existing configurations ---
+        mag_cfg_path = file_utils.get_config(f"magistrate_config{magistrate_id}")
+        cam_cfg_path = file_utils.get_config(f"camera_parameters{magistrate_id}")
 
-        # 将新坐标点位更新到配置对象中
-        cfg.client_magistrate.key_area_settings.area = new_points
+        mag_cfg = load_magistrate_config(mag_cfg_path)
+        cam_cfg = load_camera_settings(cam_cfg_path)
 
-        save_magistrate_config(cfg_path, cfg)
+        # --- 2. Calculate real-world dimensions of the key area ---
+        real_width, real_height = ground_utils.calculate_area_real_dimensions(
+            area_pixel_coords=new_points,
+            ground_pixel_coords=cam_cfg.ground_coords,
+            ground_real_width_mm=cam_cfg.ground_x_length_calculated,
+            ground_real_depth_mm=cam_cfg.ground_y_length_calculated
+        )
+
+        # --- 3. Update the configuration object ---
+        key_area_settings = mag_cfg.client_magistrate.key_area_settings
+        key_area_settings.area = new_points
+        key_area_settings.real_width = real_width
+        key_area_settings.real_height = real_height
+
+        # --- 4. Save the updated configuration ---
+        save_magistrate_config(mag_cfg_path, mag_cfg)
 
         return render_template(
             "partials/save_success_snackbar.html",
             message="重点エリアを保存しました。"
         )
     except Exception as e:
+        # It's good practice to log the full error
+        current_app.logger.error(f"Failed to save key area for magistrate {magistrate_id}: {e}")
         return f"保存失敗: {e}", 500

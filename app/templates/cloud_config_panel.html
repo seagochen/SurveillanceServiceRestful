@@ -33,10 +33,17 @@
                 <tr>
                     <td><label for="upload_level">アップロードレベル</label></td>
                     <td>
-                    <input class="form-input" type="number" id="upload_level" name="upload_level"
-                            min="0" step="1"
-                            value="{{ config.upload_level if config.upload_level is not none else 0 }}"
-                            {% if not config.enable %} disabled {% endif %}>
+                        <select class="form-input" id="upload_level" name="upload_level"
+                                {% if not config.enable %} disabled {% endif %}>
+                            
+                            {# 循环生成 Level 0 到 5 的选项 #}
+                            {% for i in range(6) %}
+                            <option value="{{ i }}" {% if config.upload_level == i %}selected{% endif %}>
+                                レベル {{ i }}
+                            </option>
+                            {% endfor %}
+
+                        </select>
                     </td>
                 </tr>
                 </tbody>
