@@ -347,10 +347,12 @@
                         </td>
                     </tr>
                     <tr>
-                        <td><label for="use_enhanced_tracking">エンハンストトラッキングを使用</label></td>
+                        <td><label for="general_settings_use_enhanced_tracking">エンハンストトラッキングを使用</label></td>
                         <td>
-                            <input class="form-input" type="checkbox" id="general_settings_use_enhanced_tracking" name="general_settings_use_enhanced_tracking"
-                                   {% if config.general_settings.use_enhanced_tracking %} checked {% endif %}>
+                            <select class="form-input" id="general_settings_use_enhanced_tracking" name="general_settings_use_enhanced_tracking">
+                                <option value="true" {% if config.general_settings.use_enhanced_tracking %}selected{% endif %}>YES</option>
+                                <option value="false" {% if not config.general_settings.use_enhanced_tracking %}selected{% endif %}>NO</option>
+                            </select>
                         </td>
                     </tr>
                      <tr>

@@ -29,19 +29,19 @@ def search_files(dir_path: Union[str, Path], pattern: str) -> List[Path]:
 
 
 def get_config(config_name: str, default_folder: str = "configs"):
-    # --- 【新增】打印调用来源和堆栈信息 ---
-    print("-----------------------------------------------------")
-    # 检查是否在 Flask 请求上下文中，如果是，则打印请求信息
-    if has_request_context():
-        print(f"DEBUG: get_config called from request: {request.method} {request.path}")
-    else:
-        print("DEBUG: get_config called from outside of a request context")
-    
-    # 打印调用栈，limit=5 表示只显示最近的5层调用，避免日志过长
-    print("DEBUG: Call stack:")
-    traceback.print_stack(limit=5)
-    print("-----------------------------------------------------")
-    # --- 结束新增部分 ---
+    # # --- 【新增】打印调用来源和堆栈信息 ---
+    # print("-----------------------------------------------------")
+    # # 检查是否在 Flask 请求上下文中，如果是，则打印请求信息
+    # if has_request_context():
+    #     print(f"DEBUG: get_config called from request: {request.method} {request.path}")
+    # else:
+    #     print("DEBUG: get_config called from outside of a request context")
+    #
+    # # 打印调用栈，limit=5 表示只显示最近的5层调用，避免日志过长
+    # print("DEBUG: Call stack:")
+    # traceback.print_stack(limit=5)
+    # print("-----------------------------------------------------")
+    # # --- 结束新增部分 ---
 
     candidates = [
         default_folder,
@@ -55,7 +55,7 @@ def get_config(config_name: str, default_folder: str = "configs"):
         # 组合文件路径
         filepath = os.path.join(folder, f"{config_name}.yaml")
 
-        print(f"Loading config from {filepath}")
+        # print(f"Loading config from {filepath}")
 
         # 发现目标文件
         if os.path.isfile(filepath):

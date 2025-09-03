@@ -228,54 +228,58 @@ button.dark     { background-color: #343a40; color: #fff; border-color: #343a40;
    将此类用于 <input> / <select> / <textarea>
    ========================================================================== */
 
+/* 【已修正】移除了 appearance: none; */
 .form-input{
-  width: 100%;                                         /* 占满容器宽度 */
-  padding: var(--pad);                                 /* 统一内边距 */
-  box-sizing: border-box;                              /* 包含边框与内边距 */
-  border-radius: var(--radius);                        /* 统一圆角 */
-  border: 1px solid var(--c-border);                   /* 统一边框颜色 */
-  background-color: #fff;                            /* 背景色 */
-  color: #111;                                       /* 字体颜色 */
-  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease; /* 交互动效 */
-
-  /* 统一各浏览器原生外观，保持一致 */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+  width: 100%;
+  padding: var(--pad);
+  box-sizing: border-box;
+  border-radius: var(--radius);
+  border: 1px solid var(--c-border);
+  background-color: #fff;
+  color: #111;
+  transition: background-color .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 .form-input:focus{
-  background-color: #FAF1C0;                        /* 聚焦时背景 */
+  background-color: #FAF1C0;
   color: #111;
-  border-color: #FF8FAB;                            /* 边框高亮 */
-  box-shadow: 0 0 0 2px rgba(250,110,145, 0.7);     /* 阴影圈 */
+  border-color: #FF8FAB;
+  box-shadow: 0 0 0 2px rgba(250,110,145, 0.7);
 }
 .form-input[disabled]{
-  background-color: var(--c-disabled-bg);              /* 禁用背景 */
-  color: var(--c-disabled-fg);                         /* 禁用文字 */
-  cursor: not-allowed;                                 /* 禁用指针 */
+  background-color: var(--c-disabled-bg);
+  color: var(--c-disabled-fg);
+  cursor: not-allowed;
 }
 
-/* 数字输入：隐藏浏览器原生的 spin 按钮并统一外观 */
+/* 数字输入：在这里精确应用 appearance: textfield; */
 .form-input[type="number"]{
-  -moz-appearance: textfield;                          /* Firefox 取消数字外观 */
-  appearance: textfield;                               /* 标准写法（放最后） */
+  -moz-appearance: textfield;
+  appearance: textfield;
 }
 .form-input[type="number"]::-webkit-outer-spin-button,
 .form-input[type="number"]::-webkit-inner-spin-button{
-  -webkit-appearance: none;                            /* Chrome/Safari 隐藏上下箭头 */
+  -webkit-appearance: none;
   margin: 0;
 }
 
-/* 下拉：如 select 也使用 .form-input，可取消原生外观（需要箭头可自定义背景） */
-select.form-input{
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  /* background-image: url(data-uri-of-arrow.svg);   自定义箭头（可选） */
-  /* background-position: right 10px center; */
-  /* background-repeat: no-repeat; */
-}
+/* 下拉：在这里精确应用 appearance: none; 并添加自定义箭头 */
+select.form-input {
+    /* 1. 移除浏览器原生箭头，为自定义样式做准备 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
 
+    /* 2. 使用内联SVG作为背景图像箭头 */
+    background-image:
+    url("../images/dropdown.svg");
+
+    background-repeat: no-repeat;
+    background-position: right .75rem center;
+    background-size: 20px 18px;
+    
+    /* 3. 为右侧的箭头腾出空间，避免文字重叠 */
+    padding-right: 2.5rem !important;
+}
 /* ==========================================================================
    8) Tables / 可复用表格骨架（面板各自还有命名空间布局规则）
    ========================================================================== */

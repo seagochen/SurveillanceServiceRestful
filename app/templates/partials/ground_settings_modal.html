@@ -1,7 +1,7 @@
 <!-- templates/partials/ground_settings_modal.html -->
 <div class="modal-overlay" id="ground-settings-modal">
   <div class="modal-box" style="max-width: 1120px; width: 96%;">
-    <h3 style="margin-top:0;">敷地設定</h3>
+    <h3 style="margin-top:0;">床エリア設定</h3>
 
     <div style="display:grid; grid-template-columns: 800px 1fr; gap:16px; align-items:start;">
 
@@ -24,25 +24,9 @@
           </div>
         </fieldset>
 
-        <!-- 2) 检测距离 -->
+        <!-- 2) 计算场地 -->
         <fieldset class="config-fieldset">
-          <legend>検知深度</legend>
-          <div id="gs-depth-scale-group">
-            <label style="margin-right:12px;">
-              <input type="radio" name="depth_scale" value="1.5" {% if cam.depth_scale == 1.5 %}checked{% endif %}> 1.5m
-            </label>
-            <label style="margin-right:12px;">
-              <input type="radio" name="depth_scale" value="3" {% if cam.depth_scale == 3 %}checked{% endif %}> 3m
-            </label>
-            <label>
-              <input type="radio" name="depth_scale" value="5" {% if cam.depth_scale == 5 %}checked{% endif %}> 5m
-            </label>
-          </div>
-        </fieldset>
-
-        <!-- 3) 计算场地 -->
-        <fieldset class="config-fieldset">
-          <legend>敷地を計算</legend>
+          <legend>範囲を計算</legend>
           <div class="button-group" style="margin-top:12px;">
             <button type="button" id="gs-calc">計算</button>
           </div>
