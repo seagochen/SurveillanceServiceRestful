@@ -9,16 +9,16 @@ client_magistrate:
   key_area_settings:
     alpha: 0.2
     area:
-      - - 171
-        - 315
-      - - 340
-        - 306
-      - - 361
-        - 584
-      - - 104
-        - 578
+      - - 0
+        - 0
+      - - 300
+        - 0
+      - - 300
+        - 300
+      - - 0
+        - 300
     color: '#FF0000'
-    real_width:  160  # centimeters
+    real_width:  300  # centimeters
     real_height: 300  # centimeters
 
   key_area_strategy:
@@ -37,7 +37,7 @@ client_magistrate:
       enable: true
       threshold: 3              # when the event exceeds or reaches the seconds
       penalty_score: 5          # penalty score X duration
-
+    
     loitering_distance:
       enable: true
       threshold: 500            # when the event exceeds or reaches the centimeters
@@ -53,7 +53,7 @@ client_magistrate:
       threshold: 3              # when the event exceeds or reaches the number of times
       penalty_score: 5          # penalty score X times
 
-
+  
   normal_area_strategy:
 
     look_around:
@@ -70,7 +70,7 @@ client_magistrate:
       enable: true
       threshold: 3              # when the event exceeds or reaches the seconds
       penalty_score: 5          # penalty score X duration
-
+    
     loitering_distance:
       enable: true
       threshold: 500            # when the event exceeds or reaches the centimeters
@@ -91,8 +91,8 @@ client_magistrate:
     level1: 5   # green
     level2: 10  # cyan
     level3: 15  # yellow
-    level4: 15  # orange
-    level5: 20  # red
+    level4: 20  # orange
+    level5: 25  # red
 
   cloud:
     enable: true

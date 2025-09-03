@@ -22,53 +22,6 @@ def _rotation_world_from_camera(yaw: float, pitch: float, roll: float) -> np.nda
     return Rz @ Rx @ Ry @ R_align
 
 
-def _clip_poly_y_range(poly: np.ndarray, y_min: float, y_max: float) -> np.ndarray:
-    """
-    对二维多边形 poly[:,(x,y)] 依次做半平面裁剪：y>=y_min，再 y<=y_max。
-    返回裁剪后的多边形顶点（可能为空）。
-    """
-    def clip_halfplane(points: np.ndarray, keep_func):
-        if len(points) == 0:
-            return points
-        out = []
-        n = len(points)
-        for i in range(n):
-            P = points[i]
-            Q = points[(i + 1) % n]
-            Pin = keep_func(P)
-            Qin = keep_func(Q)
-            if Pin and Qin:
-                # P 在内，Q 在内：保留 Q
-                out.append(Q)
-            elif Pin and not Qin:
-                # P 在内，Q 在外：加入交点
-                I = _intersect_y_boundary(P, Q, keep_func)
-                if I is not None:
-                    out.append(I)
-            elif not Pin and Qin:
-                # P 在外，Q 在内：加入交点和 Q
-                I = _intersect_y_boundary(P, Q, keep_func)
-                if I is not None:
-                    out.append(I)
-                out.append(Q)
-            else:
-                # 都在外：不加
-                pass
-        return np.asarray(out, dtype=float)
-
-    def keep_low(ymax):
-        return lambda P: P[1] <= ymax + 1e-12
-
-    def keep_high(ymin):
-        return lambda P: P[1] >= ymin - 1e-12
-
-    # 先 y>=y_min
-    poly1 = clip_halfplane(poly, keep_high(y_min))
-    # 再 y<=y_max
-    poly2 = clip_halfplane(poly1, keep_low(y_max))
-    return poly2
-
-
 def _intersect_y_boundary(P: np.ndarray, Q: np.ndarray, keep_func) -> Optional[np.ndarray]:
     """
     计算线段 P->Q 与当前半平面边界(y=const)的交点。
@@ -107,7 +60,6 @@ def calculate_ground_dimensions(
     focal_length: List[float],
     principal_coord: List[float],
     ground_coords: List[List[float]],
-    depth_scale: Optional[float] = None,   # <== 新增：深度量程（米）
 ) -> Tuple[float, float]:
     """
     返回 (width_x, depth_y)：
@@ -150,20 +102,9 @@ def calculate_ground_dimensions(
         arr = np.asarray(hits)
         width_x = float(arr[:,0].max() - arr[:,0].min())
         depth_y = float(arr[:,1].max() - arr[:,1].min())
-        if depth_scale is not None:
-            # 对 Y 做范围裁剪
-            y0 = max(0.0, float(arr[:,1].min()))
-            y1 = min(depth_scale, float(arr[:,1].max()))
-            depth_y = max(y1 - y0, 0.0)
         return max(width_x, 0.0), max(depth_y, 0.0)
 
     poly = np.asarray(hits, dtype=float)  # 形如 [[x,y],...]
-
-    if depth_scale is not None:
-        # 按 Y∈[0, depth_scale] 裁剪
-        poly = _clip_poly_y_range(poly, 0.0, float(depth_scale))
-        if len(poly) == 0:
-            return 0.0, 0.0
 
     X = poly[:, 0]
     Y = poly[:, 1]
