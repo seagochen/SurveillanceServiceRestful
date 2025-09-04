@@ -50,7 +50,6 @@ def update_camera_config_panel(camera_id: int):
         inf.alias = f.get('alias') or inf.alias
         if inf.camera_config is None:
             inf.camera_config = CameraConfig(
-                camera_id = f.get('camera_id') or None,
                 address   = f.get('address') or "",
                 port      = int(f['port']) if f.get('port','').isdigit() else None,
                 path      = f.get('path') or None,
@@ -59,7 +58,6 @@ def update_camera_config_panel(camera_id: int):
             )
         else:
             cam = inf.camera_config
-            cam.camera_id = f.get('camera_id') or None
             cam.address   = f.get('address') or ""
             cam.port      = int(f['port']) if f.get('port','').isdigit() else None
             cam.path      = f.get('path') or None
