@@ -82,7 +82,7 @@ client_magistrate:
       penalty_score: 5          # penalty score X times
 
     loitering_enter_area:
-      enable: true
+      enable: false
       threshold: 3              # when the event exceeds or reaches the number of times
       penalty_score: 5          # penalty score X times
 

@@ -18,7 +18,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="strategy-label">うろうろ検知</td>
+                        <td class="strategy-label">キョロキョロ回数</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/look_around/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -41,7 +41,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">盗難検知</td>
+                        <td class="strategy-label">見回り回数</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/theft_detection/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -64,7 +64,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">長時間しゃがみ込み</td>
+                        <td class="strategy-label">長時間しゃがみ</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/long_time_squat/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -87,7 +87,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">徘徊距離</td>
+                        <td class="strategy-label">うろうろ距離</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/loitering_distance/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -110,7 +110,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">徘徊再侵入</td>
+                        <td class="strategy-label">引き返す回数</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/loitering_reentry/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -132,7 +132,7 @@
                                    {% if not config.normal_area.loitering_reentry.enable %} disabled {% endif %}>
                         </td>
                     </tr>
-                     <tr>
+                     <!-- <tr>
                         <td class="strategy-label">エリア立ち入り</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/normal_area/loitering_enter_area/toggle"
@@ -154,7 +154,7 @@
                                    value="{{ config.normal_area.loitering_enter_area.penalty_score }}"
                                    {% if not config.normal_area.loitering_enter_area.enable %} disabled {% endif %}>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
         </fieldset>
@@ -172,7 +172,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td class="strategy-label">うろうろ検知</td>
+                        <td class="strategy-label">キョロキョロ回数</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/look_around/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -195,7 +195,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">盗難検知</td>
+                        <td class="strategy-label">見回り回数</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/theft_detection/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -218,7 +218,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">長時間しゃがみ込み</td>
+                        <td class="strategy-label">長時間しゃがみ</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/long_time_squat/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -241,7 +241,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">徘徊距離</td>
+                        <td class="strategy-label">うろうろ距離</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/loitering_distance/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -264,7 +264,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="strategy-label">徘徊再侵入</td>
+                        <td class="strategy-label">引き返す回数</td>
                         <td>
                             <div hx-get="/panel/alert/{{ magistrate_id }}/key_area/loitering_reentry/toggle"
                                  hx-trigger="load" hx-swap="outerHTML">
@@ -319,7 +319,7 @@
                 <thead>
                     <tr>
                         <th style="width:120px;">項目</th>
-                        <th style="width:150px;">閾値</th>
+                        <th style="width:150px;">累積ポイント</th>
                     </tr>
                 </thead>
                 <tbody>
