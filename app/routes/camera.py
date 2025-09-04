@@ -8,9 +8,10 @@ from pyengine.config.pipeline_config_parser import (
 from pyengine.utils.logger import logger
 
 
-bp_camera = Blueprint('camera', __name__)
+bp_camera = Blueprint('camera', __name__, url_prefix='/panel/camera')
 
-@bp_camera.route('/panel/camera/<int:camera_id>', methods=['GET'])
+
+@bp_camera.route('/<int:camera_id>', methods=['GET'])
 def get_camera_config_panel(camera_id: int):
     config_name = "pipeline_config"
     try:
@@ -21,7 +22,6 @@ def get_camera_config_panel(camera_id: int):
 
         data = {
             "alias":     file_utils.normalize(cam_cfg.alias),
-            "camera_id": file_utils.normalize(cam_cfg.camera_config.camera_id),
             "address":   file_utils.normalize(cam_cfg.camera_config.address),
             "port":      file_utils.normalize(cam_cfg.camera_config.port),
             "path":      file_utils.normalize(cam_cfg.camera_config.path),
@@ -33,7 +33,7 @@ def get_camera_config_panel(camera_id: int):
         return f"Error loading camera config for magistrate {camera_id}: {e}", 404
 
 
-@bp_camera.route('/panel/camera/<int:camera_id>', methods=['POST'])
+@bp_camera.route('/<int:camera_id>', methods=['POST'])
 def update_camera_config_panel(camera_id: int):
     try:
         cfg_path = file_utils.get_config("pipeline_config")

@@ -35,11 +35,11 @@ def create_app():
 
     app.register_blueprint(bp_index)    # '/'
     app.register_blueprint(bp_panel)    # '/panel/magistrate/*'
-    app.register_blueprint(bp_camera)   # '/panel/camera/*'
     app.register_blueprint(bp_cloud)    # '/panel/cloud/*'
-    app.register_blueprint(bp_monitor)  # '/get-*'
     app.register_blueprint(bp_ops)      # '/panel/sync/*', '/config/*', '/system/*'
     app.register_blueprint(bp_alert)    # '/panel/alert/*'
     app.register_blueprint(bp_keyarea)  # '/panel/keyarea/*'
+    app.register_blueprint(bp_camera)   # '/panel/camera/*'
+    app.register_blueprint(bp_monitor)  # '/get-*'
 
     return app

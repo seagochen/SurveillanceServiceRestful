@@ -5,6 +5,20 @@
         <div id="sync-status" style="font-size: 0.8em; color: red;"></div>
     </div>
 
+    <!-- <div class="panel-button-grid">
+        <button hx-get="{{ url_for('camera.get_camera_config_panel', camera_id=magistrate_id) }}" hx-target="#config-panel" hx-swap="outerHTML">カメラ設置</button>
+        <button hx-get="{{ url_for('keyarea.get_keyarea_panel', magistrate_id=magistrate_id) }}" hx-target="#config-panel" hx-swap="outerHTML">重点エリア設置</button>
+        <button hx-get="{{ url_for('cloud.get_cloud_config_panel', magistrate_id=magistrate_id) }}" hx-target="#config-panel" hx-swap="outerHTML">クラウド設置</button>
+        <button hx-get="{{ url_for('alert.get_alert_config_panel', magistrate_id=magistrate_id) }}" hx-target="#config-panel" hx-swap="outerHTML">アラート設置</button>
+        <div 
+            hx-get="{{ url_for('panel.get_toggle_button', magistrate_id=magistrate_id) }}"
+            hx-trigger="load"
+            hx-swap="outerHTML"
+        >
+            <button disabled>Loading Status...</button>
+        </div>
+    </div> -->
+
     <div class="panel-button-grid">
         <button hx-get="/panel/camera/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">カメラ設定</button>
         <button hx-get="/panel/keyarea/{{ magistrate_id }}" hx-target="#config-panel" hx-swap="outerHTML">重点エリア設定</button>

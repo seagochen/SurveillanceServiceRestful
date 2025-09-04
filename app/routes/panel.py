@@ -51,25 +51,28 @@ def get_toggle_button(magistrate_id: int):
 
 def _save_pipeline_enable_sources(magistrate_id: int, enable: bool):
 
-    # 解析文件路径
-    cfg_name = "pipeline_config"
-    cfg_path = file_utils.get_config(cfg_name)
+    cfg_path = file_utils.get_config("pipeline_config")
     cfg: PipelineConfig = load_pipeline_config(cfg_path)
-
-    # 确认配置 key
     key_name = f"pipeline_inference_{magistrate_id}"
+    
+    # 确保列表是集合（set）以便高效操作，并处理不存在的情况
+    enabled_set = set(cfg.client_pipeline.enable_sources)
+    disabled_set = set(cfg.client_pipeline.disable_sources)
 
-    # 修改配置信息
-    if key_name in cfg.client_pipeline.enable_sources:
-        cfg.client_pipeline.enable_sources.remove(key_name)
-        cfg.client_pipeline.disable_sources.append(key_name)
+    if enable:
+        # 启用：从 disabled 移到 enabled
+        disabled_set.discard(key_name)
+        enabled_set.add(key_name)
     else:
-        cfg.client_pipeline.disable_sources.remove(key_name)
-        cfg.client_pipeline.enable_sources.append(key_name)
+        # 禁用：从 enabled 移到 disabled
+        enabled_set.discard(key_name)
+        disabled_set.add(key_name)
 
-    # 更新文件
+    # 转换回列表并保存
+    cfg.client_pipeline.enable_sources = sorted(list(enabled_set))
+    cfg.client_pipeline.disable_sources = sorted(list(disabled_set))
+    
     save_pipeline_config(cfg_path, cfg)
-
 
 @bp_panel.route('/panel/magistrate/<int:magistrate_id>/start_source', methods=['POST'])
 def start_source(magistrate_id: int):
