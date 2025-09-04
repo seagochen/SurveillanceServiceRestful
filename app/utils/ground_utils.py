@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-from typing import List, Tuple, Optional
+from typing import List, Tuple, Optional, Union
+
 
 def _rotation_world_from_camera(yaw: float, pitch: float, roll: float) -> np.ndarray:
     R_align = np.array([[1.0, 0.0, 0.0],
@@ -60,13 +61,12 @@ def calculate_ground_dimensions(
     yaw_angle: float,
     focal_length: List[float],
     principal_coord: List[float],
-    ground_coords: List[List[float]],
+    ground_coords: Union[List[List[float]], List[Tuple[int, int]]],
 ) -> Tuple[float, float]:
     """
     返回 (width_x, depth_y)：
       - width_x: X方向跨度（横向，米）
       - depth_y: Y方向跨度（纵向，米）
-    若提供 depth_scale，则把地面四边形按 Y∈[0, depth_scale] 裁剪后再计算跨度。
     """
     H = float(camera_height) / 100.0  # cm -> m
     fx, fy = float(focal_length[0]), float(focal_length[1])

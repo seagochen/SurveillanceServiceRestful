@@ -259,29 +259,25 @@ def camera_settings_submit(magistrate_id: int):
         except Exception:
             return default
 
-    def _get_float(name, default):
-        try:
-            return float(request.form.get(name, default))
-        except Exception:
-            return default
-
     fx = _get_int("focal_length_fx", old.focal_length[0])
     fy = _get_int("focal_length_fy", old.focal_length[1])
     cx = _get_int("principal_coord_cx", old.principal_coord[0])
     cy = _get_int("principal_coord_cy", old.principal_coord[1])
+    rx = _get_int("resolution_x", old.resolution[0])
+    ry = _get_int("resolution_y", old.resolution[1])
 
     new_cfg = CameraParametersConfig(
         camera_height=_get_int("camera_height", old.camera_height),
         roll_angle=_get_int("roll_angle", old.roll_angle),
         pitch_angle=_get_int("pitch_angle", old.pitch_angle),
         yaw_angle=_get_int("yaw_angle", old.yaw_angle),
+        resolution=(rx, ry),
         focal_length=(fx, fy),
         principal_coord=(cx, cy),
-        ground_coords=old.ground_coords,
-        depth_scale=old.depth_scale,
-        ground_x_length_calculated=old.ground_x_length_calculated,
-        ground_y_length_calculated=old.ground_y_length_calculated,
-        ground_z_length_calculated=old.ground_z_length_calculated,
+        ground_coords=old.ground_coords,                            # 相机参数设置中，不修改地面信息
+        ground_x_length_calculated=old.ground_x_length_calculated,  # 相机参数设置中，不修改地面信息
+        ground_y_length_calculated=old.ground_y_length_calculated,  # 相机参数设置中，不修改地面信息
+        ground_z_length_calculated=old.ground_z_length_calculated,  # 相机参数设置中，不修改地面信息
     )
 
     save_camera_settings(file_utils.get_config(f"camera_parameters{magistrate_id}"), new_cfg)
@@ -372,6 +368,16 @@ def ground_settings_calc(magistrate_id: int):
     if not pts or len(pts) < 4:
         return jsonify({"ok": False, "msg": "請先在左側選取 4 個點"}), 400
 
+    # 将坐标从800x600的画面映射到相机的真实像素
+    pts = scale_utils.scale_euler_pts(
+        src_width=800,
+        src_height=600,
+        dst_width=cam.resolution[0],
+        dst_height=cam.resolution[1],
+        points=pts
+    )
+    print(pts)
+
     # 调用 ground_utils 计算
     width_m, depth_m = ground_utils.calculate_ground_dimensions(
         camera_height=cam.camera_height,
@@ -422,12 +428,17 @@ def ground_settings_submit(magistrate_id: int):
 
     pts_int = [(int(round(p[0])), int(round(p[1]))) for p in pts]
     new_cam = CameraParametersConfig(
+
+        # 在地面设置中，下面的参数不需要修改
         camera_height=cam_old.camera_height,
         roll_angle=cam_old.roll_angle,
         pitch_angle=cam_old.pitch_angle,
         yaw_angle=cam_old.yaw_angle,
+        resolution=cam_old.resolution,
         focal_length=tuple(cam_old.focal_length),
         principal_coord=tuple(cam_old.principal_coord),
+
+        # 在地面设置中，只修改地面标记和几何信息
         ground_coords=pts_int,
         ground_x_length_calculated=int(round(gx * 1000)),
         ground_y_length_calculated=int(round(gy * 1000)),

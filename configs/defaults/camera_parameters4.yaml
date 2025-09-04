@@ -2,6 +2,9 @@ camera_height: 300  # 高度，单位厘米
 roll_angle: 0       # 滚动角，单位度
 yaw_angle:  0       # 偏航角，单位度
 pitch_angle: -45    # 俯仰角，单位度
+resolution:         # 分辨率
+  - 1920
+  - 1080
 focal_length:       # 焦距 fx, fy
   - 800
   - 800      
