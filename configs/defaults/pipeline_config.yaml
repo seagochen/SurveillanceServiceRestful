@@ -33,11 +33,11 @@ client_pipeline:
     height: -1
     fps: 5
     url: /opt/videos/record_20250808_084948.mp4
-    alias: 広いカメラ73
+    alias: 展示室カメラ102
     use_camera: true
-    remote_support: true
+    remote_support: false
     camera_config:
-      address: 192.168.1.73
+      address: 192.168.1.102
       port: null
       path: null
       username: admin
